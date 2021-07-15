@@ -1,7 +1,7 @@
 const express = require("express");
 const config = require("dotenv").config()
 
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 3000
 const GOOGLE_API_KEY=process.env.GOOGLE_API_KEY
 const LTA_API_KEY=process.env.LTA_API_KEY
 
