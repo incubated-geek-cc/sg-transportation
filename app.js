@@ -1,7 +1,12 @@
 const express = require("express");
-const config = require("dotenv").config()
 
-const PORT = process.env.PORT
+var NODE_ENV=process.env.NODE_ENV
+var config = {}
+if(typeof NODE_ENV=="undefined") {
+  config=require("dotenv").config()
+}
+
+const PORT = process.env.PORT || 8080
 const LTA_API_KEY=process.env.LTA_API_KEY
 
 const path = require("path")

@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "A realtime application which shows Bus Routes and Bus ETAs via LTA's API.",
   "engines": {
-    "node": ">=0.10.3 <11",
-    "npm": "6.9.0"
+    "node": ">=0.10.3 <11"
   },
   "scripts": {
     "start": "node app.js",

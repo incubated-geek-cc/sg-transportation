@@ -126,7 +126,7 @@ $(document).ready(function() {
     var socket = io();
     var selectedBusStop="62129";
 
-    socket.on("connection", () => {
+    socket.on("bus_arrivals", () => {
       console.log("client side socket connection established")
     });
 
