@@ -6,12 +6,10 @@ if(typeof NODE_ENV=="undefined") {
   config=require("dotenv").config()
 }
 
-const PORT = process.env.PORT || 8080
 const LTA_API_KEY=process.env.LTA_API_KEY
 
 const path = require("path")
 const request = require("request");
-const http = require("http");
 const favicon = require("serve-favicon");
 const engine = require("consolidate");
 const socketIo = require("socket.io");
@@ -43,13 +41,12 @@ app.use(express.static(path.join(__dirname, "public")))
 .get("/", (req, res) => res.render("index.html"))
 
 // set up web socket
-var server = http.createServer(app);
-server.setTimeout(0);
-const io = socketIo(server);
-
-server.listen(PORT, () => {
-  console.log(`SG Transportation App [using Forward Proxy] is listening on port ${PORT}!`)
+const server = app.listen(process.env.PORT || 5000, () => {
+  const port = server.address().port;
+  console.log(`SG Transportation App [using Forward Proxy] is listening on port ${port}!`);
 });
+
+const io = socketIo(server);
 
 let updateInterval;
 io.on("connection", (socket) => {
