@@ -38,8 +38,8 @@ app.use(express.static(path.join(__dirname, "public")))
 .get("/", (req, res) => res.render("index.html"))
 
 // set up web socket
-const server = http.createServer(app);
-server.setTimeout(500000);
+var server = http.createServer(app);
+server.setTimeout(0);
 const io = socketIo(server);
 
 server.listen(PORT, () => {
@@ -85,17 +85,12 @@ io.on("connection", (socket) => {
   });
 });
 
-
-
-const API_ENDPOINT = "http://datamall2.mytransport.sg/ltaodataservice"
-const PAGE_SIZE = 500 // How many records the API returns in a page.
-
 //http://datamall2.mytransport.sg/ltaodataservice/PV/ODBus
 // api/ltaodataservice/BusServices | BusServices | BusRoutes | BusStops
 // http://datamall2.mytransport.sg/ltaodataservice/BusRoutes?$skip=500
 router.get("/ltaodataservice/:transportation", (req, res) => {
   req.setTimeout(0);
-  
+
   var arr_result=[]
   var offset = 0
   const API_ENDPOINT = "http://datamall2.mytransport.sg/ltaodataservice"
@@ -112,7 +107,8 @@ router.get("/ltaodataservice/:transportation", (req, res) => {
         headers: {
           "AccountKey" : LTA_API_KEY,
           "accept" : "application/json"
-        }
+        },
+        timeout: 0
     }, (err, response, body) => {
       let result = {}
       if (err || response.statusCode !== 200) {
@@ -125,7 +121,7 @@ router.get("/ltaodataservice/:transportation", (req, res) => {
           arr_result = arr_result.concat(result)
           offset += PAGE_SIZE
           if(result.length<PAGE_SIZE) {
-            return res.status(200).json(arr_result)
+            res.status(200).json(arr_result)
           } else {
             callLTAService(transportation, offset)
           }
