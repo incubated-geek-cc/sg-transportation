@@ -132,17 +132,23 @@ async function asyncCall(transportation) {
 // api/ltaodataservice/BusServices | BusServices | BusRoutes | BusStops
 // http://datamall2.mytransport.sg/ltaodataservice/BusRoutes?$skip=500
 router.get("/ltaodataservice/:transportation", async (req, res) => {
-  req.setTimeout(0);
-  try {
-    let params=req.params;
-    let transportation=params["transportation"];
-    let entireListing=await asyncCall(transportation);
+    
+    req.headers['Content-Type']='application/json; charset=utf-8';
+    req.headers['Retry-After']=60;
+    req.headers['Connection']='Keep-Alive';
+    req.headers['Keep-Alive']='timeout=120, max=3000';
+    req.headers['Large-Allocation']=500;
 
-    res.status(200).json(entireListing)
-  } catch(err) {
-    res.status(500).json({ 
-      type: "error",
-      message: (err !== null && typeof err.message !== "undefined") ? err.message : `Error. Unable to retrieve data from datamall.lta.gov.sg ${transportation} Routing API.`
-    });
-  }
-}); 
+    try {
+      let params=req.params;
+      let transportation=params["transportation"];
+      let entireListing=await asyncCall(transportation);
+
+      return res.status(200).json(entireListing)
+    } catch(err) {
+      return res.status(404).json({ 
+        type: "error",
+        message: (err !== null && typeof err.message !== "undefined") ? err.message : `Error. Unable to retrieve data from datamall.lta.gov.sg ${transportation} Routing API.`
+      })
+    }
+});
