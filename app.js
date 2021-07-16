@@ -39,6 +39,7 @@ app.use(express.static(path.join(__dirname, "public")))
 
 // set up web socket
 const server = http.createServer(app);
+server.setTimeout(500000);
 const io = socketIo(server);
 
 server.listen(PORT, () => {
@@ -93,6 +94,8 @@ const PAGE_SIZE = 500 // How many records the API returns in a page.
 // api/ltaodataservice/BusServices | BusServices | BusRoutes | BusStops
 // http://datamall2.mytransport.sg/ltaodataservice/BusRoutes?$skip=500
 router.get("/ltaodataservice/:transportation", (req, res) => {
+  req.setTimeout(0);
+  
   var arr_result=[]
   var offset = 0
   const API_ENDPOINT = "http://datamall2.mytransport.sg/ltaodataservice"
