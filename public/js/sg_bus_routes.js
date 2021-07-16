@@ -401,9 +401,17 @@ $(document).ready(function() {
       }
       return reverse_latlngs_arr;
     };
-   
+    
+    var apiHeaders={
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        method: "POST"
+    };
+    
     async function initBusStops() {
-      let response = await fetch("/api/ltaodataservice/BusStops");
+      let response = await fetch("/api/ltaodataservice/BusStops", apiHeaders);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -413,7 +421,7 @@ $(document).ready(function() {
     };
     initBusStops().then((bus_stops_mappingObj) => { // #1
       async function initBusServices() {
-        let response = await fetch("/api/ltaodataservice/BusServices");
+        let response = await fetch("/api/ltaodataservice/BusServices", apiHeaders);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -423,7 +431,7 @@ $(document).ready(function() {
       };
       initBusServices().then((bus_services_mappingObj) => { // #2
         async function initServiceRoutes() {
-          let response = await fetch("/api/ltaodataservice/BusRoutes");
+          let response = await fetch("/api/ltaodataservice/BusRoutes", apiHeaders);
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }

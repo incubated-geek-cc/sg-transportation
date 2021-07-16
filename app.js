@@ -133,7 +133,7 @@ async function asyncCall(transportation) {
 //http://datamall2.mytransport.sg/ltaodataservice/PV/ODBus
 // api/ltaodataservice/BusServices | BusServices | BusRoutes | BusStops
 // http://datamall2.mytransport.sg/ltaodataservice/BusRoutes?$skip=500
-router.get("/ltaodataservice/:transportation", async (req, res) => {
+router.post("/ltaodataservice/:transportation", async (req, res) => {
     
     req.headers['Content-Type']='application/json; charset=utf-8';
     req.headers['Retry-After']=60;
