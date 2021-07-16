@@ -84,17 +84,17 @@ $(document).ready(function() {
         if(parseInt(eta)==0) {
           busEtaHtmlStr+="ᴬʳʳ";
         } else if(parseInt(eta)>0) {
-          busEtaHtmlStr+=(parseInt(eta)+"ᵐ");
+          busEtaHtmlStr+=(parseInt(eta)+" ᵐᶤⁿ");
         } else if(parseInt(eta2)==0) {
           busEtaHtmlStr+="ᴬʳʳ";
         } else if(parseInt(eta2)>0) {
-          busEtaHtmlStr+=(parseInt(eta2)+"ᵐ");
+          busEtaHtmlStr+=(parseInt(eta2)+" ᵐᶤⁿ");
         } else if(parseInt(eta3)==0) {
           busEtaHtmlStr+="ᴬʳʳ";
         } else if(parseInt(eta3)>0) {
-          busEtaHtmlStr+=(parseInt(eta3)+"ᵐ");
+          busEtaHtmlStr+=(parseInt(eta3)+" ᵐᶤⁿ");
         } else {
-          busEtaHtmlStr+="ᴺᴬ"
+          busEtaHtmlStr+="⁽ᴺᴬ⁾"
         }
 
         busEtaHtmlStr+="&nbsp"+feature;
@@ -401,7 +401,7 @@ $(document).ready(function() {
       }
       return reverse_latlngs_arr;
     };
-
+   
     async function initBusStops() {
       let response = await fetch("/api/ltaodataservice/BusStops");
       if (!response.ok) {
@@ -936,5 +936,6 @@ $(document).ready(function() {
       }).catch(e2 => console.log(e2));
 
     }).catch(e1 => console.log(e1));
+
 
 });
