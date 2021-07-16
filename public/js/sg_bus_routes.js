@@ -409,7 +409,7 @@ $(document).ready(function() {
       }
       let responseObj = await response.json()
       bus_stops_mapping = await retrieveBusStops(responseObj);
-      return await bus_stops_mapping
+      return bus_stops_mapping
     };
     initBusStops().then((bus_stops_mappingObj) => { // #1
       async function initBusServices() {
@@ -419,7 +419,7 @@ $(document).ready(function() {
         }
         let responseObj = await response.json()
         bus_services_mapping = await retrieveBusServices(responseObj)
-        return await bus_services_mapping
+        return bus_services_mapping
       };
       initBusServices().then((bus_services_mappingObj) => { // #2
         async function initServiceRoutes() {
@@ -429,9 +429,10 @@ $(document).ready(function() {
           }
           let responseObj = await response.json()
           service_routes_mapping = await retrieveServiceRoutes(responseObj)
-          return await service_routes_mapping
+          return service_routes_mapping
         };
-        initServiceRoutes().then((service_routes_mappingObj) => { // #3
+        initServiceRoutes().then( (service_routes_mappingObj) => { // #3
+          async function renderOutput() { 
             let bus_service_selections = "";
             bus_service_selections+="<div class='card-body rounded-0'>";
             bus_service_selections+="<table class='table table-condensed table-hover w-100'><tbody>";
@@ -823,52 +824,7 @@ $(document).ready(function() {
 
                 $("#displayed_bus_route_details").html(displayed_bus_route_htmlStr);
 
-                $("body").on("click", "#exportDisplayedBusRoute", () => {
-                    let exportObj=[];
-                    let exportFeatures=displayed_bus_stops_geojson["features"];
-                    for(let e in exportFeatures) {
-                      let ef=exportFeatures[e]
-                      let ePropertiesObj=deepCopyObj(ef["properties"])
-                      ePropertiesObj["Latitude"]=ef["geometry"]["coordinates"][1]
-                      ePropertiesObj["Longitude"]=ef["geometry"]["coordinates"][0]
-                      exportObj.push(ePropertiesObj);
-                    }
-                    if (!window.Blob) {
-                      alert("Your browser does not support HTML5 'Blob' function required to save a file.");
-                    } else {
-                      let textblob = new Blob([JSON.stringify(exportObj)], {
-                          type: "text/plain"
-                      });
-                      let dwnlnk = document.createElement("a");
-                      dwnlnk.download = "bus_route.json";
-                      dwnlnk.innerHTML = "Download File";
-                      if (window.webkitURL != null) {
-                          dwnlnk.href = window.webkitURL.createObjectURL(textblob);
-                      } 
-                      dwnlnk.click();
-                    }
-                });
-
-                $("body").on("click",".view_bus_arrivals", (ele3) => {
-                  $("#bus_etas").html("");
-                  $("#bus_etas_title").html("");
-
-                  $("#bus_eta_details_pill").click();
-                  try {
-                    let selectedBusStop=ele3.target.value;
-                    $("#bus_etas").html("<div class='text-center'><div class='spinner-border'></div></div>");
-                    $("#bus_etas_title").html('<b><svg class="icon icon-bus-eta"><use xlink:href="symbol-defs.svg#icon-bus-eta"></use></svg> Bus ETAs at (' + selectedBusStop + ') ' + bus_stops_mapping[selectedBusStop]["description"] + '</b>');
-                    socket.emit("bus_arrivals", selectedBusStop);
-                    socket.on("bus_arrivals", (selectedBusStopETAJSON) => {
-                      let selectedBusStopETAs=JSON.parse(selectedBusStopETAJSON);
-                      processBusStopETA(selectedBusStopETAs);
-                    }); 
-                  } catch(err) { 
-                    console.log(err, "view_bus_arrivals");
-                    $("#bus_etas_title").html("<div class='text-center text-dark'><svg class='icon icon-warning'><use xlink:href='symbol-defs.svg#icon-warning'></use></svg> <b>Information unavailable. Please select another Bus Stop.</b></div>");
-                    $("#bus_etas").html("");
-                  }
-                });
+                
 
                 displayed_bus_route_geojson_layer=L.geoJSON(displayed_bus_route_geojson, {
                   style: ((feature) => {
@@ -930,6 +886,15 @@ $(document).ready(function() {
               });
             
             });
+            
+            let promise = new Promise((resolve, reject) => {
+              setTimeout(() => resolve("all data initialised."), 1000)
+            });
+            let endInitMsg = await promise;
+            console.log(endInitMsg);
+          }
+
+          renderOutput().then(() => console.log("done."));
 
         }).catch(e3 => console.log(e3));
         
@@ -937,5 +902,50 @@ $(document).ready(function() {
 
     }).catch(e1 => console.log(e1));
 
+    $("body").on("click", "#exportDisplayedBusRoute", () => {
+        let exportObj=[];
+        let exportFeatures=displayed_bus_stops_geojson["features"];
+        for(let e in exportFeatures) {
+          let ef=exportFeatures[e]
+          let ePropertiesObj=deepCopyObj(ef["properties"])
+          ePropertiesObj["Latitude"]=ef["geometry"]["coordinates"][1]
+          ePropertiesObj["Longitude"]=ef["geometry"]["coordinates"][0]
+          exportObj.push(ePropertiesObj);
+        }
+        if (!window.Blob) {
+          alert("Your browser does not support HTML5 'Blob' function required to save a file.");
+        } else {
+          let textblob = new Blob([JSON.stringify(exportObj)], {
+              type: "text/plain"
+          });
+          let dwnlnk = document.createElement("a");
+          dwnlnk.download = "bus_route.json";
+          dwnlnk.innerHTML = "Download File";
+          if (window.webkitURL != null) {
+              dwnlnk.href = window.webkitURL.createObjectURL(textblob);
+          } 
+          dwnlnk.click();
+        }
+    });
 
+    $("body").on("click",".view_bus_arrivals", (ele3) => {
+      $("#bus_etas").html("");
+      $("#bus_etas_title").html("");
+
+      $("#bus_eta_details_pill").click();
+      try {
+        let selectedBusStop=ele3.target.value;
+        $("#bus_etas").html("<div class='text-center'><div class='spinner-border'></div></div>");
+        $("#bus_etas_title").html('<b><svg class="icon icon-bus-eta"><use xlink:href="symbol-defs.svg#icon-bus-eta"></use></svg> Bus ETAs at (' + selectedBusStop + ') ' + bus_stops_mapping[selectedBusStop]["description"] + '</b>');
+        socket.emit("bus_arrivals", selectedBusStop);
+        socket.on("bus_arrivals", (selectedBusStopETAJSON) => {
+          let selectedBusStopETAs=JSON.parse(selectedBusStopETAJSON);
+          processBusStopETA(selectedBusStopETAs);
+        }); 
+      } catch(err) { 
+        console.log(err, "view_bus_arrivals");
+        $("#bus_etas_title").html("<div class='text-center text-dark'><svg class='icon icon-warning'><use xlink:href='symbol-defs.svg#icon-warning'></use></svg> <b>Information unavailable. Please select another Bus Stop.</b></div>");
+        $("#bus_etas").html("");
+      }
+    });
 });
