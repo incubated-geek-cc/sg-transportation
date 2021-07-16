@@ -85,49 +85,64 @@ io.on("connection", (socket) => {
   });
 });
 
+const API_ENDPOINT = "http://datamall2.mytransport.sg/ltaodataservice"
+const PAGE_SIZE = 500 // How many records the API returns in a page.
+
+function resolveAsyncCall(reqOptions) {
+  return new Promise(resolve => {
+    request(reqOptions, function(err, res, body) {
+        let result=body.value;
+        resolve(result);
+    });
+  });
+}
+
+async function asyncCall(transportation) {
+  var arr_result=[];
+  var offset = 0;
+
+  var options={
+    url: `${API_ENDPOINT}/${transportation}?$skip=${offset}`,
+    method: "GET",
+    json: true,
+    headers: {
+      "AccountKey" : LTA_API_KEY,
+      "accept" : "application/json"
+    }
+  };
+
+  var result = [];
+  var toContinue=true;
+  while(toContinue) {
+    if(offset==0 || result.length==PAGE_SIZE) {
+      result = await resolveAsyncCall(options);
+      offset += PAGE_SIZE;
+      options.url=`${API_ENDPOINT}/${transportation}?$skip=${offset}`;
+    } else if(result.length < PAGE_SIZE) {
+      toContinue=false;
+    }
+    arr_result=arr_result.concat(result);
+  }
+  return new Promise(resolve => {
+    resolve(arr_result);
+  });
+};
+
 //http://datamall2.mytransport.sg/ltaodataservice/PV/ODBus
 // api/ltaodataservice/BusServices | BusServices | BusRoutes | BusStops
 // http://datamall2.mytransport.sg/ltaodataservice/BusRoutes?$skip=500
-router.get("/ltaodataservice/:transportation", (req, res) => {
+router.get("/ltaodataservice/:transportation", async (req, res) => {
   req.setTimeout(0);
+  try {
+    let params=req.params;
+    let transportation=params["transportation"];
+    let entireListing=await asyncCall(transportation);
 
-  var arr_result=[]
-  var offset = 0
-  const API_ENDPOINT = "http://datamall2.mytransport.sg/ltaodataservice"
-  const PAGE_SIZE = 500 // How many records the API returns in a page.
-
-  let params=req.params;
-  let transportation=params["transportation"]
-
-  function callLTAService(transportation, offset) {
-    request({
-        url: `${API_ENDPOINT}/${transportation}?$skip=${offset}`,
-        method: "GET",
-        json: true,
-        headers: {
-          "AccountKey" : LTA_API_KEY,
-          "accept" : "application/json"
-        },
-        timeout: 0
-    }, (err, response, body) => {
-      let result = {}
-      if (err || response.statusCode !== 200) {
-          return res.status(500).json({ 
-            type: "error",
-            message: (err !== null && typeof err.message !== "undefined") ? err.message : `Error. Unable to retrieve data from datamall.lta.gov.sg ${transportation} Routing API.`
-          });
-        } else {
-          result=body.value
-          arr_result = arr_result.concat(result)
-          offset += PAGE_SIZE
-          if(result.length<PAGE_SIZE) {
-            res.status(200).json(arr_result)
-          } else {
-            callLTAService(transportation, offset)
-          }
-        }
+    res.status(200).json(entireListing)
+  } catch(err) {
+    res.status(500).json({ 
+      type: "error",
+      message: (err !== null && typeof err.message !== "undefined") ? err.message : `Error. Unable to retrieve data from datamall.lta.gov.sg ${transportation} Routing API.`
     });
-  } // end method --- callLTAService
-
-  callLTAService(transportation, offset)
+  }
 }); 

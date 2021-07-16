@@ -62,7 +62,7 @@ $(document).ready(function() {
           feature="&nbsp;<svg class='icon icon-non-wheelchair'><use xlink:href='symbol-defs.svg#icon-non-wheelchair'></use></svg>";
         }
 
-        let busIconStyle="style='height:30px;width:30px'";
+        let busIconStyle="style='height:30px;width:30px;margin-left:1px;margin-right:1px'";
 
         let type="";
         let Type=NextBus["Type"];
@@ -78,7 +78,7 @@ $(document).ready(function() {
           busEtaHtmlStr+="<tr>";
         }
 
-        busEtaHtmlStr+="<td align='center' width='33.33%'>";
+        busEtaHtmlStr+="<td width='33.33%'>";
         busEtaHtmlStr+="<span style='border-radius:0;margin-top:5px;margin-bottom:5px' class='badge badge-warning service_no rounded-left'>" + ServiceNo + "</span><span style='border-radius:0;margin-top:5px;margin-bottom:5px' class='badge badge-secondary service_no rounded-right small'><small class='small' style='color:#fff'>";
 
         if(parseInt(eta)==0) {
