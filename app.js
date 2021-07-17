@@ -88,13 +88,14 @@ const API_ENDPOINT = "http://datamall2.mytransport.sg/ltaodataservice"
 const PAGE_SIZE = 500 // How many records the API returns in a page.
 
 function resolveAsyncCall(reqOptions) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     request(reqOptions, function(err, res, body) {
         let result=body.value;
         resolve(result);
-    })/*.on("timeout", function(response) {
-
-    })*/
+    })
+  }).catch((error) => {
+    console.log(error);
+    console.log("The error is handled, continue normally");
   });
 }
 
@@ -125,8 +126,11 @@ async function asyncCall(transportation) {
     }
     arr_result=arr_result.concat(result);
   }
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     resolve(arr_result);
+  }).catch((error) => {
+    console.log(error);
+    console.log("The error is handled, continue normally");
   });
 };
 
