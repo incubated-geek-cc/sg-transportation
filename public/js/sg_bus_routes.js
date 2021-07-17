@@ -1,24 +1,103 @@
-$("#map").css({
-  "background":"#D0D0D0",
-  "height":"100vh"
+const myApp = Object.create(null);
+
+// ======================= MAP =========================
+var lat = 1.352083;
+var lng = 103.819836;
+var minZoom=11;
+var maxZoom=17;
+var zoom=minZoom;
+var map="";
+
+function drawRectInCenter(x, y, width, height) {
+  return [x - width / 2, y - height / 2, width, height];
+}
+
+function initmap(lat, long, zoom) {
+  var position = L.tileLayer("https://maps-{s}.onemap.sg/v3/Grey/{z}/{x}/{y}.png", {
+    attribution: "&nbsp;<a href='http://leafletjs.com' title='A JS library for interactive maps' target='blank'>Leaflet</a> | <img src='img/om_96x96.png' alt='OneMap' style='height: 12px;width: 12px;margin-top: 4px;' /> <a href='https://www.onemap.sg/home/' target='blank'>OneMap</a> | Map data © contributors, <a href='http://SLA.gov.sg' target='blank'>SLA</a>&nbsp;",
+    minZoom: minZoom,
+    maxZoom: maxZoom
+  });
+
+  map = L.map("map-id", {
+    zoomControl: false
+  })
+
+  if(map !== "") {
+    map.setMaxBounds([[1.56073, 104.1147], [1.16, 103.502]]);
+    map.setView([lat, lng], zoom);
+
+    position.addTo(map);
+    L.control.zoom({
+      position: "bottomright"
+    }).addTo(map);
+
+    return map;
+  }
+}
+
+
+L.Canvas.FPCanvas = L.Canvas.extend({
+  options: {
+    width: 1,
+    height: 1 
+  },
+  initialize: function (name, options) {
+    this.name = name;
+    L.setOptions(this, options);
+    L.Canvas.prototype.initialize.call(this, { 
+      padding: 0.5 
+    });
+  },
+  _draw: function () {
+    var layer,bounds = this._redrawBounds;
+    this._ctx.save();
+    if (bounds) {
+      var size = bounds.getSize();
+      this._ctx.beginPath();
+      this._ctx.rect(bounds.min.x, bounds.min.y, size.x, size.y);
+      this._ctx.clip();
+    }
+
+    this._drawing = true;
+
+    for (var order = this._drawFirst; order; order = order.next) {
+      if (window.CP.shouldStopExecution(0)) break;
+      layer = order.layer;
+      if (!bounds || layer._pxBounds && layer._pxBounds.intersects(bounds)) {
+        layer._updatePath();
+      }
+    }
+    window.CP.exitedLoop(0);
+    this._drawing = false;
+    this._ctx.restore(); // Restore state before clipping.
+  } 
 });
 
-var minZoom=12;
-var maxZoom=17;
-var mapUrl="https://maps-{s}.onemap.sg/v3/Grey/{z}/{x}/{y}.png";
-var map = L.map("map", {
-  maxZoom: maxZoom,
-  minZoom: minZoom,
-  zoomControl: false
-});
-var position = L.tileLayer(mapUrl, {
-  detectRetina: true,
-  maxZoom: maxZoom,
-  minZoom: minZoom,
-  attribution: "&nbsp;<a href='http://leafletjs.com' title='A JS library for interactive maps' target='blank'>Leaflet</a> | <img src='img/om_96x96.png' alt='OneMap' style='height: 12px;width: 12px;margin-top: 4px;' /> <a href='https://www.onemap.sg/home/' target='blank'>OneMap</a> | Map data © contributors, <a href='http://SLA.gov.sg' target='blank'>SLA</a>&nbsp;"
-});
+L.canvas.fpCanvas = function (id, options) {
+  return new L.Canvas.FPCanvas(id, options);
+};
+
+// ==================== ON LOAD ======================
+var loaded = function () {
+  var myRenderer = L.canvas({ padding: 0.5 });
+  // Handler when the DOM is fully loaded
+  myApp.map = initmap(lat, lng, zoom);
+
+  var fpRender = L.canvas.fpCanvas({ 
+    padding: 0.5 
+  });
+};
+
+if (document.readyState === "complete" || document.readyState !== "loading" && !document.documentElement.doScroll) {
+  callback();
+} else {
+  document.addEventListener("DOMContentLoaded", loaded);
+}
+
 
 $(document).ready(function() {
+   
     function processBusStopETA(res) {
       let busEtaHtmlStr="";
       busEtaHtmlStr+="<div class='card-body rounded-0'>";
@@ -131,10 +210,6 @@ $(document).ready(function() {
     });
 
     // --------------------------- 
-    position.addTo(map);
-    L.control.zoom({
-      position: "bottomright"
-    }).addTo(map);
 
     $("#search_bus_stop_clear").click((e)=> {
       $("#search_bus_stop").val("");
@@ -154,7 +229,7 @@ $(document).ready(function() {
         map.touchZoom.enable();
     });
 
-    map.setView([1.352083,103.819836], 12)
+    //map.setView([1.352083,103.819836], 12)
 
     var geojsonBusStopMarkerOptions = {
         radius: 1.5,
@@ -407,7 +482,7 @@ $(document).ready(function() {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        method: "POST"
+        method: "GET"
     };
     
     var response="";
@@ -438,7 +513,8 @@ $(document).ready(function() {
       initBusServices().then((bus_services_mappingObj) => { // #2
         async function initServiceRoutes() {
           try {
-            response = await fetch("/api/ltaodataservice/BusRoutes", apiHeaders);
+            response = await fetch("/js/BusRoutes.json", apiHeaders); 
+            // /api/ltaodataservice/BusRoutes
             responseObj = await response.json();
             service_routes_mapping = await retrieveServiceRoutes(responseObj)
           } catch(err) {
