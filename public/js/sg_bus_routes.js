@@ -419,8 +419,9 @@ $(document).ready(function() {
         bus_stops_mapping = await retrieveBusStops(responseObj);
       } catch(err) {
         console.log(err);
+      } finally {
+        return bus_stops_mapping
       }
-      return bus_stops_mapping
     };
     initBusStops().then((bus_stops_mappingObj) => { // #1
       async function initBusServices() {
@@ -430,8 +431,9 @@ $(document).ready(function() {
           bus_services_mapping = await retrieveBusServices(responseObj)
         } catch(err) {
           console.log(err);
+        } finally {
+          return bus_services_mapping
         }
-        return bus_services_mapping
       };
       initBusServices().then((bus_services_mappingObj) => { // #2
         async function initServiceRoutes() {
@@ -441,8 +443,9 @@ $(document).ready(function() {
             service_routes_mapping = await retrieveServiceRoutes(responseObj)
           } catch(err) {
             console.log(err);
+          } finally {
+            return service_routes_mapping
           }
-          return service_routes_mapping
         };
         initServiceRoutes().then( (service_routes_mappingObj) => { // #3
           async function renderOutput() { 
@@ -909,9 +912,9 @@ $(document).ready(function() {
 
           renderOutput().then(() => console.log("done."));
 
-        }).catch(e3 => console.log(e3));
+        })//.catch(e3 => console.log(e3));
         
-      }).catch(e2 => console.log(e2));
+      })//.catch(e2 => console.log(e2));
 
     }).catch(e1 => console.log(e1));
 
