@@ -92,7 +92,9 @@ function resolveAsyncCall(reqOptions) {
     request(reqOptions, function(err, res, body) {
         let result=body.value;
         resolve(result);
-    });
+    })/*.on("timeout", function(response) {
+
+    })*/
   });
 }
 
@@ -103,6 +105,7 @@ async function asyncCall(transportation) {
   var options={
     url: `${API_ENDPOINT}/${transportation}?$skip=${offset}`,
     method: "GET",
+    timeout: 480000,
     json: true,
     headers: {
       "AccountKey" : LTA_API_KEY,
@@ -134,7 +137,7 @@ router.post("/ltaodataservice/:transportation", async (req, res) => {
     req.headers['Content-Type']='application/json; charset=utf-8';
     req.headers['Retry-After']=60;
     req.headers['Connection']='Keep-Alive';
-    req.headers['Keep-Alive']='timeout=24000, max=3000';
+    req.headers['Keep-Alive']='timeout=480000, max=6000';
     req.headers['Large-Allocation']=500;
 
     try {

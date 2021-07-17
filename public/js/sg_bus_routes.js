@@ -410,33 +410,38 @@ $(document).ready(function() {
         method: "POST"
     };
     
+    var response="";
+    var responseObj="";
     async function initBusStops() {
-      let response = await fetch("/api/ltaodataservice/BusStops", apiHeaders);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      try {
+        response = await fetch("/api/ltaodataservice/BusStops", apiHeaders);
+        responseObj = await response.json();
+        bus_stops_mapping = await retrieveBusStops(responseObj);
+      } catch(err) {
+        console.log(err);
       }
-      let responseObj = await response.json()
-      bus_stops_mapping = await retrieveBusStops(responseObj);
       return bus_stops_mapping
     };
     initBusStops().then((bus_stops_mappingObj) => { // #1
       async function initBusServices() {
-        let response = await fetch("/api/ltaodataservice/BusServices", apiHeaders);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        try {
+          response = await fetch("/api/ltaodataservice/BusServices", apiHeaders);
+          responseObj = await response.json();
+          bus_services_mapping = await retrieveBusServices(responseObj)
+        } catch(err) {
+          console.log(err);
         }
-        let responseObj = await response.json()
-        bus_services_mapping = await retrieveBusServices(responseObj)
         return bus_services_mapping
       };
       initBusServices().then((bus_services_mappingObj) => { // #2
         async function initServiceRoutes() {
-          let response = await fetch("/api/ltaodataservice/BusRoutes", apiHeaders);
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+          try {
+            response = await fetch("/api/ltaodataservice/BusRoutes", apiHeaders);
+            responseObj = await response.json();
+            service_routes_mapping = await retrieveServiceRoutes(responseObj)
+          } catch(err) {
+            console.log(err);
           }
-          let responseObj = await response.json()
-          service_routes_mapping = await retrieveServiceRoutes(responseObj)
           return service_routes_mapping
         };
         initServiceRoutes().then( (service_routes_mappingObj) => { // #3
