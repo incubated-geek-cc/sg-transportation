@@ -912,9 +912,9 @@ $(document).ready(function() {
 
           renderOutput().then(() => console.log("done."));
 
-        })//.catch(e3 => console.log(e3));
+        }).catch(e3 => console.log(e3));
         
-      })//.catch(e2 => console.log(e2));
+      }).catch(e2 => console.log(e2));
 
     }).catch(e1 => console.log(e1));
 
