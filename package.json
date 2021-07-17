@@ -2,12 +2,11 @@
   "name": "sg_transportation_app",
   "version": "1.0.0",
   "description": "A realtime application which shows Bus Routes and Bus ETAs via LTA's API.",
-  "engines": {
-    "node": ">=0.10.3 <11"
-  },
+  "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "geospatial",
@@ -16,7 +15,8 @@
     "google",
     "realtime"
   ],
-  "author": "geek_cc",
+  "author": "",
+  "license": "ISC",
   "dependencies": {
     "consolidate": "^0.16.0",
     "dotenv": "^10.0.0",

@@ -1,18 +1,17 @@
-const express = require("express");
-
-var NODE_ENV=process.env.NODE_ENV
-var config = {}
-if(typeof NODE_ENV=="undefined") {
-  config=require("dotenv").config()
-}
-
-const LTA_API_KEY=process.env.LTA_API_KEY
+const express = require("express")
+const app = express()
 
 const path = require("path")
-const request = require("request");
+const request = require("request")
 const favicon = require("serve-favicon");
-const engine = require("consolidate");
-const socketIo = require("socket.io");
+const engine = require("consolidate")
+const socketIo = require("socket.io")
+
+require("dotenv").config();
+
+const PORT = process.env.PORT || 3000
+const ORIGIN=process.env.ORIGIN || `http://localhost:${PORT}`
+const LTA_API_KEY=process.env.LTA_API_KEY
 
 // set up router
 var router = express.Router();
@@ -23,11 +22,10 @@ router.use(
 )
 router.use(express.json())
 router.use((req, res, next) => { // router middleware
-    res.header("Access-Control-Allow-Origin", process.env.ORIGIN || "*");
+    res.header("Access-Control-Allow-Origin", ORIGIN || "*");
     next();
 });
 
-const app = express();
 // REGISTER ALL ROUTES -------------------------------
 // all of the routes will be prefixed with /api
 app.use("/api", router);
@@ -40,12 +38,11 @@ app.use(express.static(path.join(__dirname, "public")))
 .set("view engine", "html")
 .get("/", (req, res) => res.render("index.html"))
 
-// set up web socket
-const server = app.listen(process.env.PORT || 5000, () => {
-  const port = server.address().port;
-  console.log(`SG Transportation App [using Forward Proxy] is listening on port ${port}!`);
+const server = app.listen(PORT, () => {
+  console.log(`SG Transportation App [using Forward Proxy] is listening on port ${PORT}!`);
 });
 
+// set up web socket
 const io = socketIo(server);
 
 let updateInterval;
@@ -134,11 +131,10 @@ async function asyncCall(transportation) {
 // api/ltaodataservice/BusServices | BusServices | BusRoutes | BusStops
 // http://datamall2.mytransport.sg/ltaodataservice/BusRoutes?$skip=500
 router.post("/ltaodataservice/:transportation", async (req, res) => {
-    
     req.headers['Content-Type']='application/json; charset=utf-8';
     req.headers['Retry-After']=60;
     req.headers['Connection']='Keep-Alive';
-    req.headers['Keep-Alive']='timeout=120, max=3000';
+    req.headers['Keep-Alive']='timeout=24000, max=3000';
     req.headers['Large-Allocation']=500;
 
     try {
