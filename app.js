@@ -88,7 +88,7 @@ const API_ENDPOINT = "http://datamall2.mytransport.sg/ltaodataservice"
 const PAGE_SIZE = 500 // How many records the API returns in a page.
 
 function resolveAsyncCall(reqOptions) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     request(reqOptions, function(err, res, body) {
         let result=body.value;
         resolve(result);
@@ -126,7 +126,7 @@ async function asyncCall(transportation) {
     }
     arr_result=arr_result.concat(result);
   }
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     resolve(arr_result);
   }).catch((error) => {
     console.log(error);
@@ -138,17 +138,15 @@ async function asyncCall(transportation) {
 // api/ltaodataservice/BusServices | BusServices | BusRoutes | BusStops
 // http://datamall2.mytransport.sg/ltaodataservice/BusRoutes?$skip=500
 router.get("/ltaodataservice/:transportation", async (req, res) => {
-    req.headers['Content-Type']='application/json; charset=utf-8';
-    req.headers['Retry-After']=60;
-    req.headers['Connection']='Keep-Alive';
-    req.headers['Keep-Alive']='timeout=480000, max=6000';
-    req.headers['Large-Allocation']=500;
-
+    req.headers["Content-Type"]="application/json; charset=utf-8";
+    req.headers["Retry-After"]=60;
+    req.headers["Connection"]="Keep-Alive";
+    req.headers["Keep-Alive"]="timeout=480000, max=6000";
     try {
       let params=req.params;
       let transportation=params["transportation"];
       let entireListing=await asyncCall(transportation);
-
+      
       return res.status(200).json(entireListing)
     } catch(err) {
       return res.status(404).json({ 

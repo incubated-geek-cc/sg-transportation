@@ -13,7 +13,7 @@ function drawRectInCenter(x, y, width, height) {
 }
 
 function initmap(lat, long, zoom) {
-  var position = L.tileLayer("https://maps-{s}.onemap.sg/v3/Grey/{z}/{x}/{y}.png", {
+  let position = L.tileLayer("https://maps-{s}.onemap.sg/v3/Grey/{z}/{x}/{y}.png", {
     attribution: "&nbsp;<a href='http://leafletjs.com' title='A JS library for interactive maps' target='blank'>Leaflet</a> | <img src='img/om_96x96.png' alt='OneMap' style='height: 12px;width: 12px;margin-top: 4px;' /> <a href='https://www.onemap.sg/home/' target='blank'>OneMap</a> | Map data © contributors, <a href='http://SLA.gov.sg' target='blank'>SLA</a>&nbsp;",
     minZoom: minZoom,
     maxZoom: maxZoom
@@ -36,7 +36,6 @@ function initmap(lat, long, zoom) {
   }
 }
 
-
 L.Canvas.FPCanvas = L.Canvas.extend({
   options: {
     width: 1,
@@ -50,10 +49,10 @@ L.Canvas.FPCanvas = L.Canvas.extend({
     });
   },
   _draw: function () {
-    var layer,bounds = this._redrawBounds;
+    let layer,bounds = this._redrawBounds;
     this._ctx.save();
     if (bounds) {
-      var size = bounds.getSize();
+      let size = bounds.getSize();
       this._ctx.beginPath();
       this._ctx.rect(bounds.min.x, bounds.min.y, size.x, size.y);
       this._ctx.clip();
@@ -61,7 +60,7 @@ L.Canvas.FPCanvas = L.Canvas.extend({
 
     this._drawing = true;
 
-    for (var order = this._drawFirst; order; order = order.next) {
+    for (let order = this._drawFirst; order; order = order.next) {
       if (window.CP.shouldStopExecution(0)) break;
       layer = order.layer;
       if (!bounds || layer._pxBounds && layer._pxBounds.intersects(bounds)) {
@@ -70,7 +69,7 @@ L.Canvas.FPCanvas = L.Canvas.extend({
     }
     window.CP.exitedLoop(0);
     this._drawing = false;
-    this._ctx.restore(); // Restore state before clipping.
+    this._ctx.restore();
   } 
 });
 
@@ -80,11 +79,11 @@ L.canvas.fpCanvas = function (id, options) {
 
 // ==================== ON LOAD ======================
 var loaded = function () {
-  var myRenderer = L.canvas({ padding: 0.5 });
+  let myRenderer = L.canvas({ padding: 0.5 });
   // Handler when the DOM is fully loaded
   myApp.map = initmap(lat, lng, zoom);
 
-  var fpRender = L.canvas.fpCanvas({ 
+  let fpRender = L.canvas.fpCanvas({ 
     padding: 0.5 
   });
 };
@@ -95,6 +94,16 @@ if (document.readyState === "complete" || document.readyState !== "loading" && !
   document.addEventListener("DOMContentLoaded", loaded);
 }
 
+function deepCopyObj(obj) {
+    let result={}
+    for(let o in obj) {
+        result[o]=obj[o]
+    }
+    return result;
+}
+
+const noOfMillisecondsPerDay=86400000;
+const currentTimestamp = new Date();
 
 $(document).ready(function() {
    
@@ -102,9 +111,6 @@ $(document).ready(function() {
       let busEtaHtmlStr="";
       busEtaHtmlStr+="<div class='card-body rounded-0'>";
       busEtaHtmlStr+="<table class='w-100'><tbody>";
-
-      const noOfMillisecondsPerDay=86400000;
-      const currentTimestamp = new Date();
 
       let rowCounter=1;
       for(let r in res) {
@@ -201,6 +207,7 @@ $(document).ready(function() {
       busEtaHtmlStr+="</div>";
       $("#bus_etas").html(busEtaHtmlStr);
     }
+
     // INITIALISE WEB SOCKET
     var socket = io();
     var selectedBusStop="62129";
@@ -208,29 +215,9 @@ $(document).ready(function() {
     socket.on("connect", () => {
       console.log("client side socket connection established")
     });
+    // --------------------------- // IEND WEB SOCKEt INITIALISATION
 
-    // --------------------------- 
-
-    $("#search_bus_stop_clear").click((e)=> {
-      $("#search_bus_stop").val("");
-      $("#search_bus_stop").trigger("keyup");
-    });
-
-    $("#sidebar").on("mouseover", function () {
-        map.dragging.disable();
-        map.doubleClickZoom.disable(); 
-        map.scrollWheelZoom.disable();
-        map.touchZoom.disable();
-    });
-    $("#sidebar").on("mouseout", function () {
-        map.dragging.enable();
-        map.doubleClickZoom.enable(); 
-        map.scrollWheelZoom.enable();
-        map.touchZoom.enable();
-    });
-
-    //map.setView([1.352083,103.819836], 12)
-
+    // --------------------------- INIT VARIABLES
     var geojsonBusStopMarkerOptions = {
         radius: 1.5,
         fillColor: "#0b0b75",
@@ -284,6 +271,24 @@ $(document).ready(function() {
     var selected_start_sequence=1;
     var selected_stop_sequence=1;
 
+    $("#search_bus_stop_clear").click((e)=> {
+      $("#search_bus_stop").val("");
+      $("#search_bus_stop").trigger("keyup");
+    });
+
+    $("#sidebar").on("mouseover", function () {
+        map.dragging.disable();
+        map.doubleClickZoom.disable(); 
+        map.scrollWheelZoom.disable();
+        map.touchZoom.disable();
+    });
+    $("#sidebar").on("mouseout", function () {
+        map.dragging.enable();
+        map.doubleClickZoom.enable(); 
+        map.scrollWheelZoom.enable();
+        map.touchZoom.enable();
+    });
+
     function renderBusStopsGeojson() {
       all_bus_stops_geojson_layer = L.geoJSON(all_bus_stops_geojson, {
           pointToLayer: ((feature, latlng) => {
@@ -314,7 +319,7 @@ $(document).ready(function() {
 
     function retrieveBusStops(responseObj) {
       let bus_stops_mapping={}
-      for(var o in responseObj) {
+      for(let o in responseObj) {
         let bus_stop=responseObj[o]
         try {
           let code=bus_stop["BusStopCode"]
@@ -349,34 +354,33 @@ $(document).ready(function() {
           all_bus_stops_geojson["features"].push(bus_stop_feature)
         } catch(err) { console.log(err, "retrieveBusStops") }
       }
-      renderBusStopsGeojson()
-
+      renderBusStopsGeojson();
       return bus_stops_mapping
     }
 
     function retrieveBusServices(responseObj) {
       let bus_services_mapping = {}
 
-      for(var s in responseObj) {
-        var bus_service=responseObj[s]
+      for(let s in responseObj) {
+        let bus_service=responseObj[s]
 
-        var ServiceNo=bus_service["ServiceNo"]
-        var Operator=bus_service["Operator"]
-        var Direction=bus_service["Direction"]
-        var Category=bus_service["Category"]
-        var OriginCode=bus_service["OriginCode"]+""
-        var DestinationCode=bus_service["DestinationCode"]+""
-        var LoopDesc=bus_service["LoopDesc"].toUpperCase()
+        let ServiceNo=bus_service["ServiceNo"]+"";
+        let Operator=bus_service["Operator"];
+        let Direction=bus_service["Direction"];
+        let Category=bus_service["Category"];
+        let OriginCode=bus_service["OriginCode"]+"";
+        let DestinationCode=bus_service["DestinationCode"]+""
+        let LoopDesc=bus_service["LoopDesc"].toUpperCase();
 
-        var AM_Peak_Freq=bus_service["AM_Peak_Freq"]
-        var AM_Offpeak_Freq=bus_service["AM_Offpeak_Freq"]
-        var PM_Peak_Freq=bus_service["PM_Peak_Freq"]
-        var PM_Offpeak_Freq=bus_service["PM_Offpeak_Freq"]
+        let AM_Peak_Freq=bus_service["AM_Peak_Freq"]
+        let AM_Offpeak_Freq=bus_service["AM_Offpeak_Freq"]
+        let PM_Peak_Freq=bus_service["PM_Peak_Freq"]
+        let PM_Offpeak_Freq=bus_service["PM_Offpeak_Freq"]
 
-        var origin_bus_stop=""
-        var destination_bus_stop=""
+        let origin_bus_stop=""
+        let destination_bus_stop=""
 
-        var service_id=ServiceNo+"_"+Direction
+        let service_id=ServiceNo+"_"+Direction
         if(typeof bus_stops_mapping[OriginCode] !== "undefined") {
           origin_bus_stop=bus_stops_mapping[OriginCode]["description"]
         }
@@ -397,32 +401,31 @@ $(document).ready(function() {
           "loop_description":LoopDesc
         }
       }
-
       return bus_services_mapping
     }
     
     function retrieveServiceRoutes(responseObj) {
       let service_routes_mapping={}
-      for(var a in responseObj) {
-        var bus_route=responseObj[a]
+      for(let a in responseObj) {
+        let bus_route=responseObj[a]
 
-        var ServiceNo=bus_route["ServiceNo"]
-        var Direction=bus_route["Direction"]
-        var Operator=bus_route["Operator"]
+        let ServiceNo=bus_route["ServiceNo"]
+        let Direction=bus_route["Direction"]
+        let Operator=bus_route["Operator"]
 
-        var WD_FirstBus=bus_route["WD_FirstBus"]
-        var WD_LastBus=bus_route["WD_LastBus"]
-        var SAT_FirstBus=bus_route["SAT_FirstBus"]
-        var SAT_LastBus=bus_route["SAT_LastBus"]
-        var SUN_FirstBus=bus_route["SUN_FirstBus"]
-        var SUN_LastBus=bus_route["SUN_LastBus"]
+        let WD_FirstBus=bus_route["WD_FirstBus"]
+        let WD_LastBus=bus_route["WD_LastBus"]
+        let SAT_FirstBus=bus_route["SAT_FirstBus"]
+        let SAT_LastBus=bus_route["SAT_LastBus"]
+        let SUN_FirstBus=bus_route["SUN_FirstBus"]
+        let SUN_LastBus=bus_route["SUN_LastBus"]
 
-        var service_id=ServiceNo+"_"+Direction
-        var service_obj=bus_services_mapping[service_id]
+        let service_id=ServiceNo+"_"+Direction
+        let service_obj=bus_services_mapping[service_id]
         
-        var stop_sequence=bus_route["StopSequence"]
-        var bus_stop_code=bus_route["BusStopCode"]+""
-        var distance=parseFloat(bus_route["Distance"])
+        let stop_sequence=bus_route["StopSequence"]
+        let bus_stop_code=bus_route["BusStopCode"]+""
+        let distance=parseFloat(bus_route["Distance"])
 
         if(typeof service_routes_mapping[service_id]=="undefined") {
           service_routes_mapping[service_id]={
@@ -529,7 +532,7 @@ $(document).ready(function() {
             bus_service_selections+="<div class='card-body rounded-0'>";
             bus_service_selections+="<table class='table table-condensed table-hover w-100'><tbody>";
 
-            for(var s in service_routes_mappingObj) {
+            for(let s in service_routes_mappingObj) {
               let service_route=service_routes_mappingObj[s]
 
               let cumulated_distance_obj=service_route["cumulated_distance"]
@@ -582,7 +585,7 @@ $(document).ready(function() {
                 "loop_description_mapped":loop_description_mapped
               };
 
-              var service_route_feature={
+              let service_route_feature={
                 "type":"Feature",
                 "properties": featureProperties,
                 "geometry": {
@@ -621,7 +624,7 @@ $(document).ready(function() {
               service_route_feature["properties"]["symbol"]=symbol
               service_routes_geojson["features"].push(service_route_feature)
 
-              for(var sIndex in coordinates_obj) {
+              for(let sIndex in coordinates_obj) {
                 let featurePropertiesCopy = deepCopyObj(featureProperties);
                 let bus_stop_code=bus_stops_obj[sIndex];
 
@@ -631,7 +634,7 @@ $(document).ready(function() {
                 featurePropertiesCopy["bus_stop_description"]=bus_stops_mapping[bus_stop_code]["description"],
                 featurePropertiesCopy["bus_stop_road_name"]=bus_stops_mapping[bus_stop_code]["road_name"]
 
-                var bus_stop_feature={
+                let bus_stop_feature={
                   "type":"Feature",
                   "properties": featurePropertiesCopy,
                   "geometry": {
@@ -649,7 +652,7 @@ $(document).ready(function() {
             $("#bus_services").html(bus_service_selections)
 
             $("#search_bus_stop").on("keyup", function() {
-              var value = $(this).val().toLowerCase();
+              let value = $(this).val().toLowerCase();
               $("#bus_services tr").filter(function() {
                 $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
               });
@@ -689,7 +692,7 @@ $(document).ready(function() {
                 map.removeLayer(displayed_bus_stops_geojson_layer);
               }
 
-              var service_route_details_htmlstr="";
+              let service_route_details_htmlstr="";
               service_route_details_htmlstr += '<div class="card-header">';
 
               service_routes_geojson_layer = L.geoJSON(service_routes_geojson, {
@@ -742,7 +745,6 @@ $(document).ready(function() {
                   })
               });
               map.addLayer(service_routes_geojson_layer);
-
 
               bus_stops_by_service_geojson_layer = L.geoJSON(bus_stops_by_service_geojson, {
                   pointToLayer: ((feature, latlng) => {
@@ -797,7 +799,7 @@ $(document).ready(function() {
 
 
               $("#displayed_bus_route_details").html("");
-              var displayed_bus_route_htmlStr="";
+              let displayed_bus_route_htmlStr="";
 
               function renderServiceRoute() {
                 let service_routes_mappingObj=service_routes_mapping[service_route_selected];
@@ -806,6 +808,12 @@ $(document).ready(function() {
                 let operator=service_routes_mappingObj["operator"]
                 let category=service_routes_mappingObj["category_mapped"]
                 let total_distance=service_routes_mappingObj["total_distance"]
+
+      
+                let weekday_hours=service_routes_mappingObj["weekday_first_bus"].substr(0,2)+":"+service_routes_mappingObj["weekday_first_bus"].substr(2)+ " to " +service_routes_mappingObj["weekday_last_bus"].substr(0,2)+":"+service_routes_mappingObj["weekday_last_bus"].substr(2);
+
+                let saturday_hours=service_routes_mappingObj["saturday_first_bus"].substr(0,2)+":"+service_routes_mappingObj["saturday_first_bus"].substr(2)+ " to " +service_routes_mappingObj["saturday_last_bus"].substr(0,2)+":"+service_routes_mappingObj["saturday_last_bus"].substr(2);
+                let sunday_hours=service_routes_mappingObj["sunday_first_bus"].substr(0,2)+":"+service_routes_mappingObj["sunday_first_bus"].substr(2)+ " to " +service_routes_mappingObj["sunday_last_bus"].substr(0,2)+":"+service_routes_mappingObj["sunday_last_bus"].substr(2);
 
                 let cumulated_distance=service_routes_mappingObj["cumulated_distance"]
                 let bus_stops=service_routes_mappingObj["bus_stops"]
@@ -850,16 +858,25 @@ $(document).ready(function() {
 
                 displayed_bus_route_htmlStr="";
                 displayed_bus_route_htmlStr+="<div class='card-header'>";
-
                 displayed_bus_route_htmlStr+="<h6><a class='card-link w-100'>";
-                displayed_bus_route_htmlStr+="<b>Total distance: "+ actual_distance_covered.toFixed(2) +"km</b>";
-                displayed_bus_route_htmlStr+="<button id='exportDisplayedBusRoute' type='button' class='btn btn-sm btn-secondary rounded-0 float-right'><svg class='icon icon-download'><use xlink:href='symbol-defs.svg#icon-download'></use></svg> Export ᵃˢ ᴶˢᵒⁿ</button>";
-                displayed_bus_route_htmlStr+="</a></h6>";
+                
+               
+                displayed_bus_route_htmlStr+="<b>Route distance:</b> "+ actual_distance_covered.toFixed(2) +"km";
 
+                displayed_bus_route_htmlStr+="<button id='exportDisplayedBusRoute' type='button' class='btn btn-sm btn-secondary rounded-0 float-right'><svg class='icon icon-download'><use xlink:href='symbol-defs.svg#icon-download'></use></svg> Export ᵃˢ ᴶˢᵒⁿ</button>";
+
+                displayed_bus_route_htmlStr+="<hr>";
+
+                displayed_bus_route_htmlStr+="<div><small>";
+                displayed_bus_route_htmlStr+="<b>Operating hours:</b> <span class='small'>";
+                displayed_bus_route_htmlStr+=`<b>ᴡᴇᴇᴋᴅᴀʏ</b> <u>${weekday_hours}</u> <b>sᴀᴛᴜʀᴅᴀʏ</b> <u>${saturday_hours}</u> <b>sᴜɴᴅᴀʏ</b> <u>${sunday_hours}</u>`;
+                displayed_bus_route_htmlStr+="</span>";
+                displayed_bus_route_htmlStr+="</small></div>";
+
+                displayed_bus_route_htmlStr+="</a></h6>";
                 displayed_bus_route_htmlStr+="</div>";
 
                 displayed_bus_route_htmlStr+="<div id='displayed_route_selected' class='w-100'>";
-
                 displayed_bus_route_htmlStr+="<div class='card-body rounded-0'>";
                 
 
@@ -915,8 +932,6 @@ $(document).ready(function() {
                 displayed_bus_route_htmlStr+="</div>";
 
                 $("#displayed_bus_route_details").html(displayed_bus_route_htmlStr);
-
-                
 
                 displayed_bus_route_geojson_layer=L.geoJSON(displayed_bus_route_geojson, {
                   style: ((feature) => {
@@ -980,7 +995,7 @@ $(document).ready(function() {
             });
             
             let promise = new Promise((resolve, reject) => {
-              setTimeout(() => resolve("all data initialised."), 1000)
+              setTimeout(() => resolve("all data initialised."), 10)
             });
             let endInitMsg = await promise;
             console.log(endInitMsg);
