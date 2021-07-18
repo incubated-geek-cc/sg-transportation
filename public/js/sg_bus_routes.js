@@ -610,15 +610,29 @@ $(document).ready(function() {
               }
               caption=`<b>${caption}</b>`;
 
-              bus_service_selections += "<tr>";
-              bus_service_selections += "<td><span class='badge badge-info service_no'>" + service_no + "</span></td>";
-              bus_service_selections += "<td class='small'>" + bus_stops_mapping[origin_code_mapped]["description"] + "&nbsp;" + symbol + "&nbsp;" + bus_stops_mapping[destination_code_mapped]["description"] + caption + "</td>";
-              
-              bus_service_selections += "<td>";
-              bus_service_selections += "<input type='radio' data-serviceid='" + service_id + "' class='form-check-input service_route_selection' name='service_route_selection' />";
-              bus_service_selections += "</td>";
+              if( ( symbol=="⇆" && parseInt(direction)==1 ) ||  symbol!="⇆") {
+                bus_service_selections += "<tr>";
+                bus_service_selections += "<td><span class='badge badge-info service_no'>" + service_no + "</span></td>";
+                bus_service_selections += "<td class='small'>" + bus_stops_mapping[origin_code_mapped]["description"] + "&nbsp;" + symbol + "&nbsp;" + bus_stops_mapping[destination_code_mapped]["description"] + caption + "</td>";
+                
+                bus_service_selections += "<td>";
+                bus_service_selections += "<input type='radio' data-serviceid='" + service_id + "' class='form-check-input service_route_selection' name='service_route_selection' />";
+                if(symbol=="⇆") {
+                  bus_service_selections += "&nbsp;<small>ᴿᵒᵘᵗᵉ&nbsp;1</small>";
+                }
+                bus_service_selections += "</td>";
 
-              bus_service_selections += "</tr>";
+                if(symbol=="⇆") {
+                  bus_service_selections += "<td>";
+                  bus_service_selections += "<input type='radio' data-serviceid='"+service_no+"_2' class='form-check-input service_route_selection' name='service_route_selection' />";
+                  bus_service_selections += "&nbsp;<small>ᴿᵒᵘᵗᵉ&nbsp;2</small>";
+                  bus_service_selections += "</td>";
+                } else {
+                  bus_service_selections += "<td>&nbsp;</td>";
+                }
+                bus_service_selections += "</tr>";
+              }
+              
 
               service_route_feature["properties"]["symbol"]=symbol
               service_routes_geojson["features"].push(service_route_feature)
@@ -704,16 +718,19 @@ $(document).ready(function() {
                   }),
                   filter: ((feature, layer) =>  {
                     if(feature["properties"]["service_id"]==service_route_selected) {
+                      let service_no=feature["properties"]["service_no"];
+                      let direction=parseInt(feature["properties"]["direction"]);
+                      let symbol=feature["properties"]["symbol"];
 
                       service_route_details_htmlstr += '<h6><a class="card-link w-100"><b>';
 
                       service_route_details_htmlstr += '<span class="badge badge-success service_no">';
-                      service_route_details_htmlstr += feature["properties"]["service_no"];
+                      service_route_details_htmlstr += service_no;
                       service_route_details_htmlstr += '</span>&nbsp;';
 
                       service_route_details_htmlstr += '<b class="small">';
                       service_route_details_htmlstr += bus_stops_mapping[feature["properties"]["origin_code_mapped"]]["description"];
-                      service_route_details_htmlstr += "&nbsp;"+feature["properties"]["symbol"]+"&nbsp;";
+                      service_route_details_htmlstr += "&nbsp;"+symbol+"&nbsp;";
                       service_route_details_htmlstr += bus_stops_mapping[ feature["properties"]["destination_code_mapped"]]["description"];
                       service_route_details_htmlstr += '</b>&nbsp;';
 
@@ -724,6 +741,12 @@ $(document).ready(function() {
                       service_route_details_htmlstr += '<span class="badge badge-warning">';
                       service_route_details_htmlstr += feature["properties"]["category_mapped"];
                       service_route_details_htmlstr += '</span>&nbsp;';
+
+                      if(symbol=="⇆") {
+                        service_route_details_htmlstr += '<span class="badge badge-secondary">Route&nbsp;';
+                        service_route_details_htmlstr += direction;
+                        service_route_details_htmlstr += '</span>&nbsp;';
+                      }
 
                       service_route_details_htmlstr += '</a></h6>';
 

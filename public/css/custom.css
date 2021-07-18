@@ -210,9 +210,10 @@ input[type=range][orient=vertical] {
   font-size:14px;
 }
 .table td, .table th {
-    padding: 4px;
-    vertical-align: middle;
-    border-top: 1px solid #dee2e6;
+  padding: 4px;
+  vertical-align: middle;
+  min-width: 45px;
+  border-top: 1px solid #dee2e6;
 }
 
 #sidebar {
@@ -274,7 +275,7 @@ input[type=range][orient=vertical] {
 }
 
 input.service_route_selection {
-  position: inherit;
+  position: relative;
 }
 
 
