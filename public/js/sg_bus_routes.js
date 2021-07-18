@@ -494,13 +494,7 @@ $(document).ready(function() {
       try {
         response = await fetch("/api/ltaodataservice/BusStops", apiHeaders);
         responseObj = await response.json();
-        if(responseObj["type"]=="success") {
-          response = await fetch("/data/BusStops.json", apiHeaders);
-          responseObj = await response.json();
-          bus_stops_mapping = await retrieveBusStops(responseObj);
-        } else {
-          throw Error(responseObj["message"]);
-        }
+        bus_stops_mapping = await retrieveBusStops(responseObj);
       } catch(err) {
         console.log(err);
       } finally {
@@ -512,13 +506,7 @@ $(document).ready(function() {
         try {
           response = await fetch("/api/ltaodataservice/BusServices", apiHeaders);
           responseObj = await response.json();
-          if(responseObj["type"]=="success") {
-            response = await fetch("/data/BusServices.json", apiHeaders);
-            responseObj = await response.json();
-            bus_services_mapping = await retrieveBusServices(responseObj);
-          } else {
-            throw Error(responseObj["message"]);
-          }
+          bus_services_mapping = await retrieveBusServices(responseObj);
         } catch(err) {
           console.log(err);
         } finally {
@@ -528,15 +516,9 @@ $(document).ready(function() {
       initBusServices().then((bus_services_mappingObj) => { // #2
         async function initServiceRoutes() {
           try {
-            response = await fetch("/api/ltaodataservice/BusRoutes", apiHeaders);
+            response = await fetch("/data/BusRoutes.json", apiHeaders);
             responseObj = await response.json();
-            if(responseObj["type"]=="success") {
-              response = await fetch("/data/BusRoutes.json", apiHeaders);
-              responseObj = await response.json();
-              service_routes_mapping = await retrieveServiceRoutes(responseObj);
-            } else {
-              throw Error(responseObj["message"]);
-            }
+            service_routes_mapping = await retrieveServiceRoutes(responseObj);
           } catch(err) {
             console.log(err);
           } finally {

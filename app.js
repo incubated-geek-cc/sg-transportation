@@ -137,7 +137,8 @@ async function asyncCall(transportation) {
 //http://datamall2.mytransport.sg/ltaodataservice/PV/ODBus
 // api/ltaodataservice/BusServices | BusServices | BusRoutes | BusStops
 // http://datamall2.mytransport.sg/ltaodataservice/BusRoutes?$skip=500
-const fs = require("fs")
+
+//const fs = require("fs")
 
 router.get("/ltaodataservice/:transportation", async (req, res) => {
   try {
@@ -145,8 +146,9 @@ router.get("/ltaodataservice/:transportation", async (req, res) => {
     let transportation=params["transportation"];
     let entireListing=await asyncCall(transportation);
     
+    /*
     let dataFile=path.join(__dirname, "public/data", `${transportation}.json`);
-    
+
     fs.open(dataFile, "w", (err, fd) => {
         if (err) {
             throw err;
@@ -161,7 +163,8 @@ router.get("/ltaodataservice/:transportation", async (req, res) => {
                 })
             });
         });
-    });
+    });*/
+    return res.status(200).json(entireListing)
   } catch(err) {
     return res.status(404).json({ 
       type: "error",

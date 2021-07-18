@@ -5,9 +5,8 @@ body {
   overflow-x:hidden;
   overflow-y: hidden;
   overflow:hidden;
-  font-family: consolas;
+  font: 12px/1.5 "Helvetica Neue", Arial, Helvetica, sans-serif;
   color: #16181b;
-  font-size:12px;
 }
 
 a, a:hover, a:focus, a:visited, a:active {
