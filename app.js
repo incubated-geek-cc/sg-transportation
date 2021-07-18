@@ -137,21 +137,35 @@ async function asyncCall(transportation) {
 //http://datamall2.mytransport.sg/ltaodataservice/PV/ODBus
 // api/ltaodataservice/BusServices | BusServices | BusRoutes | BusStops
 // http://datamall2.mytransport.sg/ltaodataservice/BusRoutes?$skip=500
+const fs = require("fs")
+
 router.get("/ltaodataservice/:transportation", async (req, res) => {
-    req.headers["Content-Type"]="application/json; charset=utf-8";
-    req.headers["Retry-After"]=60;
-    req.headers["Connection"]="Keep-Alive";
-    req.headers["Keep-Alive"]="timeout=480000, max=6000";
-    try {
-      let params=req.params;
-      let transportation=params["transportation"];
-      let entireListing=await asyncCall(transportation);
-      
-      return res.status(200).json(entireListing)
-    } catch(err) {
-      return res.status(404).json({ 
-        type: "error",
-        message: (err !== null && typeof err.message !== "undefined") ? err.message : `Error. Unable to retrieve data from datamall.lta.gov.sg ${transportation} Routing API.`
-      })
-    }
+  try {
+    let params=req.params;
+    let transportation=params["transportation"];
+    let entireListing=await asyncCall(transportation);
+    
+    let dataFile=path.join(__dirname, "public/data", `${transportation}.json`);
+    
+    fs.open(dataFile, "w", (err, fd) => {
+        if (err) {
+            throw err;
+        }
+        fs.writeFile(fd, JSON.stringify(entireListing), (err) => {
+            if (err) throw err;
+            fs.close(fd, () => {
+                console.log(`Wrote ${transportation}.json successfully`);
+                return res.status(200).json({ 
+                  type: "success",
+                  message: `Wrote ${transportation}.json successfully`
+                })
+            });
+        });
+    });
+  } catch(err) {
+    return res.status(404).json({ 
+      type: "error",
+      message: (err !== null && typeof err.message !== "undefined") ? err.message : `Error. Unable to retrieve data from datamall.lta.gov.sg ${transportation} Routing API.`
+    })
+  }
 });

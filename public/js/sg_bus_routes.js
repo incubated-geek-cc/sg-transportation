@@ -482,8 +482,8 @@ $(document).ready(function() {
     
     var apiHeaders={
         headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          "Accept": "application/json",
+          "Content-Type": "application/json"
         },
         method: "GET"
     };
@@ -494,7 +494,13 @@ $(document).ready(function() {
       try {
         response = await fetch("/api/ltaodataservice/BusStops", apiHeaders);
         responseObj = await response.json();
-        bus_stops_mapping = await retrieveBusStops(responseObj);
+        if(responseObj["type"]=="success") {
+          response = await fetch("/data/BusStops.json", apiHeaders);
+          responseObj = await response.json();
+          bus_stops_mapping = await retrieveBusStops(responseObj);
+        } else {
+          throw Error(responseObj["message"]);
+        }
       } catch(err) {
         console.log(err);
       } finally {
@@ -506,7 +512,13 @@ $(document).ready(function() {
         try {
           response = await fetch("/api/ltaodataservice/BusServices", apiHeaders);
           responseObj = await response.json();
-          bus_services_mapping = await retrieveBusServices(responseObj)
+          if(responseObj["type"]=="success") {
+            response = await fetch("/data/BusServices.json", apiHeaders);
+            responseObj = await response.json();
+            bus_services_mapping = await retrieveBusServices(responseObj);
+          } else {
+            throw Error(responseObj["message"]);
+          }
         } catch(err) {
           console.log(err);
         } finally {
@@ -516,10 +528,15 @@ $(document).ready(function() {
       initBusServices().then((bus_services_mappingObj) => { // #2
         async function initServiceRoutes() {
           try {
-            response = await fetch("/js/BusRoutes.json", apiHeaders); 
-            // /api/ltaodataservice/BusRoutes
+            response = await fetch("/api/ltaodataservice/BusRoutes", apiHeaders);
             responseObj = await response.json();
-            service_routes_mapping = await retrieveServiceRoutes(responseObj)
+            if(responseObj["type"]=="success") {
+              response = await fetch("/data/BusRoutes.json", apiHeaders);
+              responseObj = await response.json();
+              service_routes_mapping = await retrieveServiceRoutes(responseObj);
+            } else {
+              throw Error(responseObj["message"]);
+            }
           } catch(err) {
             console.log(err);
           } finally {
