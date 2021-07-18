@@ -6,6 +6,7 @@ var lng = 103.819836;
 var minZoom=11;
 var maxZoom=17;
 var zoom=minZoom;
+var defaultZoom=14;
 var map="";
 
 function drawRectInCenter(x, y, width, height) {
@@ -712,7 +713,7 @@ $(document).ready(function() {
                   style: ((feature) => {
                       return {
                         color: "#cc1f5e",
-                        weight: 3,
+                        weight: 6.5,
                         strokeOpacity: 0.5
                       }; 
                   }),
@@ -761,7 +762,7 @@ $(document).ready(function() {
                       let latlngs=feature["geometry"]["coordinates"];
 
                       let coordinates_arr=reverse_latlngs(latlngs);
-                      map.fitBounds(L.latLngBounds(coordinates_arr));
+                      map.fitBounds(L.latLngBounds(coordinates_arr)).setZoom(defaultZoom);
                     }
                     return feature["properties"]["service_id"]==service_route_selected;
                   })
@@ -883,17 +884,29 @@ $(document).ready(function() {
                 displayed_bus_route_htmlStr+="<h6><a class='card-link w-100'>";
                 
                
-                displayed_bus_route_htmlStr+="<b>Route distance:</b> "+ actual_distance_covered.toFixed(2) +"km";
-
-                displayed_bus_route_htmlStr+="<button id='exportDisplayedBusRoute' type='button' class='btn btn-sm btn-secondary rounded-0 float-right'><svg class='icon icon-download'><use xlink:href='symbol-defs.svg#icon-download'></use></svg> Export ᵃˢ ᴶˢᵒⁿ</button>";
-
-                displayed_bus_route_htmlStr+="<hr>";
-
-                displayed_bus_route_htmlStr+="<div><small>";
-                displayed_bus_route_htmlStr+="<b>Operating hours:</b> <span class='small'>";
-                displayed_bus_route_htmlStr+=`<b>ᴡᴇᴇᴋᴅᴀʏ</b> <u>${weekday_hours}</u> <b>sᴀᴛᴜʀᴅᴀʏ</b> <u>${saturday_hours}</u> <b>sᴜɴᴅᴀʏ</b> <u>${sunday_hours}</u>`;
+                displayed_bus_route_htmlStr+="<span class='small badge badge-primary'>"+ actual_distance_covered.toFixed(1) +"&nbsp;ᵏᵐ";
                 displayed_bus_route_htmlStr+="</span>";
-                displayed_bus_route_htmlStr+="</small></div>";
+
+                displayed_bus_route_htmlStr+="&nbsp;";
+                displayed_bus_route_htmlStr+="<small>";
+                displayed_bus_route_htmlStr+="<span class='small badge badge-success'>";
+                displayed_bus_route_htmlStr+=`<b>WEEKDAY</b> <u>${weekday_hours}</u>`;
+                displayed_bus_route_htmlStr+="</span>";
+
+                displayed_bus_route_htmlStr+="&nbsp;";
+                displayed_bus_route_htmlStr+="<span class='small badge badge-warning'>";
+                displayed_bus_route_htmlStr+=`<b>SATURDAY</b> <u>${saturday_hours}</u>`;
+                displayed_bus_route_htmlStr+="</span>";
+
+                displayed_bus_route_htmlStr+="&nbsp;";
+                displayed_bus_route_htmlStr+="<span class='small badge badge-warning'>";
+                displayed_bus_route_htmlStr+=`<b>SUNDAY</b> <u>${sunday_hours}</u>`;
+                displayed_bus_route_htmlStr+="</span>";
+
+                displayed_bus_route_htmlStr+="</small>";
+
+                displayed_bus_route_htmlStr+="<button id='exportDisplayedBusRoute' type='button' class='btn btn-sm btn-secondary rounded-0 float-right'><svg class='icon icon-download'><use xlink:href='symbol-defs.svg#icon-download'></use></svg> ᵃˢ ᴊsᴏɴ</button>";
+
 
                 displayed_bus_route_htmlStr+="</a></h6>";
                 displayed_bus_route_htmlStr+="</div>";
@@ -959,7 +972,7 @@ $(document).ready(function() {
                   style: ((feature) => {
                       return {
                         color: "#15727B",
-                        weight: 3,
+                        weight: 6.5,
                         strokeOpacity: 0.5
                       }; 
                   })
@@ -969,7 +982,7 @@ $(document).ready(function() {
                 let latlngs=displayed_bus_route_geojson["features"][0]["geometry"]["coordinates"];
 
                 let coordinates_arr=reverse_latlngs(latlngs);
-                map.fitBounds(L.latLngBounds(coordinates_arr));
+                map.fitBounds(L.latLngBounds(coordinates_arr)).setZoom(defaultZoom);
 
                 displayed_bus_stops_geojson_layer=L.geoJSON(displayed_bus_stops_geojson, {
                   pointToLayer: ((feature, latlng) => {
