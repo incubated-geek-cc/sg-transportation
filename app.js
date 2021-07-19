@@ -155,19 +155,3 @@ function startServer() {
 }
 
 startServer();
-/*
-io.on("connection", (socket) => {
-  console.log("server side socket connection established");
-
-  socket.on("bus_arrivals", (selectedBusStop) => {
-    console.log(`requested bus stop: ${selectedBusStop}`)
-    retrieveLatestBusArrivals(selectedBusStop);
-  });
-
-});
-*/
-
-
-
-
-

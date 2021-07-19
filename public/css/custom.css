@@ -66,9 +66,9 @@ a.card-link:hover,
 }
 
 #sidebar div.card-body {
-  height: calc(60vh - 48px);
+  height: calc(60vh - 62px);
   overflow-y: auto;
-  overflow-x: none;
+  overflow-x: hidden;
   background-image:linear-gradient(120deg, #eaee44, #33d0ff); 
   opacity:0.95;
 }

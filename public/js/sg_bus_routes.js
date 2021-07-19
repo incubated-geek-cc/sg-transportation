@@ -247,7 +247,7 @@ $(document).ready(function() {
     }
 
     initSocketIO();
-    // --------------------------- // IEND WEB SOCKEt INITIALISATION
+    // --------------------------- // END WEB SOCKEt INITIALISATION
 
     // --------------------------- INIT VARIABLES
     var geojsonBusStopMarkerOptions = {
