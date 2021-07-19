@@ -107,7 +107,8 @@ const noOfMillisecondsPerDay=86400000;
 const currentTimestamp = new Date();
 
 $(document).ready(function() {
-   
+    // INITIALISE WEB SOCKET
+
     function processBusStopETA(res) {
       let busEtaHtmlStr="";
       busEtaHtmlStr+="<div class='card-body rounded-0'>";
@@ -209,13 +210,43 @@ $(document).ready(function() {
       $("#bus_etas").html(busEtaHtmlStr);
     }
 
-    // INITIALISE WEB SOCKET
-    var socket = io();
-    var selectedBusStop="62129";
+    async function initSocketIO() {
+        const socket = io();
+        socket.on("connect", () => {
+          console.log("client side socket connection established");
+          socket.emit("back_to_server", `Connection received from client at: ${window.navigator.userAgent}`)
+        });
 
-    socket.on("connect", () => {
-      console.log("client side socket connection established")
-    });
+        socket.on("visit_tracker", server_visit_msg => {
+          console.log(server_visit_msg);
+        });
+        socket.on("online_clients_tracker", online_clients_tracker_set => {
+          console.log(online_clients_tracker_set.toString());
+        });
+        $("body").on("click",".view_bus_arrivals", (ele3) => {
+          $("#bus_etas").html("");
+          $("#bus_etas_title").html("");
+
+          $("#bus_eta_details_pill").click();
+          try {
+            let selectedBusStop=ele3.target.value;
+            $("#bus_etas").html("<div class='text-center'><div class='spinner-border'></div></div>");
+            $("#bus_etas_title").html('<b><svg class="icon icon-bus-eta"><use xlink:href="symbol-defs.svg#icon-bus-eta"></use></svg> Bus ETAs at (' + selectedBusStop + ') ' + bus_stops_mapping[selectedBusStop]["description"] + '</b>');
+            console.log(selectedBusStop)
+            socket.emit("bus_arrivals", selectedBusStop);
+            socket.on("get_bus_arrivals_info", (selectedBusStopETAJSON) => {
+              let selectedBusStopETAs=JSON.parse(selectedBusStopETAJSON);
+              processBusStopETA(selectedBusStopETAs);
+            });
+          } catch(err) { 
+            console.log(err, "view_bus_arrivals");
+            $("#bus_etas_title").html("<div class='text-center text-dark'><svg class='icon icon-warning'><use xlink:href='symbol-defs.svg#icon-warning'></use></svg> <b>Information unavailable. Please select another Bus Stop.</b></div>");
+            $("#bus_etas").html("");
+          }
+        });
+    }
+
+    initSocketIO();
     // --------------------------- // IEND WEB SOCKEt INITIALISATION
 
     // --------------------------- INIT VARIABLES
@@ -633,7 +664,6 @@ $(document).ready(function() {
                 }
                 bus_service_selections += "</tr>";
               }
-              
 
               service_route_feature["properties"]["symbol"]=symbol
               service_routes_geojson["features"].push(service_route_feature)
@@ -832,7 +862,6 @@ $(document).ready(function() {
                 let operator=service_routes_mappingObj["operator"]
                 let category=service_routes_mappingObj["category_mapped"]
                 let total_distance=service_routes_mappingObj["total_distance"]
-
       
                 let weekday_hours=service_routes_mappingObj["weekday_first_bus"].substr(0,2)+":"+service_routes_mappingObj["weekday_first_bus"].substr(2)+ " to " +service_routes_mappingObj["weekday_last_bus"].substr(0,2)+":"+service_routes_mappingObj["weekday_last_bus"].substr(2);
 
@@ -907,7 +936,6 @@ $(document).ready(function() {
                 displayed_bus_route_htmlStr+="</small>";
 
                 displayed_bus_route_htmlStr+="<button id='exportDisplayedBusRoute' type='button' class='btn btn-sm btn-secondary rounded-0 float-right'><svg class='icon icon-download'><use xlink:href='symbol-defs.svg#icon-download'></use></svg> ᵃˢ ᴊsᴏɴ</button>";
-
 
                 displayed_bus_route_htmlStr+="</a></h6>";
                 displayed_bus_route_htmlStr+="</div>";
@@ -1070,28 +1098,5 @@ $(document).ready(function() {
           } 
           dwnlnk.click();
         }
-    });
-
-    $("body").on("click",".view_bus_arrivals", (ele3) => {
-      $("#bus_etas").html("");
-      $("#bus_etas_title").html("");
-
-      $("#bus_eta_details_pill").click();
-      try {
-        let selectedBusStop=ele3.target.value;
-        $("#bus_etas").html("<div class='text-center'><div class='spinner-border'></div></div>");
-        $("#bus_etas_title").html('<b><svg class="icon icon-bus-eta"><use xlink:href="symbol-defs.svg#icon-bus-eta"></use></svg> Bus ETAs at (' + selectedBusStop + ') ' + bus_stops_mapping[selectedBusStop]["description"] + '</b>');
-
-        socket.emit("bus_arrivals", selectedBusStop);
-        socket.on("bus_arrivals", (selectedBusStopETAJSON) => {
-          let selectedBusStopETAs=JSON.parse(selectedBusStopETAJSON);
-          processBusStopETA(selectedBusStopETAs);
-        }); 
-
-      } catch(err) { 
-        console.log(err, "view_bus_arrivals");
-        $("#bus_etas_title").html("<div class='text-center text-dark'><svg class='icon icon-warning'><use xlink:href='symbol-defs.svg#icon-warning'></use></svg> <b>Information unavailable. Please select another Bus Stop.</b></div>");
-        $("#bus_etas").html("");
-      }
     });
 });
