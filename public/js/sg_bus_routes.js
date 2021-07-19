@@ -603,11 +603,11 @@ $(document).ready(function() {
 
               let caption="<br>";
               if(symbol=="⟲") {
-                caption+="Loop@" + loop_description_mapped;
+                caption+="ᴸᵒᵒᵖ@" + loop_description_mapped;
               } else if(symbol=="⇆") {
-                caption+="2 routes";
+                caption+="2 ʳᵒᵘᵗᵉˢ";
               } else {
-                caption+="1 route only";
+                caption+="1 ʳᵒᵘᵗᵉ ᵒⁿˡʸ";
               }
               caption=`<b>${caption}</b>`;
 
@@ -762,7 +762,8 @@ $(document).ready(function() {
                       let latlngs=feature["geometry"]["coordinates"];
 
                       let coordinates_arr=reverse_latlngs(latlngs);
-                      map.fitBounds(L.latLngBounds(coordinates_arr)).setZoom(defaultZoom);
+                      let center=L.latLngBounds(coordinates_arr).getCenter();
+                      map.setView(center, defaultZoom);
                     }
                     return feature["properties"]["service_id"]==service_route_selected;
                   })
@@ -982,7 +983,8 @@ $(document).ready(function() {
                 let latlngs=displayed_bus_route_geojson["features"][0]["geometry"]["coordinates"];
 
                 let coordinates_arr=reverse_latlngs(latlngs);
-                map.fitBounds(L.latLngBounds(coordinates_arr)).setZoom(defaultZoom);
+                let center=L.latLngBounds(coordinates_arr).getCenter();
+                map.setView(center, defaultZoom);
 
                 displayed_bus_stops_geojson_layer=L.geoJSON(displayed_bus_stops_geojson, {
                   pointToLayer: ((feature, latlng) => {
@@ -1079,11 +1081,13 @@ $(document).ready(function() {
         let selectedBusStop=ele3.target.value;
         $("#bus_etas").html("<div class='text-center'><div class='spinner-border'></div></div>");
         $("#bus_etas_title").html('<b><svg class="icon icon-bus-eta"><use xlink:href="symbol-defs.svg#icon-bus-eta"></use></svg> Bus ETAs at (' + selectedBusStop + ') ' + bus_stops_mapping[selectedBusStop]["description"] + '</b>');
+
         socket.emit("bus_arrivals", selectedBusStop);
         socket.on("bus_arrivals", (selectedBusStopETAJSON) => {
           let selectedBusStopETAs=JSON.parse(selectedBusStopETAJSON);
           processBusStopETA(selectedBusStopETAs);
         }); 
+
       } catch(err) { 
         console.log(err, "view_bus_arrivals");
         $("#bus_etas_title").html("<div class='text-center text-dark'><svg class='icon icon-warning'><use xlink:href='symbol-defs.svg#icon-warning'></use></svg> <b>Information unavailable. Please select another Bus Stop.</b></div>");
