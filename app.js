@@ -12,6 +12,9 @@ const socketio = require("socket.io")
 let nextVisitorNumber = 1;
 const onlineClients = new Set();
 
+const API_ENDPOINT = "http://datamall2.mytransport.sg/ltaodataservice"
+const PAGE_SIZE = 500 // How many records the API returns in a page.
+
 let updateInterval;
 
 function onNewWebsocketConnection(socket) {
@@ -48,6 +51,7 @@ function onNewWebsocketConnection(socket) {
       });
     }, 10000);
   });
+
 }
 
 function startServer() {
@@ -71,9 +75,6 @@ function startServer() {
   // all of the routes will be prefixed with /api
   app.use("/api", router);
 
-  const API_ENDPOINT = "http://datamall2.mytransport.sg/ltaodataservice"
-  const PAGE_SIZE = 500 // How many records the API returns in a page.
-
   function resolveAsyncCall(reqOptions) {
     return new Promise(resolve => {
       request(reqOptions, function(err, res, body) {
@@ -85,9 +86,10 @@ function startServer() {
     });
   }
 
-  async function asyncCall(transportation) {
+  async function asyncCall(transportation, pageNo) {
+    let upperBound = 5000
     let arr_result=[];
-    let offset = 0;
+    let offset=0;
 
     let options={
       url: `${API_ENDPOINT}/${transportation}?$skip=${offset}`,
@@ -99,14 +101,14 @@ function startServer() {
       }
     };
 
+    let prevOffset=0;
     let result = [];
     let toContinue=true;
     while(toContinue) {
       if(offset==0 || result.length==PAGE_SIZE) {
-        result = await resolveAsyncCall(options);
         offset += PAGE_SIZE;
         options.url=`${API_ENDPOINT}/${transportation}?$skip=${offset}`;
-      } else if(result.length < PAGE_SIZE) {
+      } else if(result.length < PAGE_SIZE) { // RETURN ENTIRE LISTING. LEAVE IT BE.
         toContinue=false;
       }
       arr_result=arr_result.concat(result);
@@ -118,11 +120,12 @@ function startServer() {
     });
   };
 
-  router.get("/ltaodataservice/:transportation", async (req, res) => {
+  router.get("/ltaodataservice/:transportation/:pageNo", async (req, res) => {
     try {
       let params=req.params;
       let transportation=params["transportation"];
-      let entireListing=await asyncCall(transportation);
+      let pageNo=params["pageNo"];
+      let entireListing=await asyncCall(transportation, pageNo);
       return res.status(200).json(entireListing)
     } catch(err) {
       return res.status(404).json({ 

@@ -169,19 +169,19 @@ $(document).ready(function() {
         busEtaHtmlStr+="<span style='border-radius:0;margin-top:5px;margin-bottom:5px' class='badge badge-warning service_no rounded-left'>" + ServiceNo + "</span><span style='border-radius:0;margin-top:5px;margin-bottom:5px' class='badge badge-secondary service_no rounded-right small'><small class='small' style='color:#fff'>";
 
         if(parseInt(eta)==0) {
-          busEtaHtmlStr+="ᴬʳʳ";
+          busEtaHtmlStr+="<span style='font-family:cambria'>ᴬʳʳ</span>";
         } else if(parseInt(eta)>0) {
-          busEtaHtmlStr+=(parseInt(eta)+" ᵐᶤⁿ");
+          busEtaHtmlStr+=(parseInt(eta)+"<span style='font-family:cambria'> ᵐᶤⁿ</span>");
         } else if(parseInt(eta2)==0) {
-          busEtaHtmlStr+="ᴬʳʳ";
+          busEtaHtmlStr+="<span style='font-family:cambria'>ᴬʳʳ</span>";
         } else if(parseInt(eta2)>0) {
-          busEtaHtmlStr+=(parseInt(eta2)+" ᵐᶤⁿ");
+          busEtaHtmlStr+=(parseInt(eta2)+"<span style='font-family:cambria'> ᵐᶤⁿ</span>");
         } else if(parseInt(eta3)==0) {
-          busEtaHtmlStr+="ᴬʳʳ";
+          busEtaHtmlStr+="<span style='font-family:cambria'>ᴬʳʳ</span>";
         } else if(parseInt(eta3)>0) {
-          busEtaHtmlStr+=(parseInt(eta3)+" ᵐᶤⁿ");
+          busEtaHtmlStr+=(parseInt(eta3)+"<span style='font-family:cambria'> ᵐᶤⁿ</span>");
         } else {
-          busEtaHtmlStr+="⁽ᴺᴬ⁾"
+          busEtaHtmlStr+="<span style='font-family:cambria'>⁽ᴺᴬ⁾</span>"
         }
 
         busEtaHtmlStr+="&nbsp"+feature;
@@ -522,13 +522,24 @@ $(document).ready(function() {
     
     var response="";
     var responseObj="";
+
+    var mode="api";
     async function initBusStops() {
       try {
-        response = await fetch("/api/ltaodataservice/BusStops", apiHeaders);
+        response = await fetch("/api/ltaodataservice/BusStops/0", apiHeaders);
         responseObj = await response.json();
+        if(responseObj.length==0) {
+          response = await fetch("/data/BusStops.json", apiHeaders);
+          responseObj = await response.json();
+        }
         bus_stops_mapping = await retrieveBusStops(responseObj);
       } catch(err) {
         console.log(err);
+        if(responseObj.length==0) {
+          response = await fetch("/data/BusStops.json", apiHeaders);
+          responseObj = await response.json();
+          bus_stops_mapping = await retrieveBusStops(responseObj);
+        }
       } finally {
         return bus_stops_mapping
       }
@@ -536,21 +547,32 @@ $(document).ready(function() {
     initBusStops().then((bus_stops_mappingObj) => { // #1
       async function initBusServices() {
         try {
-          response = await fetch("/api/ltaodataservice/BusServices", apiHeaders);
+          response = await fetch("/api/ltaodataservice/BusServices/0", apiHeaders);
           responseObj = await response.json();
+          if(responseObj.length==0) {
+            response = await fetch("/data/BusServices.json", apiHeaders);
+            responseObj = await response.json();
+          }
           bus_services_mapping = await retrieveBusServices(responseObj);
         } catch(err) {
           console.log(err);
+          if(responseObj.length==0) {
+            response = await fetch("/data/BusServices.json", apiHeaders);
+            responseObj = await response.json();
+            bus_services_mapping = await retrieveBusServices(responseObj);
+          }
         } finally {
           return bus_services_mapping
         }
       };
       initBusServices().then((bus_services_mappingObj) => { // #2
         async function initServiceRoutes() {
+          let consolidated_service_routes_mapping = {};
           try {
             response = await fetch("/data/BusRoutes.json", apiHeaders);
             responseObj = await response.json();
             service_routes_mapping = await retrieveServiceRoutes(responseObj);
+            //Object.assign(resultOutput, consolidated_service_routes_mapping)
           } catch(err) {
             console.log(err);
           } finally {
@@ -634,11 +656,11 @@ $(document).ready(function() {
 
               let caption="<br>";
               if(symbol=="⟲") {
-                caption+="ᴸᵒᵒᵖ@" + loop_description_mapped;
+                caption+="<span style='font-family:cambria'>ᴸᵒᵒᵖ@</span>" + loop_description_mapped;
               } else if(symbol=="⇆") {
-                caption+="2 ʳᵒᵘᵗᵉˢ";
+                caption+="<span style='font-family:cambria'>2 ʳᵒᵘᵗᵉˢ</span>";
               } else {
-                caption+="1 ʳᵒᵘᵗᵉ ᵒⁿˡʸ";
+                caption+="<span style='font-family:cambria'>1 ʳᵒᵘᵗᵉ ᵒⁿˡʸ</span>";
               }
               caption=`<b>${caption}</b>`;
 
@@ -695,7 +717,7 @@ $(document).ready(function() {
 
             $("#bus_services").html(bus_service_selections)
 
-            $("#search_bus_stop").on("keyup", function() {
+            $("body").on("keyup", "#search_bus_stop", function() {
               let value = $(this).val().toLowerCase();
               $("#bus_services tr").filter(function() {
                 $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
