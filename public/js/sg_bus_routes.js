@@ -169,19 +169,19 @@ $(document).ready(function() {
         busEtaHtmlStr+="<span style='border-radius:0;margin-top:5px;margin-bottom:5px' class='badge badge-warning service_no rounded-left'>" + ServiceNo + "</span><span style='border-radius:0;margin-top:5px;margin-bottom:5px' class='badge badge-secondary service_no rounded-right small'><small class='small' style='color:#fff'>";
 
         if(parseInt(eta)==0) {
-          busEtaHtmlStr+="<span style='font-family:cambria'>ᴬʳʳ</span>";
+          busEtaHtmlStr+="<span class='ascii_chars'>ᴬʳʳ</span>";
         } else if(parseInt(eta)>0) {
-          busEtaHtmlStr+=(parseInt(eta)+"<span style='font-family:cambria'> ᵐᶤⁿ</span>");
+          busEtaHtmlStr+=(parseInt(eta)+"<span class='ascii_chars'> ᵐᶤⁿ</span>");
         } else if(parseInt(eta2)==0) {
-          busEtaHtmlStr+="<span style='font-family:cambria'>ᴬʳʳ</span>";
+          busEtaHtmlStr+="<span class='ascii_chars'>ᴬʳʳ</span>";
         } else if(parseInt(eta2)>0) {
-          busEtaHtmlStr+=(parseInt(eta2)+"<span style='font-family:cambria'> ᵐᶤⁿ</span>");
+          busEtaHtmlStr+=(parseInt(eta2)+"<span class='ascii_chars'> ᵐᶤⁿ</span>");
         } else if(parseInt(eta3)==0) {
-          busEtaHtmlStr+="<span style='font-family:cambria'>ᴬʳʳ</span>";
+          busEtaHtmlStr+="<span class='ascii_chars'>ᴬʳʳ</span>";
         } else if(parseInt(eta3)>0) {
-          busEtaHtmlStr+=(parseInt(eta3)+"<span style='font-family:cambria'> ᵐᶤⁿ</span>");
+          busEtaHtmlStr+=(parseInt(eta3)+"<span class='ascii_chars'> ᵐᶤⁿ</span>");
         } else {
-          busEtaHtmlStr+="<span style='font-family:cambria'>⁽ᴺᴬ⁾</span>"
+          busEtaHtmlStr+="<span class='ascii_chars'>⁽ᴺᴬ⁾</span>"
         }
 
         busEtaHtmlStr+="&nbsp"+feature;
@@ -523,20 +523,19 @@ $(document).ready(function() {
     var response="";
     var responseObj="";
 
-    var mode="api";
     async function initBusStops() {
       try {
-        response = await fetch("/api/ltaodataservice/BusStops/0", apiHeaders);
+        response = await fetch("api/ltaodataservice/BusStops", apiHeaders);
         responseObj = await response.json();
         if(responseObj.length==0) {
-          response = await fetch("/data/BusStops.json", apiHeaders);
+          response = await fetch("data/BusStops.json", apiHeaders);
           responseObj = await response.json();
         }
         bus_stops_mapping = await retrieveBusStops(responseObj);
       } catch(err) {
         console.log(err);
         if(responseObj.length==0) {
-          response = await fetch("/data/BusStops.json", apiHeaders);
+          response = await fetch("data/BusStops.json", apiHeaders);
           responseObj = await response.json();
           bus_stops_mapping = await retrieveBusStops(responseObj);
         }
@@ -547,17 +546,17 @@ $(document).ready(function() {
     initBusStops().then((bus_stops_mappingObj) => { // #1
       async function initBusServices() {
         try {
-          response = await fetch("/api/ltaodataservice/BusServices/0", apiHeaders);
+          response = await fetch("api/ltaodataservice/BusServices", apiHeaders);
           responseObj = await response.json();
           if(responseObj.length==0) {
-            response = await fetch("/data/BusServices.json", apiHeaders);
+            response = await fetch("data/BusServices.json", apiHeaders);
             responseObj = await response.json();
           }
           bus_services_mapping = await retrieveBusServices(responseObj);
         } catch(err) {
           console.log(err);
           if(responseObj.length==0) {
-            response = await fetch("/data/BusServices.json", apiHeaders);
+            response = await fetch("data/BusServices.json", apiHeaders);
             responseObj = await response.json();
             bus_services_mapping = await retrieveBusServices(responseObj);
           }
@@ -569,7 +568,7 @@ $(document).ready(function() {
         async function initServiceRoutes() {
           let consolidated_service_routes_mapping = {};
           try {
-            response = await fetch("/data/BusRoutes.json", apiHeaders);
+            response = await fetch("data/BusRoutes.json", apiHeaders);
             responseObj = await response.json();
             service_routes_mapping = await retrieveServiceRoutes(responseObj);
             //Object.assign(resultOutput, consolidated_service_routes_mapping)
@@ -656,11 +655,11 @@ $(document).ready(function() {
 
               let caption="<br>";
               if(symbol=="⟲") {
-                caption+="<span style='font-family:cambria'>ᴸᵒᵒᵖ@</span>" + loop_description_mapped;
+                caption+="<span class='ascii_chars'>ᴸᵒᵒᵖ@</span>" + loop_description_mapped;
               } else if(symbol=="⇆") {
-                caption+="<span style='font-family:cambria'>2 ʳᵒᵘᵗᵉˢ</span>";
+                caption+="<span class='ascii_chars'>2 ʳᵒᵘᵗᵉˢ</span>";
               } else {
-                caption+="<span style='font-family:cambria'>1 ʳᵒᵘᵗᵉ ᵒⁿˡʸ</span>";
+                caption+="<span class='ascii_chars'>1 ʳᵒᵘᵗᵉ ᵒⁿˡʸ</span>";
               }
               caption=`<b>${caption}</b>`;
 
@@ -672,14 +671,14 @@ $(document).ready(function() {
                 bus_service_selections += "<td>";
                 bus_service_selections += "<input type='radio' data-serviceid='" + service_id + "' class='form-check-input service_route_selection' name='service_route_selection' />";
                 if(symbol=="⇆") {
-                  bus_service_selections += "&nbsp;<small>ᴿᵒᵘᵗᵉ&nbsp;1</small>";
+                  bus_service_selections += "&nbsp;<small class='ascii_chars'>ᴿᵒᵘᵗᵉ&nbsp;1</small>";
                 }
                 bus_service_selections += "</td>";
 
                 if(symbol=="⇆") {
                   bus_service_selections += "<td>";
                   bus_service_selections += "<input type='radio' data-serviceid='"+service_no+"_2' class='form-check-input service_route_selection' name='service_route_selection' />";
-                  bus_service_selections += "&nbsp;<small>ᴿᵒᵘᵗᵉ&nbsp;2</small>";
+                  bus_service_selections += "&nbsp;<small class='ascii_chars'>ᴿᵒᵘᵗᵉ&nbsp;2</small>";
                   bus_service_selections += "</td>";
                 } else {
                   bus_service_selections += "<td>&nbsp;</td>";
@@ -852,9 +851,9 @@ $(document).ready(function() {
                         service_route_details_htmlstr+="<td class='small'><b>Stop&nbsp;#"+ stop_sequence+"</b></td>";
                         service_route_details_htmlstr+="<td colspan='3' class='small text-left'>"+bus_stop_description+"&nbsp;<small>(" + bus_stop_code +")</small><br><small>"+bus_stop_road_name+"</small></td>";
 
-                        service_route_details_htmlstr += "<td colspan='2'><div class='form-check'><label class='form-check-label'><input type='radio' class='form-check-input start_bus_stop_selection' data-serviceid='"+service_route_selected+"' name='start_bus_stop' id='start_s"+stop_sequence+"' " + ( stop_sequence==1 ? "checked" : "") + "/><span style='font-family:cambria'>ᴼʳᶤᵍᶤⁿ</span></label></div></td>";
+                        service_route_details_htmlstr += "<td colspan='2'><div class='form-check'><label class='form-check-label'><input type='radio' class='form-check-input start_bus_stop_selection' data-serviceid='"+service_route_selected+"' name='start_bus_stop' id='start_s"+stop_sequence+"' " + ( stop_sequence==1 ? "checked" : "") + "/><span class='ascii_chars'>ᴼʳᶤᵍᶤⁿ</span></label></div></td>";
 
-                        service_route_details_htmlstr += "<td colspan='2'><div class='form-check'><label class='form-check-label'><input type='radio' class='form-check-input end_bus_stop_selection' data-serviceid='"+service_route_selected+" name='end_bus_stop' id='end_s"+stop_sequence+"' " + ( stop_sequence!=1 && bus_stop_code==destination_code_mapped ? "checked" : "") + "/><span style='font-family:cambria'>ᴰᵉˢᵗᶤⁿᵃᵗᶤᵒⁿ</span></label></div></td>";
+                        service_route_details_htmlstr += "<td colspan='2'><div class='form-check'><label class='form-check-label'><input type='radio' class='form-check-input end_bus_stop_selection' data-serviceid='"+service_route_selected+" name='end_bus_stop' id='end_s"+stop_sequence+"' " + ( stop_sequence!=1 && bus_stop_code==destination_code_mapped ? "checked" : "") + "/><span class='ascii_chars'>ᴰᵉˢᵗᶤⁿᵃᵗᶤᵒⁿ</span></label></div></td>";
 
                         service_route_details_htmlstr+="</tr>";
 

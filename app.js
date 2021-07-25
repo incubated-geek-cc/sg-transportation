@@ -86,8 +86,7 @@ function startServer() {
     });
   }
 
-  async function asyncCall(transportation, pageNo) {
-    let upperBound = 5000
+  async function asyncCall(transportation) {
     let arr_result=[];
     let offset=0;
 
@@ -120,12 +119,11 @@ function startServer() {
     });
   };
 
-  router.get("/ltaodataservice/:transportation/:pageNo", async (req, res) => {
+  router.get("/ltaodataservice/:transportation", async (req, res) => {
     try {
       let params=req.params;
       let transportation=params["transportation"];
-      let pageNo=params["pageNo"];
-      let entireListing=await asyncCall(transportation, pageNo);
+      let entireListing=await asyncCall(transportation);
       return res.status(200).json(entireListing)
     } catch(err) {
       return res.status(404).json({ 

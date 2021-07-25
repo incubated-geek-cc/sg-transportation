@@ -349,3 +349,7 @@ html, body {
             flex: 1 0 auto;
   }
 }
+
+.ascii_chars {
+  font-family:cambria;
+}
