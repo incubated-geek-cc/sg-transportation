@@ -9,7 +9,6 @@ const request = require("request")
 const express = require("express")
 const socketio = require("socket.io")
 
-let nextVisitorNumber = 1;
 const onlineClients = new Set();
 
 const API_ENDPOINT = "http://datamall2.mytransport.sg/ltaodataservice"
@@ -29,7 +28,6 @@ function onNewWebsocketConnection(socket) {
   // echoes on the terminal every "back_to_server" message this socket sends
   socket.on("back_to_server", msg => console.info(`Socket ${socket.id} says: "${msg}"`));
   // will send a message only to this socket (different than using `io.emit()`, which would broadcast it)
-  socket.emit("visit_tracker", `Tracking visitor number ${nextVisitorNumber++}`);
 
   socket.on("bus_arrivals", bus_stop_code => {
     if(updateInterval) {
@@ -39,7 +37,7 @@ function onNewWebsocketConnection(socket) {
     
     updateInterval = setInterval(() => {
       request({
-          url: "http://datamall2.mytransport.sg/ltaodataservice/BusArrivalv2?BusStopCode="+bus_stop_code,
+          url: `${API_ENDPOINT}/BusArrivalv2?BusStopCode=${bus_stop_code}`,
           method: "GET",
           json: true,
           headers: {
@@ -80,17 +78,15 @@ function startServer() {
       request(reqOptions, function(err, res, body) {
           let result=body.value;
           resolve(result);
-      })
-    }).catch((error) => {
-      console.log(error);
+      });
     });
   }
 
   async function asyncCall(transportation) {
-    let arr_result=[];
-    let offset=0;
+    var arr_result=[];
+    var offset = 0;
 
-    let options={
+    var options={
       url: `${API_ENDPOINT}/${transportation}?$skip=${offset}`,
       method: "GET",
       json: true,
@@ -100,36 +96,68 @@ function startServer() {
       }
     };
 
-    let prevOffset=0;
-    let result = [];
-    let toContinue=true;
+    var result = [];
+    var toContinue=true;
     while(toContinue) {
       if(offset==0 || result.length==PAGE_SIZE) {
+        result = await resolveAsyncCall(options);
         offset += PAGE_SIZE;
         options.url=`${API_ENDPOINT}/${transportation}?$skip=${offset}`;
-      } else if(result.length < PAGE_SIZE) { // RETURN ENTIRE LISTING. LEAVE IT BE.
+      } else if(result.length < PAGE_SIZE) {
         toContinue=false;
       }
       arr_result=arr_result.concat(result);
     }
     return new Promise(resolve => {
       resolve(arr_result);
-    }).catch((error) => {
-      console.log(error);
     });
   };
 
-  router.get("/ltaodataservice/:transportation", async (req, res) => {
+  router.get("/ltaodataservice/all/:transportation", async (req, res) => {
     try {
       let params=req.params;
       let transportation=params["transportation"];
       let entireListing=await asyncCall(transportation);
-      return res.status(200).json(entireListing)
+
+      res.status(200).json(entireListing)
     } catch(err) {
-      return res.status(404).json({ 
+      res.status(500).json({ 
         type: "error",
         message: (err !== null && typeof err.message !== "undefined") ? err.message : `Error. Unable to retrieve data from datamall.lta.gov.sg ${transportation} Routing API.`
-      })
+      });
+    }
+  }); 
+
+
+  router.get("/ltaodataservice/:transportation/:offset", (req, res) => {
+    try {
+      let params=req.params;
+
+      let transportation=params["transportation"];
+      let offset=params["offset"];
+      
+      request({
+        url: `${API_ENDPOINT}/${transportation}?$skip=${offset}`,
+        method: "GET",
+        json: true,
+        headers: {
+          "AccountKey" : LTA_API_KEY,
+          "accept" : "application/json"
+        }
+      }, (err, response, body) => {
+        if (err || response.statusCode !== 200) {
+          return res.status(500).json({ 
+            type: "error", 
+            message: (err !== null && typeof err.message !== "undefined") ? err.message : `Error. Unabled to retrieve data from datamall.lta.gov.sg ${transportation} API.`
+          });
+        }
+        return res.status(200).json(body.value)
+      });
+    } catch(err2) {
+      return res.status(404).json({ 
+        type: "error",
+        message: (err2 !== null && typeof err2.message !== "undefined") ? err2.message : `Error. Unable to retrieve data from datamall.lta.gov.sg ${transportation} API.`
+      });
     }
   });
 
@@ -150,9 +178,10 @@ function startServer() {
   });
 
   // broadcast here
+  /*
   setInterval(() => {
       io.emit("online_clients_tracker", onlineClients.size);
-  }, 10000);
+  }, 10000);*/
 }
 
 startServer();

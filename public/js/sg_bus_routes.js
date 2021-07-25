@@ -217,12 +217,6 @@ $(document).ready(function() {
           socket.emit("back_to_server", `Connection received from client at: ${window.navigator.userAgent}`)
         });
 
-        socket.on("visit_tracker", server_visit_msg => {
-          console.log(server_visit_msg);
-        });
-        socket.on("online_clients_tracker", online_clients_tracker_set => {
-          console.log(online_clients_tracker_set.toString());
-        });
         $("body").on("click",".view_bus_arrivals", (ele3) => {
           $("#bus_etas").html("");
           $("#bus_etas_title").html("");
@@ -525,7 +519,7 @@ $(document).ready(function() {
 
     async function initBusStops() {
       try {
-        response = await fetch("api/ltaodataservice/BusStops", apiHeaders);
+        response = await fetch("api/ltaodataservice/all/BusStops", apiHeaders);
         responseObj = await response.json();
         if(responseObj.length==0) {
           response = await fetch("data/BusStops.json", apiHeaders);
@@ -546,7 +540,7 @@ $(document).ready(function() {
     initBusStops().then((bus_stops_mappingObj) => { // #1
       async function initBusServices() {
         try {
-          response = await fetch("api/ltaodataservice/BusServices", apiHeaders);
+          response = await fetch("api/ltaodataservice/all/BusServices", apiHeaders);
           responseObj = await response.json();
           if(responseObj.length==0) {
             response = await fetch("data/BusServices.json", apiHeaders);
@@ -565,19 +559,41 @@ $(document).ready(function() {
         }
       };
       initBusServices().then((bus_services_mappingObj) => { // #2
+
+        const PAGE_SIZE = 500 // How many records the API returns in a page.
+        
+        async function callAPI() {
+          var arr_result=[];
+          var offset = 0;
+
+          var result = [];
+          var toContinue=true;
+          while(toContinue) {
+            if(offset==0 || result.length==PAGE_SIZE) {
+              response = await fetch(`api/ltaodataservice/BusRoutes/${offset}`, apiHeaders);
+              result = await response.json();
+              offset += PAGE_SIZE;
+            } else if(result.length < PAGE_SIZE) {
+              toContinue=false;
+            }
+            arr_result=arr_result.concat(result);
+          }
+          return new Promise(resolve => {
+            resolve(arr_result);
+          });
+        };
+
         async function initServiceRoutes() {
-          let consolidated_service_routes_mapping = {};
           try {
-            response = await fetch("data/BusRoutes.json", apiHeaders);
-            responseObj = await response.json();
+            let responseObj=await callAPI();
             service_routes_mapping = await retrieveServiceRoutes(responseObj);
-            //Object.assign(resultOutput, consolidated_service_routes_mapping)
           } catch(err) {
             console.log(err);
           } finally {
             return service_routes_mapping
           }
         };
+
         initServiceRoutes().then( (service_routes_mappingObj) => { // #3
           async function renderOutput() { 
             let bus_service_selections = "";
@@ -716,25 +732,6 @@ $(document).ready(function() {
 
             $("#bus_services").html(bus_service_selections)
 
-            $("body").on("keyup", "#search_bus_stop", function() {
-              let value = $(this).val().toLowerCase();
-              $("#bus_services tr").filter(function() {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-              });
-            });
-
-            $(".end_bus_stop_selection").change((ele) => {
-              $(".end_bus_stop_selection").each((ele2) => {
-                $(".end_bus_stop_selection")[ele2].checked=false;
-              });
-              let serviceid_selected=ele.target.dataset.serviceid;
-              ele.target.checked=true;
-              let ele_id=ele.target.id;
-
-              selected_stop_sequence=parseInt(ele_id.split("end_s")[1]);
-              renderServiceRoute();
-            });
-
             $(".service_route_selection").change((ele) => {
               $(".service_route_selection").each((ele2) => {
                   $(".service_route_selection")[ele2].checked=false;
@@ -871,7 +868,6 @@ $(document).ready(function() {
               service_route_details_htmlstr += "</div>";
 
               $("#service_route_details").html(service_route_details_htmlstr);
-
 
               $("#displayed_bus_route_details").html("");
               let displayed_bus_route_htmlStr="";
@@ -1052,7 +1048,7 @@ $(document).ready(function() {
                   })
                 });
                 map.addLayer(displayed_bus_stops_geojson_layer);
-              } 
+              }
 
               $(".start_bus_stop_selection").change((ele) => {
                 $(".start_bus_stop_selection").each((ele2) => {
@@ -1077,7 +1073,7 @@ $(document).ready(function() {
                 selected_stop_sequence=parseInt(ele_id.split("end_s")[1]);
                 renderServiceRoute();
               });
-            
+
             });
             
             let promise = new Promise((resolve, reject) => {
@@ -1119,5 +1115,12 @@ $(document).ready(function() {
           } 
           dwnlnk.click();
         }
+    });
+
+    $("body").on("keyup", "#search_bus_stop", function() {
+      let value = $(this).val().toLowerCase();
+      $("body").find("#bus_services tr").filter(function() {
+        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+      });
     });
 });
