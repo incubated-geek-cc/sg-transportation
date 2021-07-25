@@ -585,10 +585,19 @@ $(document).ready(function() {
 
         async function initServiceRoutes() {
           try {
-            let responseObj=await callAPI();
+            responseObj=await callAPI();
+            if(responseObj.length==0) {
+              response = await fetch("data/BusRoutes.json", apiHeaders);
+              responseObj = await response.json();
+            }
             service_routes_mapping = await retrieveServiceRoutes(responseObj);
           } catch(err) {
             console.log(err);
+            if(responseObj.length==0) {
+              response = await fetch("data/BusRoutes.json", apiHeaders);
+              responseObj = await response.json();
+              service_routes_mapping = await retrieveServiceRoutes(responseObj);
+            }
           } finally {
             return service_routes_mapping
           }
