@@ -13,6 +13,7 @@ const onlineClients = new Set();
 
 const API_ENDPOINT = "http://datamall2.mytransport.sg/ltaodataservice"
 const PAGE_SIZE = 500 // How many records the API returns in a page.
+const LIMIT_PER_CALL=4500
 
 let updateInterval;
 
@@ -113,7 +114,7 @@ function startServer() {
     });
   };
 
-  router.get("/ltaodataservice/all/:transportation", async (req, res) => {
+  router.post("/ltaodataservice/all/:transportation", async (req, res) => {
     try {
       let params=req.params;
       let transportation=params["transportation"];
@@ -129,9 +130,8 @@ function startServer() {
   }); 
 
 
-  router.get("/ltaodataservice/:transportation/:client_offset", async(req, res) => {
+  router.post("/ltaodataservice/:transportation/:client_offset", async(req, res) => {
     try {
-      const LIMIT_PER_CALL=4500
       let params=req.params;
 
       let transportation=params["transportation"];

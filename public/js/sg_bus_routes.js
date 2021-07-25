@@ -499,7 +499,7 @@ $(document).ready(function() {
           "Accept": "application/json",
           "Content-Type": "application/json"
         },
-        method: "GET"
+        method: "POST"
     };
     
     var response="";
@@ -510,6 +510,7 @@ $(document).ready(function() {
         response = await fetch("api/ltaodataservice/all/BusStops", apiHeaders);
         responseObj = await response.json();
         if(responseObj.length==0) {
+          apiHeaders["method"]="GET";
           response = await fetch("data/BusStops.json", apiHeaders);
           responseObj = await response.json();
         }
@@ -517,6 +518,7 @@ $(document).ready(function() {
       } catch(err) {
         console.log(err);
         if(responseObj.length==0) {
+          apiHeaders["method"]="GET";
           response = await fetch("data/BusStops.json", apiHeaders);
           responseObj = await response.json();
           bus_stops_mapping = await retrieveBusStops(responseObj);
@@ -528,9 +530,11 @@ $(document).ready(function() {
     initBusStops().then((bus_stops_mappingObj) => { // #1
       async function initBusServices() {
         try {
+          apiHeaders["method"]="POST";
           response = await fetch("api/ltaodataservice/all/BusServices", apiHeaders);
           responseObj = await response.json();
           if(responseObj.length==0) {
+            apiHeaders["method"]="GET";
             response = await fetch("data/BusServices.json", apiHeaders);
             responseObj = await response.json();
           }
@@ -538,6 +542,7 @@ $(document).ready(function() {
         } catch(err) {
           console.log(err);
           if(responseObj.length==0) {
+            apiHeaders["method"]="GET";
             response = await fetch("data/BusServices.json", apiHeaders);
             responseObj = await response.json();
             bus_services_mapping = await retrieveBusServices(responseObj);
@@ -558,6 +563,7 @@ $(document).ready(function() {
           var toContinue=true;
           while(toContinue) {
             if(client_offset==0 || result.length==PAGE_SIZE) {
+              apiHeaders["method"]="POST";
               response = await fetch(`api/ltaodataservice/BusRoutes/${client_offset}`, apiHeaders);
               result = await response.json();
               client_offset += PAGE_SIZE;
@@ -575,6 +581,7 @@ $(document).ready(function() {
           try {
             responseObj=await callAPI();
             if(responseObj.length==0) {
+              apiHeaders["method"]="GET";
               response = await fetch("data/BusRoutes.json", apiHeaders);
               responseObj = await response.json();
             }
@@ -582,6 +589,7 @@ $(document).ready(function() {
           } catch(err) {
             console.log(err);
             if(responseObj.length==0) {
+              apiHeaders["method"]="GET";
               response = await fetch("data/BusRoutes.json", apiHeaders);
               responseObj = await response.json();
               service_routes_mapping = await retrieveServiceRoutes(responseObj);
