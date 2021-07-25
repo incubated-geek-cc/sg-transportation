@@ -149,18 +149,6 @@ $(document).ready(function() {
           feature="&nbsp;<svg class='icon icon-non-wheelchair'><use xlink:href='symbol-defs.svg#icon-non-wheelchair'></use></svg>";
         }
 
-        let busIconStyle="style='height:30px;width:30px;margin-left:1px;margin-right:1px'";
-
-        let type="";
-        let Type=NextBus["Type"];
-        if(Type=="SD") {
-          type="<svg "+busIconStyle+" class='icon icon-SD-bus'><use xlink:href='symbol-defs.svg#icon-SD-bus'></use></svg>";
-        } else if(Type=="DD") {
-          type="<svg "+busIconStyle+" class='icon icon-DD-bus'><use xlink:href='symbol-defs.svg#icon-DD-bus'></use></svg>";
-        } else if(Type=="BD") {
-          type="<svg "+busIconStyle+" class='icon icon-BD-bus'><use xlink:href='symbol-defs.svg#icon-BD-bus'></use></svg>";
-        }
-
         if(rowCounter==1) {
           busEtaHtmlStr+="<tr>";
         }
@@ -560,19 +548,19 @@ $(document).ready(function() {
       };
       initBusServices().then((bus_services_mappingObj) => { // #2
 
-        const PAGE_SIZE = 500 // How many records the API returns in a page.
+        const PAGE_SIZE = 5000 // How many records the API returns in a page.
         
         async function callAPI() {
           var arr_result=[];
-          var offset = 0;
+          var client_offset = 0;
 
           var result = [];
           var toContinue=true;
           while(toContinue) {
-            if(offset==0 || result.length==PAGE_SIZE) {
-              response = await fetch(`api/ltaodataservice/BusRoutes/${offset}`, apiHeaders);
+            if(client_offset==0 || result.length==PAGE_SIZE) {
+              response = await fetch(`api/ltaodataservice/BusRoutes/${client_offset}`, apiHeaders);
               result = await response.json();
-              offset += PAGE_SIZE;
+              client_offset += PAGE_SIZE;
             } else if(result.length < PAGE_SIZE) {
               toContinue=false;
             }

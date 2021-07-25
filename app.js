@@ -129,30 +129,62 @@ function startServer() {
   }); 
 
 
-  router.get("/ltaodataservice/:transportation/:offset", (req, res) => {
+  router.get("/ltaodataservice/:transportation/:client_offset", async(req, res) => {
     try {
+      const LIMIT_PER_CALL=4500
       let params=req.params;
 
       let transportation=params["transportation"];
-      let offset=params["offset"];
-      
-      request({
-        url: `${API_ENDPOINT}/${transportation}?$skip=${offset}`,
-        method: "GET",
-        json: true,
-        headers: {
-          "AccountKey" : LTA_API_KEY,
-          "accept" : "application/json"
-        }
-      }, (err, response, body) => {
-        if (err || response.statusCode !== 200) {
-          return res.status(500).json({ 
-            type: "error", 
-            message: (err !== null && typeof err.message !== "undefined") ? err.message : `Error. Unabled to retrieve data from datamall.lta.gov.sg ${transportation} API.`
+      let client_offset=params["client_offset"];
+      client_offset=parseInt(client_offset);
+
+      function resolveAsyncCall(reqOptions) {
+        return new Promise(resolve => {
+          request(reqOptions, function(err, res, body) {
+              let result=body.value;
+              resolve(result);
           });
+        });
+      }
+
+      async function asyncCall(transportation) {
+        var arr_result=[];
+        var offset = client_offset;
+
+        var options={
+          url: `${API_ENDPOINT}/${transportation}?$skip=${offset}`,
+          method: "GET",
+          json: true,
+          headers: {
+            "AccountKey" : LTA_API_KEY,
+            "accept" : "application/json"
+          }
+        };
+
+        var result = [];
+        var toContinue=true;
+        while(toContinue) {
+          if(offset==(client_offset+LIMIT_PER_CALL)) {
+            toContinue=false;
+          } else if(offset==client_offset || result.length==PAGE_SIZE) {
+            result = await resolveAsyncCall(options);
+            offset += PAGE_SIZE;
+            options.url=`${API_ENDPOINT}/${transportation}?$skip=${offset}`;
+          } else if(
+              (offset>client_offset) 
+              && ( offset<(client_offset+LIMIT_PER_CALL) && (result.length<PAGE_SIZE) )
+            ) {
+            toContinue=false;
+          }
+          arr_result=arr_result.concat(result);
         }
-        return res.status(200).json(body.value)
-      });
+        return new Promise(resolve => {
+          resolve(arr_result);
+        });
+      };
+      let entireSubListing=await asyncCall(transportation);
+
+      return res.status(200).json(entireSubListing)
     } catch(err2) {
       return res.status(404).json({ 
         type: "error",
