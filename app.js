@@ -60,6 +60,9 @@ function startServer() {
   const engine = require("consolidate")
   const server = http.createServer(app)
   const io = socketio(server);
+  const compression = require("compression");
+  
+  app.use(compression()); //use compression 
 
   // set up router
   const router = express.Router();
