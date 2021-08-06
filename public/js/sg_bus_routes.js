@@ -21,8 +21,10 @@ function initmap(lat, long, zoom) {
   });
 
   map = L.map("map-id", {
-    zoomControl: false
-  })
+    zoomControl: false,
+    renderer: L.svg()
+  });
+
 
   if(map !== "") {
     map.setMaxBounds([[1.56073, 104.1147], [1.16, 103.502]]);
@@ -247,33 +249,21 @@ $(document).ready(function() {
       "features":[]
     };
     var all_bus_stops_geojson_layer;
-    var service_routes_geojson_layer;
     var bus_stops_by_service_geojson_layer;
-    var displayed_bus_route_geojson_layer;
     var displayed_bus_stops_geojson_layer;
+
+
+    var layerGroup;
+
+    var service_route_selected_layer;
+    var displayed_route_selected_layer;
 
     var service_routes_mapping={}
     var bus_services_mapping={}
 
-    var service_routes_geojson = {
-      "type":"FeatureCollection",
-      "features":[]
-    };
     var bus_stops_by_service_geojson = {
       "type":"FeatureCollection",
       "features":[]
-    };
-
-    var displayed_bus_route_geojson={
-      "type":"FeatureCollection",
-      "features": [{
-        "type": "Feature",
-        "properties": {},
-        "geometry": {
-          "type":"LineString",
-          "coordinates":[]
-        }
-      }]
     };
 
     var displayed_bus_stops_geojson={
@@ -505,58 +495,72 @@ $(document).ready(function() {
     var response="";
     var responseObj="";
 
+    var mode="prod"; // prod | dev
+
     async function initBusStops() {
-     
-      try {
-        response = await fetch("api/ltaodataservice/all/BusStops", apiHeaders);
-        responseObj = await response.json();
-        if(responseObj.length==0) {
-          apiHeaders["method"]="GET";
-          response = await fetch("data/BusStops.json", apiHeaders);
-          responseObj = await response.json();
-        }
-        bus_stops_mapping = await retrieveBusStops(responseObj);
-      } catch(err) {
-        console.log(err);
-        if(responseObj.length==0) {
-          apiHeaders["method"]="GET";
-          response = await fetch("data/BusStops.json", apiHeaders);
-          responseObj = await response.json();
-          bus_stops_mapping = await retrieveBusStops(responseObj);
-        }
-      } finally {
-        return bus_stops_mapping
-      }
+        if(mode=="dev") {
+            apiHeaders["method"]="GET";
+            response = await fetch("data/BusStops.json", apiHeaders);
+            responseObj = await response.json();
+            bus_stops_mapping = await retrieveBusStops(responseObj);
+            return bus_stops_mapping
+        } else if(mode=="prod") {
+          try {
+              response = await fetch("api/ltaodataservice/all/BusStops", apiHeaders);
+              responseObj = await response.json();
+              if(responseObj.length==0) {
+                apiHeaders["method"]="GET";
+                response = await fetch("data/BusStops.json", apiHeaders);
+                responseObj = await response.json();
+              }
+              bus_stops_mapping = await retrieveBusStops(responseObj);
+          } catch(err) {
+              console.log(err);
+              if(responseObj.length==0) {
+                apiHeaders["method"]="GET";
+                response = await fetch("data/BusStops.json", apiHeaders);
+                responseObj = await response.json();
+                bus_stops_mapping = await retrieveBusStops(responseObj);
+              }
+          } finally {
+              return bus_stops_mapping
+          }
+        } 
     };
     initBusStops().then((bus_stops_mappingObj) => { // #1
       async function initBusServices() {
-       
-        try {
-          apiHeaders["method"]="POST";
-          response = await fetch("api/ltaodataservice/all/BusServices", apiHeaders);
-          responseObj = await response.json();
-          if(responseObj.length==0) {
-            apiHeaders["method"]="GET";
-            response = await fetch("data/BusServices.json", apiHeaders);
-            responseObj = await response.json();
-          }
-          bus_services_mapping = await retrieveBusServices(responseObj);
-        } catch(err) {
-          console.log(err);
-          if(responseObj.length==0) {
+        if(mode=="dev") {
             apiHeaders["method"]="GET";
             response = await fetch("data/BusServices.json", apiHeaders);
             responseObj = await response.json();
             bus_services_mapping = await retrieveBusServices(responseObj);
+            return bus_services_mapping
+        } else if(mode=="prod") {
+            try {
+              apiHeaders["method"]="POST";
+              response = await fetch("api/ltaodataservice/all/BusServices", apiHeaders);
+              responseObj = await response.json();
+              if(responseObj.length==0) {
+                apiHeaders["method"]="GET";
+                response = await fetch("data/BusServices.json", apiHeaders);
+                responseObj = await response.json();
+              }
+              bus_services_mapping = await retrieveBusServices(responseObj);
+            } catch(err) {
+              console.log(err);
+              if(responseObj.length==0) {
+                apiHeaders["method"]="GET";
+                response = await fetch("data/BusServices.json", apiHeaders);
+                responseObj = await response.json();
+                bus_services_mapping = await retrieveBusServices(responseObj);
+              }
+            } finally {
+              return bus_services_mapping
+            }
           }
-        } finally {
-          return bus_services_mapping
-        }
       };
       initBusServices().then((bus_services_mappingObj) => { // #2
-
         const PAGE_SIZE = 5000 // How many records the API returns in a page.
-        
         async function callAPI() {
           var arr_result=[];
           var client_offset = 0;
@@ -580,26 +584,33 @@ $(document).ready(function() {
         };
 
         async function initServiceRoutes() {
-         
-          try {
-            responseObj=await callAPI();
-            if(responseObj.length==0) {
-              apiHeaders["method"]="GET";
-              response = await fetch("data/BusRoutes.json", apiHeaders);
-              responseObj = await response.json();
-            }
-            service_routes_mapping = await retrieveServiceRoutes(responseObj);
-          } catch(err) {
-            console.log(err);
-            if(responseObj.length==0) {
+          if(mode=="dev") {
               apiHeaders["method"]="GET";
               response = await fetch("data/BusRoutes.json", apiHeaders);
               responseObj = await response.json();
               service_routes_mapping = await retrieveServiceRoutes(responseObj);
+              return service_routes_mapping;
+          } else if(mode=="prod") {
+              try {
+                responseObj=await callAPI();
+                if(responseObj.length==0) {
+                  apiHeaders["method"]="GET";
+                  response = await fetch("data/BusRoutes.json", apiHeaders);
+                  responseObj = await response.json();
+                }
+                service_routes_mapping = await retrieveServiceRoutes(responseObj);
+              } catch(err) {
+                console.log(err);
+                if(responseObj.length==0) {
+                  apiHeaders["method"]="GET";
+                  response = await fetch("data/BusRoutes.json", apiHeaders);
+                  responseObj = await response.json();
+                  service_routes_mapping = await retrieveServiceRoutes(responseObj);
+                }
+              } finally {
+                return service_routes_mapping
+              }
             }
-          } finally {
-            return service_routes_mapping
-          }
         };
 
         initServiceRoutes().then( (service_routes_mappingObj) => { // #3
@@ -640,7 +651,7 @@ $(document).ready(function() {
 
               let total_distance = service_route["total_distance"]
 
-              let featureProperties={
+              let service_route_obj={
                 "service_id": service_id,
                 "service_no": service_no,
                 "direction": direction,
@@ -658,17 +669,14 @@ $(document).ready(function() {
                 "category_mapped":service_route["category_mapped"],
                 "origin_code_mapped":origin_code_mapped,
                 "destination_code_mapped":destination_code_mapped,
-                "loop_description_mapped":loop_description_mapped
+                "loop_description_mapped":loop_description_mapped,
+                "coordinates_arr": coordinates_arr,
+                "cumulated_distance": cumulated_distance_obj,
+                "bus_stops": bus_stops_obj,
+                "coordinates":coordinates_obj
               };
 
-              let service_route_feature={
-                "type":"Feature",
-                "properties": featureProperties,
-                "geometry": {
-                  "type": "LineString",
-                  "coordinates": coordinates_arr
-                }
-              }
+
               
               let symbol = "➝"
               if(loop_description_mapped !== "") {
@@ -676,6 +684,8 @@ $(document).ready(function() {
               } else if(typeof bus_services_mapping[service_no+"_"+1] !== "undefined" && typeof bus_services_mapping[service_no+"_"+2] !== "undefined") {
                 symbol = "⇆"
               }
+              service_route_obj["symbol"]=symbol;
+              service_routes_mapping[service_id]=service_route_obj;
 
               let caption="<br>";
               if(symbol=="⟲") {
@@ -722,11 +732,10 @@ $(document).ready(function() {
                 bus_service_selections += "</tr>";
               }
 
-              service_route_feature["properties"]["symbol"]=symbol
-              service_routes_geojson["features"].push(service_route_feature)
+
 
               for(let sIndex in coordinates_obj) {
-                let featurePropertiesCopy = deepCopyObj(featureProperties);
+                let featurePropertiesCopy = deepCopyObj(service_route_obj);
                 let bus_stop_code=bus_stops_obj[sIndex];
 
                 featurePropertiesCopy["stop_sequence"]=parseInt(sIndex)
@@ -759,86 +768,78 @@ $(document).ready(function() {
               service_route_selected=ele.target.dataset.serviceid;
               ele.target.checked=true;
              
-              if(typeof service_routes_geojson_layer !== "undefined") {
-                map.removeLayer(service_routes_geojson_layer);
-              }
+
               if(typeof bus_stops_by_service_geojson_layer !== "undefined") {
                 map.removeLayer(bus_stops_by_service_geojson_layer);
-              }
-
-              if(typeof displayed_bus_route_geojson_layer !== "undefined") {
-                map.removeLayer(displayed_bus_route_geojson_layer);
               }
 
               if(typeof displayed_bus_stops_geojson_layer !== "undefined") {
                 map.removeLayer(displayed_bus_stops_geojson_layer);
               }
 
-              let service_route_details_htmlstr="";
-              service_route_details_htmlstr += '<div class="card-header">';
+                if(typeof service_route_selected_layer !== "undefined") {
+                  layerGroup.removeLayer(service_route_selected_layer);
+                }
+                let coordinates_arr=service_routes_mapping[service_route_selected]["coordinates_arr"];
 
-              service_routes_geojson_layer = L.geoJSON(service_routes_geojson, {
-                  style: ((feature) => {
-                      return {
-                        color: "#cc1f5e",
-                        weight: 6.5,
-                        strokeOpacity: 0.5
-                      }; 
-                  }),
-                  filter: ((feature, layer) =>  {
-                    if(feature["properties"]["service_id"]==service_route_selected) {
-                      let service_no=feature["properties"]["service_no"];
-                      let direction=parseInt(feature["properties"]["direction"]);
-                      let symbol=feature["properties"]["symbol"];
+                let latlngs=reverse_latlngs(coordinates_arr);
+                let center=L.latLngBounds(latlngs).getCenter();
+                map.setView(center, defaultZoom);
 
-                      service_route_details_htmlstr += '<h6><a class="card-link w-100"><b>';
+                service_route_selected_layer = L.polyline(latlngs, {
+                    color: "#cc1f5e",
+                    weight: 3.5,
+                    strokeOpacity: 1.0,
+                    offset: 1.0,
+                    renderer: L.svg()
+                });
 
-                      service_route_details_htmlstr += '<span class="badge badge-success service_no">';
-                      service_route_details_htmlstr += service_no;
-                      service_route_details_htmlstr += '</span>&nbsp;';
+                layerGroup = L.layerGroup([service_route_selected_layer])
+                layerGroup.addTo(map);
 
-                      service_route_details_htmlstr += '<b class="small">';
-                      service_route_details_htmlstr += bus_stops_mapping[feature["properties"]["origin_code_mapped"]]["description"];
-                      service_route_details_htmlstr += "&nbsp;"+symbol+"&nbsp;";
-                      service_route_details_htmlstr += bus_stops_mapping[ feature["properties"]["destination_code_mapped"]]["description"];
-                      service_route_details_htmlstr += '</b>&nbsp;';
+                let service_route_details_htmlstr="";
+                service_route_details_htmlstr += '<div class="card-header">';
 
-                      service_route_details_htmlstr += '<span class="badge badge-primary">';
-                      service_route_details_htmlstr += feature["properties"]["operator"];
-                      service_route_details_htmlstr += '</span>&nbsp;';
+                let service_no=service_routes_mapping[service_route_selected]["service_no"]
+                let direction=service_routes_mapping[service_route_selected]["direction"]
+                let symbol=service_routes_mapping[service_route_selected]["symbol"]
 
-                      service_route_details_htmlstr += '<span class="badge badge-warning">';
-                      service_route_details_htmlstr += feature["properties"]["category_mapped"];
-                      service_route_details_htmlstr += '</span>&nbsp;';
+                service_route_details_htmlstr += '<h6><a class="card-link w-100"><b>';
 
-                      if(symbol=="⇆") {
-                        service_route_details_htmlstr += '<span class="badge badge-secondary">Route&nbsp;';
-                        service_route_details_htmlstr += direction;
-                        service_route_details_htmlstr += '</span>&nbsp;';
-                      }
+                service_route_details_htmlstr += '<span class="badge badge-success service_no">';
+                service_route_details_htmlstr += service_no;
+                service_route_details_htmlstr += '</span>&nbsp;';
 
-                      service_route_details_htmlstr += '</a></h6>';
+                service_route_details_htmlstr += '<b class="small">';
+                service_route_details_htmlstr += bus_stops_mapping[service_routes_mapping[service_route_selected]["origin_code_mapped"]]["description"];
+                service_route_details_htmlstr += "&nbsp;"+symbol+"&nbsp;";
+                service_route_details_htmlstr += bus_stops_mapping[ service_routes_mapping[service_route_selected]["destination_code_mapped"]]["description"];
+                service_route_details_htmlstr += '</b>&nbsp;';
 
-                      service_route_details_htmlstr += '</div>';
+                service_route_details_htmlstr += '<span class="badge badge-primary">';
+                service_route_details_htmlstr += service_routes_mapping[service_route_selected]["operator"];
+                service_route_details_htmlstr += '</span>&nbsp;';
 
-                      service_route_details_htmlstr += '<div id="service_selected" class="w-100">';
-                      service_route_details_htmlstr += '<div class="card-body rounded-0">';
+                service_route_details_htmlstr += '<span class="badge badge-warning">';
+                service_route_details_htmlstr += service_routes_mapping[service_route_selected]["category_mapped"];
+                service_route_details_htmlstr += '</span>&nbsp;';
 
-                      service_route_details_htmlstr+="<table class='table table-condensed table-hover w-100'>";
-                      service_route_details_htmlstr+="<tbody>";
+                if(symbol=="⇆") {
+                  service_route_details_htmlstr += '<span class="badge badge-secondary">Route&nbsp;';
+                  service_route_details_htmlstr += direction;
+                  service_route_details_htmlstr += '</span>&nbsp;';
+                }
+                service_route_details_htmlstr += '</a></h6>';
 
-                      let latlngs=feature["geometry"]["coordinates"];
+                service_route_details_htmlstr += '</div>';
 
-                      let coordinates_arr=reverse_latlngs(latlngs);
-                      let center=L.latLngBounds(coordinates_arr).getCenter();
-                      map.setView(center, defaultZoom);
-                    }
-                    return feature["properties"]["service_id"]==service_route_selected;
-                  })
-              });
-              map.addLayer(service_routes_geojson_layer);
+                service_route_details_htmlstr += '<div id="service_selected" class="w-100">';
+                service_route_details_htmlstr += '<div class="card-body rounded-0">';
 
-              bus_stops_by_service_geojson_layer = L.geoJSON(bus_stops_by_service_geojson, {
+                service_route_details_htmlstr+="<table class='table table-condensed table-hover w-100'>";
+                service_route_details_htmlstr+="<tbody>";
+
+                bus_stops_by_service_geojson_layer = L.geoJSON(bus_stops_by_service_geojson, {
                   pointToLayer: ((feature, latlng) => {
                     let busStopMarker=L.marker(latlng, {
                        icon: L.divIcon({      
@@ -883,7 +884,6 @@ $(document).ready(function() {
               map.addLayer(bus_stops_by_service_geojson_layer);
 
               service_route_details_htmlstr+="</tbody></table>";
-
               service_route_details_htmlstr += "</div>";
               service_route_details_htmlstr += "</div>";
 
@@ -891,19 +891,18 @@ $(document).ready(function() {
 
               $("#displayed_bus_route_details").html("");
               let displayed_bus_route_htmlStr="";
-
+           
               function renderServiceRoute() {
                 let service_routes_mappingObj=service_routes_mapping[service_route_selected];
-
                 let service_no=service_routes_mappingObj["service_no"]
                 let operator=service_routes_mappingObj["operator"]
                 let category=service_routes_mappingObj["category_mapped"]
                 let total_distance=service_routes_mappingObj["total_distance"]
       
-                let weekday_hours=service_routes_mappingObj["weekday_first_bus"].substr(0,2)+":"+service_routes_mappingObj["weekday_first_bus"].substr(2)+ " to " +service_routes_mappingObj["weekday_last_bus"].substr(0,2)+":"+service_routes_mappingObj["weekday_last_bus"].substr(2);
+                let weekday_hours=service_routes_mappingObj["weekday"]
 
-                let saturday_hours=service_routes_mappingObj["saturday_first_bus"].substr(0,2)+":"+service_routes_mappingObj["saturday_first_bus"].substr(2)+ " to " +service_routes_mappingObj["saturday_last_bus"].substr(0,2)+":"+service_routes_mappingObj["saturday_last_bus"].substr(2);
-                let sunday_hours=service_routes_mappingObj["sunday_first_bus"].substr(0,2)+":"+service_routes_mappingObj["sunday_first_bus"].substr(2)+ " to " +service_routes_mappingObj["sunday_last_bus"].substr(0,2)+":"+service_routes_mappingObj["sunday_last_bus"].substr(2);
+                let saturday_hours=service_routes_mappingObj["saturday"];
+                let sunday_hours=service_routes_mappingObj["sunday"];
 
                 let cumulated_distance=service_routes_mappingObj["cumulated_distance"]
                 let bus_stops=service_routes_mappingObj["bus_stops"]
@@ -911,34 +910,16 @@ $(document).ready(function() {
 
                 let initial_distance_unconvered=cumulated_distance[selected_start_sequence]
                 let distance_with_extra=cumulated_distance[selected_stop_sequence]
-
                 let actual_distance_covered=distance_with_extra-initial_distance_unconvered
 
-                displayed_bus_route_geojson["features"][0]["properties"]["service_no"]=service_no;
-                displayed_bus_route_geojson["features"][0]["properties"]["operator"]=operator;
-                displayed_bus_route_geojson["features"][0]["properties"]["category"]=category;
-                displayed_bus_route_geojson["features"][0]["properties"]["route_distance"]=actual_distance_covered;
-
-                if(typeof displayed_bus_route_geojson_layer !== "undefined") {
-                  map.removeLayer(displayed_bus_route_geojson_layer);
-                }
 
                 if(typeof displayed_bus_stops_geojson_layer !== "undefined") {
                   map.removeLayer(displayed_bus_stops_geojson_layer);
                 }
-
-                displayed_bus_route_geojson={
-                  "type":"FeatureCollection",
-                  "features": [{
-                    "type": "Feature",
-                    "properties": {},
-                    "geometry": {
-                      "type":"LineString",
-                      "coordinates":[]
-                    }
-                  }]
-                };
-
+                if(typeof displayed_route_selected_layer !== "undefined") {
+                  layerGroup.removeLayer(displayed_route_selected_layer)
+                }
+      
                 displayed_bus_stops_geojson={
                   "type":"FeatureCollection",
                   "features": []
@@ -984,15 +965,33 @@ $(document).ready(function() {
                 displayed_bus_route_htmlStr+="<table class='table table-condensed table-hover w-100'>";
                 displayed_bus_route_htmlStr+="<tbody>";
 
+                let selected_route=[]
+                let coordinates_arr = service_routes_mappingObj["coordinates_arr"];
+                coordinates_arr=coordinates_arr.slice( (selected_start_sequence-1), (selected_stop_sequence) )
+                
+                let latlngs=reverse_latlngs(coordinates_arr);
+                let center=L.latLngBounds(latlngs).getCenter();
+                map.setView(center, defaultZoom);
+
+                displayed_route_selected_layer = L.polyline(latlngs, {
+                    color: "#15727B",
+                    weight: 3.5,
+                    strokeOpacity: 1.0,
+                    offset: 2.5,
+                    renderer: L.svg()
+                });
+
+                layerGroup.addLayer(displayed_route_selected_layer)
                 for(let i=selected_start_sequence;i<=selected_stop_sequence;i++) {
                     try {
                       let coordinate=coordinates[i];
+                      
                       let bus_stop_code=bus_stops[i];
                       let bus_stop_distance= (i==selected_start_sequence) ? 0 : (cumulated_distance[i]-cumulated_distance[i-1]);
 
                       let bus_stop_description=bus_stops_mapping[bus_stop_code]["description"]
 
-                      displayed_bus_route_geojson["features"][0]["geometry"]["coordinates"].push(coordinate);
+                     
                       let displayed_bus_stop_feature={
                         "type":"Feature",
                         "properties": {
@@ -1033,23 +1032,6 @@ $(document).ready(function() {
                 displayed_bus_route_htmlStr+="</div>";
 
                 $("#displayed_bus_route_details").html(displayed_bus_route_htmlStr);
-
-                displayed_bus_route_geojson_layer=L.geoJSON(displayed_bus_route_geojson, {
-                  style: ((feature) => {
-                      return {
-                        color: "#15727B",
-                        weight: 6.5,
-                        strokeOpacity: 0.5
-                      }; 
-                  })
-                });
-                map.addLayer(displayed_bus_route_geojson_layer);
-
-                let latlngs=displayed_bus_route_geojson["features"][0]["geometry"]["coordinates"];
-
-                let coordinates_arr=reverse_latlngs(latlngs);
-                let center=L.latLngBounds(coordinates_arr).getCenter();
-                map.setView(center, defaultZoom);
 
                 displayed_bus_stops_geojson_layer=L.geoJSON(displayed_bus_stops_geojson, {
                   pointToLayer: ((feature, latlng) => {
