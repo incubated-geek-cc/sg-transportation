@@ -299,7 +299,7 @@ html {
 
 html, body {
   width:100vw;
-  height: 100%;
+  height: 100vh;
   margin:0;
   padding: 0;
   display: block;
@@ -307,7 +307,7 @@ html, body {
 
 .container {
   width:100vw;
-  height: 100%;
+  height: 100vh;
   margin:0;
   padding: 0;
   display: -webkit-box;
@@ -321,14 +321,14 @@ html, body {
 
 .map-container,
 .map-frame {
-  height: 100%; 
+  height: 100vh; 
   width: 100vw;
   margin:0;
   padding: 0;
 }
 
 #map-id { 
-  height: 100%; 
+  height: 100vh; 
   width: 100vw;
   margin:0;
   padding: 0;
@@ -352,4 +352,10 @@ html, body {
 
 .ascii_chars {
   font-family:cambria;
+}
+
+
+div.map-container div.map-frame div.row {
+  margin-left:0;
+  margin-right:0;
 }

@@ -506,6 +506,7 @@ $(document).ready(function() {
     var responseObj="";
 
     async function initBusStops() {
+     
       try {
         response = await fetch("api/ltaodataservice/all/BusStops", apiHeaders);
         responseObj = await response.json();
@@ -529,6 +530,7 @@ $(document).ready(function() {
     };
     initBusStops().then((bus_stops_mappingObj) => { // #1
       async function initBusServices() {
+       
         try {
           apiHeaders["method"]="POST";
           response = await fetch("api/ltaodataservice/all/BusServices", apiHeaders);
@@ -578,6 +580,7 @@ $(document).ready(function() {
         };
 
         async function initServiceRoutes() {
+         
           try {
             responseObj=await callAPI();
             if(responseObj.length==0) {
@@ -682,12 +685,24 @@ $(document).ready(function() {
               } else {
                 caption+="<span class='ascii_chars'>1 ʳᵒᵘᵗᵉ ᵒⁿˡʸ</span>";
               }
-              caption=`<b>${caption}</b>`;
+              caption=`<span class='ascii_chars'>${caption}</span>`;
 
               if( ( symbol=="⇆" && parseInt(direction)==1 ) ||  symbol!="⇆") {
+                let route_title = bus_stops_mapping[origin_code_mapped]["description"] + "&nbsp;➝&nbsp;" + bus_stops_mapping[destination_code_mapped]["description"];
+                route_title = "<small class='small'>" + route_title + "</small>";
+                if(symbol=="⇆") {
+                  let route_2_origin_code=bus_services_mapping[service_no+"_"+2]["origin_code"];
+                  let route_2_destination_code=bus_services_mapping[service_no+"_"+2]["destination_code"];
+                  let route_2_title = "<small class='small'>" + bus_stops_mapping[route_2_origin_code]["description"] + "&nbsp;➝&nbsp;" + bus_stops_mapping[route_2_destination_code]["description"] + "</small>";
+
+                  route_title=route_title;
+
+                  route_title=`${route_title}&nbsp;<span class='badge badge-primary rounded-circle'><b>or</b></span>&nbsp;${route_2_title}`;
+                }
+
                 bus_service_selections += "<tr>";
                 bus_service_selections += "<td><span class='badge badge-info service_no'>" + service_no + "</span></td>";
-                bus_service_selections += "<td class='small'>" + bus_stops_mapping[origin_code_mapped]["description"] + "&nbsp;" + symbol + "&nbsp;" + bus_stops_mapping[destination_code_mapped]["description"] + caption + "</td>";
+                bus_service_selections += "<td class='small'>" + route_title + caption + "</td>";
                 
                 bus_service_selections += "<td>";
                 bus_service_selections += "<input type='radio' data-serviceid='" + service_id + "' class='form-check-input service_route_selection' name='service_route_selection' />";
