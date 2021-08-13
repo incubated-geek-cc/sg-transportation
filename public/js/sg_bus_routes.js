@@ -790,7 +790,7 @@ $(document).ready(function() {
                     color: "#cc1f5e",
                     weight: 3.5,
                     strokeOpacity: 1.0,
-                    offset: 1.0,
+                    offset: 5.5,
                     renderer: L.svg()
                 });
 
