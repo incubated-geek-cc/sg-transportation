@@ -218,7 +218,8 @@ function startServer() {
         } else {
           (async () => {
             let entireSubListing=await asyncCall(transportation);
-            redisClient.setex(cacheKey, 3600, JSON.stringify(entireSubListing));
+            let cacheExpirySeconds=60*60*24*60
+            redisClient.setex(cacheKey, cacheExpirySeconds, JSON.stringify(entireSubListing));
             console.log(`${cacheKey} retrieved from the API`);
 
             return res.status(200).json(entireSubListing);
