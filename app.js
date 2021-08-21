@@ -140,11 +140,35 @@ function startServer() {
     try {
       let params=req.params;
       let transportation=params["transportation"];
-      let entireListing=await asyncCall(transportation);
 
-      res.status(200).json(entireListing)
+      let cacheKey=`${transportation}_hash`;
+      
+      redisClient.get(cacheKey, (err, data) => {
+        if (err) {
+          console.error(err);
+          throw err;
+        }
+        if (data) {
+          console.log(`${cacheKey} is retrieved from Redis`);
+          return res.status(200).json(JSON.parse(data));
+        } else {
+          let entireListing;
+          (async () => {
+            try {
+              entireListing=await asyncCall(transportation);
+            } catch(e) {
+              console.log(e)
+            }
+            let cacheExpirySeconds=60*60*24*60
+            redisClient.setex(cacheKey, cacheExpirySeconds, JSON.stringify(entireListing));
+            console.log(`${cacheKey} retrieved from the API`);
+
+            return res.status(200).json(entireListing);
+          })();
+        }
+      });
     } catch(err) {
-      res.status(500).json({ 
+      return res.status(500).json({ 
         type: "error",
         message: (err !== null && typeof err.message !== "undefined") ? err.message : `Error. Unable to retrieve data from datamall.lta.gov.sg ${transportation} Routing API.`
       });
@@ -217,7 +241,12 @@ function startServer() {
           return res.status(200).json(JSON.parse(data));
         } else {
           (async () => {
-            let entireSubListing=await asyncCall(transportation);
+            let entireSubListing;
+            try {
+              entireSubListing=await asyncCall(transportation);
+            } catch(e) {
+              console.log(e)
+            }
             let cacheExpirySeconds=60*60*24*60
             redisClient.setex(cacheKey, cacheExpirySeconds, JSON.stringify(entireSubListing));
             console.log(`${cacheKey} retrieved from the API`);
@@ -227,7 +256,7 @@ function startServer() {
         }
       });
     } catch(err2) {
-      return res.status(404).json({ 
+      return res.status(500).json({ 
         type: "error",
         message: (err2 !== null && typeof err2.message !== "undefined") ? err2.message : `Error. Unable to retrieve data from datamall.lta.gov.sg ${transportation} API.`
       });
