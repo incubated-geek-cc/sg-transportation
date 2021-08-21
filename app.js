@@ -1,5 +1,17 @@
 require("dotenv").config();
 
+const redis = require("redis")
+
+const redisClient = redis.createClient({
+    host: process.env.REDIS_HOSTNAME,
+    port: process.env.REDIS_PORT,
+    password: process.env.REDIS_PASSWORD
+});
+
+redisClient.on("connect", () => {
+  console.log("Successfully connected to Redis instance.");
+});
+
 const PORT = process.env.PORT || 3000
 const ORIGIN=process.env.ORIGIN || `http://localhost:${PORT}`
 const LTA_API_KEY=process.env.LTA_API_KEY
@@ -149,7 +161,6 @@ function startServer() {
           });
         });
       }
-
       async function asyncCall(transportation) {
         var arr_result=[];
         var offset = client_offset;
@@ -185,9 +196,28 @@ function startServer() {
           resolve(arr_result);
         });
       };
-      let entireSubListing=await asyncCall(transportation);
 
-      return res.status(200).json(entireSubListing)
+
+      let cacheKey=`${transportation}_hash_${client_offset}`;
+      
+      redisClient.get(cacheKey, (err, data) => {
+        if (err) {
+          console.error(err);
+          throw err;
+        }
+        if (data) {
+          console.log(`${cacheKey} is retrieved from Redis`);
+          return res.status(200).json(JSON.parse(data));
+        } else {
+          (async () => {
+            let entireSubListing=await asyncCall(transportation);
+            redisClient.setex(cacheKey, 3600, JSON.stringify(entireSubListing));
+            console.log(`${cacheKey} retrieved from the API`);
+
+            return res.status(200).json(entireSubListing);
+          })();
+        }
+      });
     } catch(err2) {
       return res.status(404).json({ 
         type: "error",
