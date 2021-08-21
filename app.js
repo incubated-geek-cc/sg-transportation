@@ -1,12 +1,19 @@
 require("dotenv").config();
 
 const redis = require("redis")
+const url = require("url")
 
-const redisClient = redis.createClient({
-    host: process.env.REDIS_HOSTNAME,
-    port: process.env.REDIS_PORT,
-    password: process.env.REDIS_PASSWORD
-});
+const redis_usernamae=process.env.REDIS_USERNAME
+const redis_password=process.env.REDIS_PASSWORD
+
+const redis_endpoint_uri=process.env.REDIS_ENDPOINT_URI
+const redis_db=process.env.REDIS_DB
+
+const redisStr=`redis://${redis_usernamae}:${redis_password}@${redis_endpoint_uri}/${redis_db}`
+const redisURL = url.parse(redisStr)
+
+const redisClient = redis.createClient(redisURL.port, redisURL.hostname, {no_ready_check: true})
+redisClient.auth(redisURL.auth.split(":")[1])
 
 redisClient.on("connect", () => {
   console.log("Successfully connected to Redis instance.");
