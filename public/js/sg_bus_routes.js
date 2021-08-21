@@ -911,7 +911,7 @@ $(document).ready(function() {
                 if(typeof displayed_route_selected_layer !== "undefined") {
                   map.removeLayer(displayed_route_selected_layer);
                 }
-      
+                
                 displayed_bus_stops_geojson={
                   "type":"FeatureCollection",
                   "features": []
