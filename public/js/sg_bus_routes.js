@@ -249,14 +249,12 @@ $(document).ready(function() {
       "features":[]
     };
     var all_bus_stops_geojson_layer;
-    var bus_stops_by_service_geojson_layer;
+
     var displayed_bus_stops_geojson_layer;
-
-
-    var layerGroup;
-
-    var service_route_selected_layer;
     var displayed_route_selected_layer;
+    
+    var bus_stops_by_service_geojson_layer;
+    var service_route_selected_layer;
 
     var service_routes_mapping={}
     var bus_services_mapping={}
@@ -676,8 +674,6 @@ $(document).ready(function() {
                 "coordinates":coordinates_obj
               };
 
-
-              
               let symbol = "➝"
               if(loop_description_mapped !== "") {
                 symbol = "⟲"
@@ -707,7 +703,7 @@ $(document).ready(function() {
 
                   route_title=route_title;
 
-                  route_title=`${route_title}&nbsp;<span class='badge badge-primary rounded-circle'><b>or</b></span>&nbsp;${route_2_title}`;
+                  route_title=`${route_title}&nbsp;<b class="ascii_chars">ᵒʳ</b>&nbsp;${route_2_title}`;
                 }
 
                 bus_service_selections += "<tr>";
@@ -731,8 +727,6 @@ $(document).ready(function() {
                 }
                 bus_service_selections += "</tr>";
               }
-
-
 
               for(let sIndex in coordinates_obj) {
                 let featurePropertiesCopy = deepCopyObj(service_route_obj);
@@ -767,119 +761,118 @@ $(document).ready(function() {
               });
               service_route_selected=ele.target.dataset.serviceid;
               ele.target.checked=true;
-             
 
               if(typeof bus_stops_by_service_geojson_layer !== "undefined") {
                 map.removeLayer(bus_stops_by_service_geojson_layer);
               }
-
+              if(typeof service_route_selected_layer !== "undefined") {
+                map.removeLayer(service_route_selected_layer);
+              }
               if(typeof displayed_bus_stops_geojson_layer !== "undefined") {
                 map.removeLayer(displayed_bus_stops_geojson_layer);
               }
+              if(typeof displayed_route_selected_layer !== "undefined") {
+                map.removeLayer(displayed_route_selected_layer);
+              }
 
-                if(typeof service_route_selected_layer !== "undefined") {
-                  layerGroup.removeLayer(service_route_selected_layer);
-                }
-                let coordinates_arr=service_routes_mapping[service_route_selected]["coordinates_arr"];
+              let coordinates_arr=service_routes_mapping[service_route_selected]["coordinates_arr"];
 
-                let latlngs=reverse_latlngs(coordinates_arr);
-                let center=L.latLngBounds(latlngs).getCenter();
-                map.setView(center, defaultZoom);
+              let latlngs=reverse_latlngs(coordinates_arr);
+              let center=L.latLngBounds(latlngs).getCenter();
+              map.setView(center, defaultZoom);
 
-                service_route_selected_layer = L.polyline(latlngs, {
-                    color: "#cc1f5e",
-                    weight: 3.5,
-                    strokeOpacity: 1.0,
-                    offset: 5.5,
-                    renderer: L.svg()
-                });
+              service_route_selected_layer = L.polyline(latlngs, {
+                  color: "#cc1f5e",
+                  weight: 3.5,
+                  strokeOpacity: 1.0,
+                  offset: 5.5,
+                  renderer: L.svg()
+              });
+              map.addLayer(service_route_selected_layer);
 
-                layerGroup = L.layerGroup([service_route_selected_layer])
-                layerGroup.addTo(map);
+              let service_route_details_htmlstr="";
+              service_route_details_htmlstr += '<div class="card-header">';
 
-                let service_route_details_htmlstr="";
-                service_route_details_htmlstr += '<div class="card-header">';
+              let service_no=service_routes_mapping[service_route_selected]["service_no"]
+              let direction=service_routes_mapping[service_route_selected]["direction"]
+              let symbol=service_routes_mapping[service_route_selected]["symbol"]
 
-                let service_no=service_routes_mapping[service_route_selected]["service_no"]
-                let direction=service_routes_mapping[service_route_selected]["direction"]
-                let symbol=service_routes_mapping[service_route_selected]["symbol"]
+              service_route_details_htmlstr += '<h6><a class="card-link w-100"><b>';
 
-                service_route_details_htmlstr += '<h6><a class="card-link w-100"><b>';
+              service_route_details_htmlstr += '<span class="badge badge-success service_no">';
+              service_route_details_htmlstr += service_no;
+              service_route_details_htmlstr += '</span>&nbsp;';
 
-                service_route_details_htmlstr += '<span class="badge badge-success service_no">';
-                service_route_details_htmlstr += service_no;
+              service_route_details_htmlstr += '<b class="small">';
+              service_route_details_htmlstr += bus_stops_mapping[service_routes_mapping[service_route_selected]["origin_code_mapped"]]["description"];
+              service_route_details_htmlstr += "&nbsp;"+symbol+"&nbsp;";
+              service_route_details_htmlstr += bus_stops_mapping[ service_routes_mapping[service_route_selected]["destination_code_mapped"]]["description"];
+              service_route_details_htmlstr += '</b>&nbsp;';
+
+              service_route_details_htmlstr += '<span class="badge badge-primary">';
+              service_route_details_htmlstr += service_routes_mapping[service_route_selected]["operator"];
+              service_route_details_htmlstr += '</span>&nbsp;';
+
+              service_route_details_htmlstr += '<span class="badge badge-warning">';
+              service_route_details_htmlstr += service_routes_mapping[service_route_selected]["category_mapped"];
+              service_route_details_htmlstr += '</span>&nbsp;';
+
+              if(symbol=="⇆") {
+                service_route_details_htmlstr += '<span class="badge badge-secondary">Route&nbsp;';
+                service_route_details_htmlstr += direction;
                 service_route_details_htmlstr += '</span>&nbsp;';
+              }
+              service_route_details_htmlstr += '</a></h6>';
 
-                service_route_details_htmlstr += '<b class="small">';
-                service_route_details_htmlstr += bus_stops_mapping[service_routes_mapping[service_route_selected]["origin_code_mapped"]]["description"];
-                service_route_details_htmlstr += "&nbsp;"+symbol+"&nbsp;";
-                service_route_details_htmlstr += bus_stops_mapping[ service_routes_mapping[service_route_selected]["destination_code_mapped"]]["description"];
-                service_route_details_htmlstr += '</b>&nbsp;';
+              service_route_details_htmlstr += '</div>';
 
-                service_route_details_htmlstr += '<span class="badge badge-primary">';
-                service_route_details_htmlstr += service_routes_mapping[service_route_selected]["operator"];
-                service_route_details_htmlstr += '</span>&nbsp;';
+              service_route_details_htmlstr += '<div id="service_selected" class="w-100">';
+              service_route_details_htmlstr += '<div class="card-body rounded-0">';
 
-                service_route_details_htmlstr += '<span class="badge badge-warning">';
-                service_route_details_htmlstr += service_routes_mapping[service_route_selected]["category_mapped"];
-                service_route_details_htmlstr += '</span>&nbsp;';
+              service_route_details_htmlstr+="<table class='table table-condensed table-hover w-100'>";
+              service_route_details_htmlstr+="<tbody>";
 
-                if(symbol=="⇆") {
-                  service_route_details_htmlstr += '<span class="badge badge-secondary">Route&nbsp;';
-                  service_route_details_htmlstr += direction;
-                  service_route_details_htmlstr += '</span>&nbsp;';
-                }
-                service_route_details_htmlstr += '</a></h6>';
+              bus_stops_by_service_geojson_layer = L.geoJSON(bus_stops_by_service_geojson, {
+                pointToLayer: ((feature, latlng) => {
+                  let busStopMarker=L.marker(latlng, {
+                     icon: L.divIcon({      
+                         html: '<span class="bus-stop-marker" style="background-color:#cc1f5e"><svg class="icon icon-black-diamond"><use xlink:href="symbol-defs.svg#icon-black-diamond"></use></svg></span>',
+                         className: "leaflet-marker-own"
+                     })
+                  });
 
-                service_route_details_htmlstr += '</div>';
+                  busStopMarker.bindTooltip(
+                    "<div><span style='background:rgba(204,31,94,0.15);padding:1px;color:#cc1f5e'><b>" + feature["properties"]["bus_stop_code"] + "</b></span>&nbsp;" + feature["properties"]["bus_stop_description"] + "</div>", { 
+                    className: "leaflet-tooltip-own", 
+                    offset: [5.5, 5.5]
+                  });
+                  return busStopMarker
+                }),
+                filter: ((feature, layer) => {
+                    if(feature["properties"]["service_id"]==service_route_selected) {
+                      let stop_sequence=feature["properties"]["stop_sequence"]
+                      let bus_stop_description=feature["properties"]["bus_stop_description"]
+                      let bus_stop_code=feature["properties"]["bus_stop_code"]
+                      let bus_stop_road_name=feature["properties"]["bus_stop_road_name"]
 
-                service_route_details_htmlstr += '<div id="service_selected" class="w-100">';
-                service_route_details_htmlstr += '<div class="card-body rounded-0">';
+                      let destination_code_mapped=feature["properties"]["destination_code_mapped"]
 
-                service_route_details_htmlstr+="<table class='table table-condensed table-hover w-100'>";
-                service_route_details_htmlstr+="<tbody>";
+                      service_route_details_htmlstr+="<tr>";
 
-                bus_stops_by_service_geojson_layer = L.geoJSON(bus_stops_by_service_geojson, {
-                  pointToLayer: ((feature, latlng) => {
-                    let busStopMarker=L.marker(latlng, {
-                       icon: L.divIcon({      
-                           html: '<span class="bus-stop-marker" style="background-color:#cc1f5e"><svg class="icon icon-black-diamond"><use xlink:href="symbol-defs.svg#icon-black-diamond"></use></svg></span>',
-                           className: "leaflet-marker-own"
-                       })
-                    });
+                      service_route_details_htmlstr+="<td class='small'><b>Stop&nbsp;#"+ stop_sequence+"</b></td>";
+                      service_route_details_htmlstr+="<td colspan='3' class='small text-left'>"+bus_stop_description+"&nbsp;<small>(" + bus_stop_code +")</small><br><small>"+bus_stop_road_name+"</small></td>";
 
-                    busStopMarker.bindTooltip(
-                      "<div><span style='background:rgba(204,31,94,0.15);padding:1px;color:#cc1f5e'><b>" + feature["properties"]["bus_stop_code"] + "</b></span>&nbsp;" + feature["properties"]["bus_stop_description"] + "</div>", { 
-                      className: "leaflet-tooltip-own", 
-                      offset: [0, 0]
-                    });
-                    return busStopMarker
-                  }),
-                  filter: ((feature, layer) => {
-                      if(feature["properties"]["service_id"]==service_route_selected) {
-                        let stop_sequence=feature["properties"]["stop_sequence"]
-                        let bus_stop_description=feature["properties"]["bus_stop_description"]
-                        let bus_stop_code=feature["properties"]["bus_stop_code"]
-                        let bus_stop_road_name=feature["properties"]["bus_stop_road_name"]
+                      service_route_details_htmlstr += "<td colspan='2'><div class='form-check'><label class='form-check-label'><input type='radio' class='form-check-input start_bus_stop_selection' data-serviceid='"+service_route_selected+"' name='start_bus_stop' id='start_s"+stop_sequence+"' " + ( stop_sequence==1 ? "checked" : "") + "/><span class='ascii_chars'>ᴼʳᶤᵍᶤⁿ</span></label></div></td>";
 
-                        let destination_code_mapped=feature["properties"]["destination_code_mapped"]
+                      service_route_details_htmlstr += "<td colspan='2'><div class='form-check'><label class='form-check-label'><input type='radio' class='form-check-input end_bus_stop_selection' data-serviceid='"+service_route_selected+" name='end_bus_stop' id='end_s"+stop_sequence+"' " + ( stop_sequence!=1 && bus_stop_code==destination_code_mapped ? "checked" : "") + "/><span class='ascii_chars'>ᴰᵉˢᵗᶤⁿᵃᵗᶤᵒⁿ</span></label></div></td>";
 
-                        service_route_details_htmlstr+="<tr>";
+                      service_route_details_htmlstr+="</tr>";
 
-                        service_route_details_htmlstr+="<td class='small'><b>Stop&nbsp;#"+ stop_sequence+"</b></td>";
-                        service_route_details_htmlstr+="<td colspan='3' class='small text-left'>"+bus_stop_description+"&nbsp;<small>(" + bus_stop_code +")</small><br><small>"+bus_stop_road_name+"</small></td>";
-
-                        service_route_details_htmlstr += "<td colspan='2'><div class='form-check'><label class='form-check-label'><input type='radio' class='form-check-input start_bus_stop_selection' data-serviceid='"+service_route_selected+"' name='start_bus_stop' id='start_s"+stop_sequence+"' " + ( stop_sequence==1 ? "checked" : "") + "/><span class='ascii_chars'>ᴼʳᶤᵍᶤⁿ</span></label></div></td>";
-
-                        service_route_details_htmlstr += "<td colspan='2'><div class='form-check'><label class='form-check-label'><input type='radio' class='form-check-input end_bus_stop_selection' data-serviceid='"+service_route_selected+" name='end_bus_stop' id='end_s"+stop_sequence+"' " + ( stop_sequence!=1 && bus_stop_code==destination_code_mapped ? "checked" : "") + "/><span class='ascii_chars'>ᴰᵉˢᵗᶤⁿᵃᵗᶤᵒⁿ</span></label></div></td>";
-
-                        service_route_details_htmlstr+="</tr>";
-
-                        selected_start_sequence=1;
-                        selected_stop_sequence=(stop_sequence!=1 && bus_stop_code==destination_code_mapped ? stop_sequence : 1)
-                      }
-                      return feature["properties"]["service_id"]==service_route_selected;
-                  })
+                      selected_start_sequence=1;
+                      selected_stop_sequence=(stop_sequence!=1 && bus_stop_code==destination_code_mapped ? stop_sequence : 1)
+                    }
+                    return feature["properties"]["service_id"]==service_route_selected;
+                })
               });
               map.addLayer(bus_stops_by_service_geojson_layer);
 
@@ -912,12 +905,11 @@ $(document).ready(function() {
                 let distance_with_extra=cumulated_distance[selected_stop_sequence]
                 let actual_distance_covered=distance_with_extra-initial_distance_unconvered
 
-
                 if(typeof displayed_bus_stops_geojson_layer !== "undefined") {
                   map.removeLayer(displayed_bus_stops_geojson_layer);
                 }
                 if(typeof displayed_route_selected_layer !== "undefined") {
-                  layerGroup.removeLayer(displayed_route_selected_layer)
+                  map.removeLayer(displayed_route_selected_layer);
                 }
       
                 displayed_bus_stops_geojson={
@@ -931,7 +923,6 @@ $(document).ready(function() {
                 displayed_bus_route_htmlStr+="<div class='card-header'>";
                 displayed_bus_route_htmlStr+="<h6><a class='card-link w-100'>";
                 
-               
                 displayed_bus_route_htmlStr+="<span class='small badge badge-primary'>"+ actual_distance_covered.toFixed(1) +"&nbsp;ᵏᵐ";
                 displayed_bus_route_htmlStr+="</span>";
 
@@ -960,7 +951,6 @@ $(document).ready(function() {
 
                 displayed_bus_route_htmlStr+="<div id='displayed_route_selected' class='w-100'>";
                 displayed_bus_route_htmlStr+="<div class='card-body rounded-0'>";
-                
 
                 displayed_bus_route_htmlStr+="<table class='table table-condensed table-hover w-100'>";
                 displayed_bus_route_htmlStr+="<tbody>";
@@ -980,8 +970,8 @@ $(document).ready(function() {
                     offset: 2.5,
                     renderer: L.svg()
                 });
-
-                layerGroup.addLayer(displayed_route_selected_layer)
+                map.addLayer(displayed_route_selected_layer);
+                
                 for(let i=selected_start_sequence;i<=selected_stop_sequence;i++) {
                     try {
                       let coordinate=coordinates[i];
@@ -990,7 +980,6 @@ $(document).ready(function() {
                       let bus_stop_distance= (i==selected_start_sequence) ? 0 : (cumulated_distance[i]-cumulated_distance[i-1]);
 
                       let bus_stop_description=bus_stops_mapping[bus_stop_code]["description"]
-
                      
                       let displayed_bus_stop_feature={
                         "type":"Feature",
@@ -1044,7 +1033,7 @@ $(document).ready(function() {
                     busStopMarker.bindTooltip(
                       "<div><span style='background:rgba(21,124,113,0.15);padding:1px;color:#15727B'><b>" + feature["properties"]["bus_stop_code"] + "</b></span>&nbsp;" + feature["properties"]["bus_stop_description"] + "</div>", { 
                       className: "leaflet-tooltip-own-2",
-                      offset: [0, 0]
+                      offset: [2.5, 2.5]
                     });
                     return busStopMarker
                   })
@@ -1052,45 +1041,57 @@ $(document).ready(function() {
                 map.addLayer(displayed_bus_stops_geojson_layer);
               }
 
-              $(".start_bus_stop_selection").change((ele) => {
-                $(".start_bus_stop_selection").each((ele2) => {
-                  $(".start_bus_stop_selection")[ele2].checked=false;
+              function disabledStartStopBusStops() {
+                $(".start_bus_stop_selection").each((ele2) => { 
+                  let startBusStop=$(".start_bus_stop_selection")[ele2];
+                  let startSequence=parseInt(startBusStop.id.split("start_s")[1]);
+                  if(startSequence != selected_start_sequence) {
+                    startBusStop.checked=false;
+                  }
+                  if(startSequence<selected_stop_sequence) {
+                    startBusStop.disabled=false;
+                  } else {
+                    startBusStop.disabled=true;
+                  }
                 });
+                $(".end_bus_stop_selection").each((ele2) => {
+                  let stopBusStop=$(".end_bus_stop_selection")[ele2];
+                  let stopSequence=parseInt(stopBusStop.id.split("end_s")[1]);
+                  if(stopSequence != selected_stop_sequence) {
+                    stopBusStop.checked=false;
+                  }
+                  if(stopSequence>selected_start_sequence) {
+                    stopBusStop.disabled=false;
+                  } else {
+                    stopBusStop.disabled=true;
+                  }
+                });
+              }
 
+              $(".start_bus_stop_selection").change((ele) => {
                 let serviceid_selected=ele.target.dataset.serviceid;
                 ele.target.checked=true;
-                let ele_id=ele.target.id;
-
-                selected_start_sequence=parseInt(ele_id.split("start_s")[1]);
+                selected_start_sequence=parseInt((ele.target.id).split("start_s")[1]);
+                disabledStartStopBusStops();
                 renderServiceRoute();
               });
               $(".end_bus_stop_selection").change((ele) => {
-                $(".end_bus_stop_selection").each((ele2) => {
-                  $(".end_bus_stop_selection")[ele2].checked=false;
-                });
                 let serviceid_selected=ele.target.dataset.serviceid;
+                selected_stop_sequence=parseInt((ele.target.id).split("end_s")[1]);
                 ele.target.checked=true;
-                let ele_id=ele.target.id;
-
-                selected_stop_sequence=parseInt(ele_id.split("end_s")[1]);
+                disabledStartStopBusStops();
                 renderServiceRoute();
               });
-
             });
-            
             let promise = new Promise((resolve, reject) => {
               setTimeout(() => resolve("all data initialised."), 10)
             });
             let endInitMsg = await promise;
             console.log(endInitMsg);
           }
-
           renderOutput().then(() => console.log("done."));
-
         }).catch(e3 => console.log(e3));
-        
       }).catch(e2 => console.log(e2));
-
     }).catch(e1 => console.log(e1));
 
     $("body").on("click", "#exportDisplayedBusRoute", () => {
