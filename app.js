@@ -3,13 +3,13 @@ require("dotenv").config();
 const redis = require("redis")
 const url = require("url")
 
-const redis_usernamae=process.env.REDIS_USERNAME
+const redis_username=process.env.REDIS_USERNAME
 const redis_password=process.env.REDIS_PASSWORD
 
 const redis_endpoint_uri=process.env.REDIS_ENDPOINT_URI
 const redis_db=process.env.REDIS_DB
 
-const redisStr=`redis://${redis_usernamae}:${redis_password}@${redis_endpoint_uri}/${redis_db}`
+const redisStr=`redis://${redis_username}:${redis_password}@${redis_endpoint_uri}/${redis_db}`
 const redisURL = url.parse(redisStr)
 
 const redisClient = redis.createClient(redisURL.port, redisURL.hostname, {no_ready_check: true})
