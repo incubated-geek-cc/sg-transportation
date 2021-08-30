@@ -12,4 +12,6 @@
 
 ### Integrated with an instance of Redis caching for in-memory storage. More details at: https://redis.com/
 
-### Article related to web app at: https://geek-cc.medium.com/tackling-heroku-h12-timeout-errors-of-node-js-web-apis-handling-long-response-times-8fbafe46cd40
+### Article(s) related to web app at: 
+#### 1. https://geek-cc.medium.com/tackling-heroku-h12-timeout-errors-of-node-js-web-apis-handling-long-response-times-8fbafe46cd40
+#### 2. https://geek-cc.medium.com/building-a-real-time-web-app-in-nodejs-express-with-socket-io-library-d9b50aded6e6
