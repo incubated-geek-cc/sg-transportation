@@ -110,7 +110,6 @@ const currentTimestamp = new Date();
 
 $(document).ready(function() {
     // INITIALISE WEB SOCKET
-
     function processBusStopETA(res) {
       let busEtaHtmlStr="";
       busEtaHtmlStr+="<div class='card-body rounded-0'>";
@@ -214,14 +213,21 @@ $(document).ready(function() {
           $("#bus_eta_details_pill").click();
           try {
             let selectedBusStop=ele3.target.value;
-            $("#bus_etas").html("<div class='text-center'><div class='spinner-border'></div></div>");
-            $("#bus_etas_title").html('<b><svg class="icon icon-bus-eta"><use xlink:href="symbol-defs.svg#icon-bus-eta"></use></svg> Bus ETAs at (' + selectedBusStop + ') ' + bus_stops_mapping[selectedBusStop]["description"] + '</b>');
-            console.log(selectedBusStop)
-            socket.emit("bus_arrivals", selectedBusStop);
-            socket.on("get_bus_arrivals_info", (selectedBusStopETAJSON) => {
-              let selectedBusStopETAs=JSON.parse(selectedBusStopETAJSON);
-              processBusStopETA(selectedBusStopETAs);
-            });
+            let busStopDescription=bus_stops_mapping[selectedBusStop];
+            if(typeof busStopDescription=="undefined") {
+              console.log(err, "view_bus_arrivals");
+            } else {
+              busStopDescription=busStopDescription["description"];
+
+              $("#bus_etas").html("<div class='text-center'><div class='spinner-border'></div></div>");
+              $("#bus_etas_title").html('<b><svg class="icon icon-bus-eta"><use xlink:href="symbol-defs.svg#icon-bus-eta"></use></svg> Bus ETAs at (' + selectedBusStop + ') ' + busStopDescription + '</b>');
+              console.log(selectedBusStop);
+              socket.emit("bus_arrivals", selectedBusStop);
+              socket.on("get_bus_arrivals_info", (selectedBusStopETAJSON) => {
+                let selectedBusStopETAs=JSON.parse(selectedBusStopETAJSON);
+                processBusStopETA(selectedBusStopETAs);
+              });
+            }
           } catch(err) { 
             console.log(err, "view_bus_arrivals");
             $("#bus_etas_title").html("<div class='text-center text-dark'><svg class='icon icon-warning'><use xlink:href='symbol-defs.svg#icon-warning'></use></svg> <b>Information unavailable. Please select another Bus Stop.</b></div>");

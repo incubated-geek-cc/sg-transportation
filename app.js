@@ -35,6 +35,7 @@ const PAGE_SIZE = 500 // How many records the API returns in a page.
 const LIMIT_PER_CALL=4500
 
 let updateInterval;
+let previousBusCode;
 
 function onNewWebsocketConnection(socket) {
   console.info(`Socket ${socket.id} has connected.`);
@@ -46,28 +47,29 @@ function onNewWebsocketConnection(socket) {
   });
 
   // echoes on the terminal every "back_to_server" message this socket sends
-  socket.on("back_to_server", msg => console.info(`Socket ${socket.id} says: "${msg}"`));
   // will send a message only to this socket (different than using `io.emit()`, which would broadcast it)
-
+  socket.on("back_to_server", msg => console.info(`Socket ${socket.id} says: "${msg}"`));
+  
   socket.on("bus_arrivals", bus_stop_code => {
-    if(updateInterval) {
-      clearInterval(updateInterval);
-    }
     console.log(`Requesting bus stop: ${bus_stop_code}`)
+    if(previousBusCode != bus_stop_code) {
+      previousBusCode=bus_stop_code;
+      clearInterval(updateInterval);
     
-    updateInterval = setInterval(() => {
-      request({
-          url: `${API_ENDPOINT}/BusArrivalv2?BusStopCode=${bus_stop_code}`,
-          method: "GET",
-          json: true,
-          headers: {
-            "AccountKey" : LTA_API_KEY,
-            "accept" : "application/json"
-          }
-      }, (err, res, body) => {
-          socket.emit("get_bus_arrivals_info", JSON.stringify(body["Services"]));
-      });
-    }, 10000);
+      updateInterval = setInterval(() => {
+        request({
+            url: `${API_ENDPOINT}/BusArrivalv2?BusStopCode=${bus_stop_code}`,
+            method: "GET",
+            json: true,
+            headers: {
+              "AccountKey" : LTA_API_KEY,
+              "accept" : "application/json"
+            }
+        }, (err, res, body) => {
+            socket.emit("get_bus_arrivals_info", JSON.stringify(body["Services"]));
+        });
+      }, 10000);
+    }
   });
 
 }

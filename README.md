@@ -3,6 +3,7 @@
 
 ### Includes the following:
 ## Realtime Bus ETAs in Singapore
+<br/>![Bus ETAs](https://miro.medium.com/max/1400/1*QKFF2dM6D7apIZfRLn30Jg.png)
 ## Bus Route Origin-Destination selection
 <br/>![OD Selection](https://miro.medium.com/max/1050/1*dDjLS1LBpUOlTFh357ozLg.png)
 ---
