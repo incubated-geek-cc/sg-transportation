@@ -1,5 +1,5 @@
 # sg-transportation
-### A Bus route visualisation NodeJs site I built to aid me in an analytical task. Currently deployed on Heroku at: https://sg-transportation.herokuapp.com/
+### A Bus route visualisation NodeJs site I built to aid me in an analytical task. Currently deployed at: https://sg-transportation.glitch.me/
 
 ### Includes the following:
 ## Realtime Bus ETAs in Singapore
