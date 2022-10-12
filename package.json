@@ -5,8 +5,15 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon app.js"
+  },
+  "engines": {
+    "node": "16.13.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/incubated-geek-cc/sg-transportation.git",
+    "directory": "sg-transportation"
   },
   "keywords": [
     "geospatial",
@@ -15,7 +22,7 @@
     "proxy",
     "realtime"
   ],
-  "author": "",
+  "author": "geek_cc",
   "license": "ISC",
   "dependencies": {
     "compression": "^1.7.4",
