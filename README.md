@@ -1,5 +1,7 @@
 # sg-transportation
-### A Bus route visualisation NodeJs site I built to aid me in an analytical task. Currently deployed at: https://sg-transportation.glitch.me/
+### A Bus route visualisation NodeJs site I built to aid me in an analytical task. 
+#### Currently deployed at: https://sg-transportation.glitch.me/
+#### Backup link at: https://sg-transportation.onrender.com
 
 ### Includes the following:
 ## Realtime Bus ETAs in Singapore
