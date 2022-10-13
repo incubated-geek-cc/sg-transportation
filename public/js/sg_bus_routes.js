@@ -15,7 +15,7 @@ function drawRectInCenter(x, y, width, height) {
 
 function initmap(lat, long, zoom) {
   let basemapUrl="https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=jOzR6tdpUGnAtK2TkJCx";
-  attributionStr= "<a href='https://www.maptiler.com/copyright/' target='_blank'>© MapTiler</a> <a href='https://www.openstreetmap.org/copyright' target='_blank'>© OpenStreetMap contributors</a>";
+  attributionStr= "&nbsp;<a href='https://www.maptiler.com/copyright/' target='_blank'>© MapTiler</a> <a href='https://www.openstreetmap.org/copyright' target='_blank'>© OpenStreetMap contributors</a>&nbsp;";
 
   let position = L.tileLayer(basemapUrl, {
     attribution: attributionStr,
@@ -662,7 +662,7 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
 
                     service_route_details_htmlstr += '<b class="small">';
                     service_route_details_htmlstr += bus_stops_mapping[service_routes_mapping[service_route_selected]["origin_code_mapped"]]["description"];
-                    service_route_details_htmlstr += "&nbsp;"+symbol+"&nbsp;";
+                    service_route_details_htmlstr += "&nbsp;<b>"+symbol+"</b>&nbsp;";
                     service_route_details_htmlstr += bus_stops_mapping[ service_routes_mapping[service_route_selected]["destination_code_mapped"]]["description"];
                     service_route_details_htmlstr += '</b>&nbsp;';
 
@@ -693,7 +693,7 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
                       pointToLayer: ((feature, latlng) => {
                         let busStopMarker=L.marker(latlng, {
                            icon: L.divIcon({      
-                               html: '<span class="bus-stop-marker" style="background-color:#cc1f5e"><svg class="icon icon-black-diamond"><use xlink:href="symbol-defs.svg#icon-black-diamond"></use></svg></span>',
+                               html: '<span class="bus-stop-marker" style="background-color:#cc1f5e">◆</span>',
                                className: "leaflet-marker-own"
                            })
                         });
@@ -719,9 +719,9 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
                             service_route_details_htmlstr+="<td class='small'><b>Stop&nbsp;#"+ stop_sequence+"</b></td>";
                             service_route_details_htmlstr+="<td colspan='3' class='small text-left'>"+bus_stop_description+"&nbsp;<small>(" + bus_stop_code +")</small><br><small>"+bus_stop_road_name+"</small></td>";
 
-                            service_route_details_htmlstr += "<td colspan='2'><div class='form-check'><label class='form-check-label'><input type='radio' class='form-check-input start_bus_stop_selection' data-serviceid='"+service_route_selected+"' name='start_bus_stop' id='start_s"+stop_sequence+"' " + ( stop_sequence==1 ? "checked" : "") + "/><span class='ascii_chars'>ᴼʳᶤᵍᶤⁿ</span></label></div></td>";
+                            service_route_details_htmlstr += "<td colspan='2'><div class='form-check'><label class='form-check-label'><input type='radio' class='form-check-input start_bus_stop_selection' data-serviceid='"+service_route_selected+"' name='start_bus_stop' id='start_s"+stop_sequence+"' " + ( stop_sequence==1 ? "checked" : "") + "/><span class='ascii_chars'>ᴼʳⁱᵍⁱⁿ</span></label></div></td>";
 
-                            service_route_details_htmlstr += "<td colspan='2'><div class='form-check'><label class='form-check-label'><input type='radio' class='form-check-input end_bus_stop_selection' data-serviceid='"+service_route_selected+" name='end_bus_stop' id='end_s"+stop_sequence+"' " + ( stop_sequence!=1 && bus_stop_code==destination_code_mapped ? "checked" : "") + "/><span class='ascii_chars'>ᴰᵉˢᵗᶤⁿᵃᵗᶤᵒⁿ</span></label></div></td>";
+                            service_route_details_htmlstr += "<td colspan='2'><div class='form-check'><label class='form-check-label'><input type='radio' class='form-check-input end_bus_stop_selection' data-serviceid='"+service_route_selected+" name='end_bus_stop' id='end_s"+stop_sequence+"' " + ( stop_sequence!=1 && bus_stop_code==destination_code_mapped ? "checked" : "") + "/><span class='ascii_chars'>ᴰᵉˢᵗⁱⁿᵃᵗⁱᵒⁿ</span></label></div></td>";
 
                             service_route_details_htmlstr+="</tr>";
 
@@ -801,7 +801,7 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
 
                       displayed_bus_route_htmlStr+="</small>";
 
-                      displayed_bus_route_htmlStr+="<button id='exportDisplayedBusRoute' type='button' class='btn btn-sm btn-secondary rounded-0 float-right'><svg class='icon icon-download'><use xlink:href='symbol-defs.svg#icon-download'></use></svg> ᵃˢ ᴊsᴏɴ</button>";
+                      displayed_bus_route_htmlStr+="<button id='exportDisplayedBusRoute' type='button' class='btn btn-sm btn-secondary rounded-0 float-right'>📥  ᵃˢ ᴊsᴏɴ</button>";
 
                       displayed_bus_route_htmlStr+="</a></h6>";
                       displayed_bus_route_htmlStr+="</div>";
@@ -1040,15 +1040,15 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
             if(parseInt(eta)==0) {
               busEtaHtmlStr+="<span class='ascii_chars'>ᴬʳʳ</span>";
             } else if(parseInt(eta)>0) {
-              busEtaHtmlStr+=(parseInt(eta)+"<span class='ascii_chars'> ᵐᶤⁿ</span>");
+              busEtaHtmlStr+=(parseInt(eta)+"<span class='ascii_chars'> ᵐⁱⁿ</span>");
             } else if(parseInt(eta2)==0) {
               busEtaHtmlStr+="<span class='ascii_chars'>ᴬʳʳ</span>";
             } else if(parseInt(eta2)>0) {
-              busEtaHtmlStr+=(parseInt(eta2)+"<span class='ascii_chars'> ᵐᶤⁿ</span>");
+              busEtaHtmlStr+=(parseInt(eta2)+"<span class='ascii_chars'> ᵐⁱⁿ</span>");
             } else if(parseInt(eta3)==0) {
               busEtaHtmlStr+="<span class='ascii_chars'>ᴬʳʳ</span>";
             } else if(parseInt(eta3)>0) {
-              busEtaHtmlStr+=(parseInt(eta3)+"<span class='ascii_chars'> ᵐᶤⁿ</span>");
+              busEtaHtmlStr+=(parseInt(eta3)+"<span class='ascii_chars'> ᵐⁱⁿ</span>");
             } else {
               busEtaHtmlStr+="<span class='ascii_chars'>⁽ᴺᴬ⁾</span>"
             }
@@ -1080,6 +1080,7 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
         }
 
         // --------------------------- CLIENT SIDE WEB SOCKET INIT ------------------------
+        const errMsg = "<div class='text-center text-dark'><b>⚠ Information unavailable. Please select another Bus Stop.</b></div>";
         const socket = io();
         socket.on("connect", async() => {
             console.info(`Client side socket[${socket.id}] connection established at: ${window.navigator.userAgent}`);
@@ -1100,7 +1101,7 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
 
                   if(typeof busStopDescription=="undefined") {
                     console.log("[view_bus_arrivals] busStopDescription is undefined.");
-                    $("#bus_etas_title").html("<div class='text-center text-dark'><svg class='icon icon-warning'><use xlink:href='symbol-defs.svg#icon-warning'></use></svg> <b>Information unavailable. Please select another Bus Stop.</b></div>");
+                    $("#bus_etas_title").html(errMsg);
                     $("#bus_etas").html("");
 
                     // Msg server to stop displaying current bus arrival info
@@ -1119,7 +1120,7 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
                   }
                 } catch(err) { 
                   console.log(err, "view_bus_arrivals");
-                  $("#bus_etas_title").html("<div class='text-center text-dark'><svg class='icon icon-warning'><use xlink:href='symbol-defs.svg#icon-warning'></use></svg> <b>Information unavailable. Please select another Bus Stop.</b></div>");
+                  $("#bus_etas_title").html(errMsg);
                   $("#bus_etas").html("");
                   // Msg server to stop displaying current bus arrival info
                   socket.emit("bus_arrivals", undefined);

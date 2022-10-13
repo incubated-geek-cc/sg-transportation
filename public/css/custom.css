@@ -100,7 +100,7 @@ a.card-link:hover,
 }
 
 #sidebar div.card-header {
-  padding:8px 10px;
+  padding: 5px 10px;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
@@ -111,6 +111,10 @@ a.card-link:hover,
                                   supported by Chrome, Edge, Opera and Firefox */
 }
 
+#sidebar div.card-header h6 {
+  margin-bottom: 0;
+}
+    
 #sidebar a.nav-link.rounded-0 {
   background-color: transparent;
   color: #8993a2;
@@ -275,8 +279,12 @@ input[type=range][orient=vertical] {
   }
 }
 
-input.service_route_selection {
+input.service_route_selection,
+input.start_bus_stop_selection,
+input.end_bus_stop_selection {
   position: relative;
+  width: 1.25em;
+  height: 1.25em;
 }
 
 
@@ -352,7 +360,7 @@ html, body {
 }
 
 .ascii_chars {
-  font-family:cambria;
+  font-family:Cambria;
 }
 
 

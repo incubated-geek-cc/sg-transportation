@@ -38,8 +38,8 @@ const engine = require("consolidate");
 const express = require("express");
 
 const router = express.Router(); // set up router
-router.use(express.urlencoded({extended: true}))
-router.use(express.json())
+router.use(express.urlencoded({extended: true}));
+router.use(express.json());
 router.use((req, res, next) => { // router middleware
   res.header("Access-Control-Allow-Origin", ORIGIN || "*");
   next();
@@ -105,9 +105,9 @@ router.post("/ltaodataservice/all/:transportation", async (req, res) => {
           try {
             entireListing=await asyncCall(transportation);
           } catch(e) {
-            console.log(e)
+            console.log(e);
           }
-          let cacheExpirySeconds=60*60*24*60
+          let cacheExpirySeconds=60*60*24*60;
           redisClient.setex(cacheKey, cacheExpirySeconds, JSON.stringify(entireListing));
           console.log(`${cacheKey} retrieved from the API`);
 
@@ -190,9 +190,9 @@ router.post("/ltaodataservice/:transportation/:client_offset", async(req, res) =
           try {
             entireSubListing=await asyncCall(transportation);
           } catch(e) {
-            console.log(e)
+            console.log(e);
           }
-          let cacheExpirySeconds=60*60*24*60
+          let cacheExpirySeconds=60*60*24*60;
           redisClient.setex(cacheKey, cacheExpirySeconds, JSON.stringify(entireSubListing));
           console.log(`${cacheKey} retrieved from the API`);
 
