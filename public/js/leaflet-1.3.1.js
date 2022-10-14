@@ -3104,9 +3104,9 @@
     })
       , Ke = Ge.extend({
         options: {
-            iconUrl: "marker-icon.png",
-            iconRetinaUrl: "marker-icon-2x.png",
-            shadowUrl: "marker-shadow.png",
+            iconUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACUAAAA0CAMAAAA6ygEPAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAADUExURQAAAKd6PdoAAAABdFJOUwBA5thmAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAGElEQVRIS2MYBaNgFIyCUTAKRsEQAQwMAAe4AAEuFVfdAAAAAElFTkSuQmCC",
+            iconRetinaUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAABSCAMAAAAhFXfZAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAADUExURQAAAKd6PdoAAAABdFJOUwBA5thmAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAG0lEQVRYR+3BMQEAAADCoPVPbQdvIAAAAIBDDRBWAAHO2RUTAAAAAElFTkSuQmCC",
+            shadowUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACkAAAApCAMAAACfvvDEAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAADUExURQAAAKd6PdoAAAABdFJOUwBA5thmAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAF0lEQVQ4T2MYBaNgFIyCUTAKhhBgYAAABroAAQ9aqmcAAAAASUVORK5CYII=",
             iconSize: [25, 41],
             iconAnchor: [12, 41],
             popupAnchor: [1, -34],

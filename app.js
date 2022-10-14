@@ -1,14 +1,14 @@
 require("dotenv").config();
 
+// ========== Part #1. A redis client is instantiated here to fetch all of its non-expired cached information 
+// ========== This includes Bus services, Bus Routes, Bus Stops & Bus ETAs for pre-load rendering 
+// ========== and mitigate excessive load time for the web app on start
 const redis = require("redis");
 const url = require("url");
-
 const redis_username=process.env.REDIS_USERNAME;
 const redis_password=process.env.REDIS_PASSWORD;
-
 const redis_endpoint_uri=process.env.REDIS_ENDPOINT_URI;
 const redis_db=process.env.REDIS_DB;
-
 const redisStr=`redis://${redis_username}:${redis_password}@${redis_endpoint_uri}/${redis_db}`;
 const redisURL = url.parse(redisStr);
 
@@ -19,7 +19,7 @@ redisClient.on("connect", () => {
   console.log("Successfully connected to Redis instance.");
 });
 
-
+// ================== Part #2. Most variables and constants are declared here
 const PORT = process.env.PORT || 3000;
 const ORIGIN=process.env.ORIGIN || `http://localhost:${PORT}`;
 const LTA_API_KEY=process.env.LTA_API_KEY;
@@ -45,6 +45,8 @@ router.use((req, res, next) => { // router middleware
   next();
 });
 
+// ================== Part #3. All server side API calls are called via the below functions and the redis Client updatse its data
+// ================== storage with the API outputs in event the cache of its storage has expired (to fetch only up-to-date data)
 function resolveAsyncCall(reqOptions) {
   return new Promise(resolve => {
     request(reqOptions, function(err, res, body) {
@@ -53,7 +55,6 @@ function resolveAsyncCall(reqOptions) {
     });
   });
 }
-
 async function asyncCall(transportation) {
   var arr_result=[];
   var offset = 0;
@@ -84,7 +85,6 @@ async function asyncCall(transportation) {
     resolve(arr_result);
   });
 };
-
 router.post("/ltaodataservice/all/:transportation", async (req, res) => {
   try {
     let params=req.params;
@@ -122,7 +122,6 @@ router.post("/ltaodataservice/all/:transportation", async (req, res) => {
     });
   }
 }); 
-
 router.post("/ltaodataservice/:transportation/:client_offset", async(req, res) => {
   try {
     let params=req.params;
@@ -207,7 +206,6 @@ router.post("/ltaodataservice/:transportation/:client_offset", async(req, res) =
     });
   }
 });
-
 router.get("/wake_up", (req, res) => {
   res.json({"status":"app_is_awake"});
 });
@@ -215,6 +213,8 @@ router.get("/wake_up", (req, res) => {
 const app = express();
 app.use(compression()); //use compression
 
+// ================== Part #4. Server side socket is set up via socketio and http server below. Connection with client side must be 
+// ================== established before bilateral messages can be exchanged
 const http = require("http");
 const socketio = require("socket.io");
 const server = http.createServer(app);
@@ -236,16 +236,20 @@ app.use(express.static(path.join(__dirname, "public")))
 .set("view engine", "html")
 .get("/", (req, res) => res.render("index.html"))
 
-const onlineClients = new Set();
-const previousBusCode = new Map();
-const updateInterval = new Map();
 
+
+const onlineClients = new Set(); // Used to track the no. of connected client sockets and ids
+const previousBusCode = new Map(); // Stores the latst bus stop no. ETAs requested by a client
+const updateInterval = new Map(); // Stores latest intervalID of the socket tagged to its client to stop fetching data when not needed
+
+
+// whenever a new user logs onto the web app a new client socket shall be established and connected
 function onNewWebsocketConnection(socket) {
     console.info(`Server side socket[${socket.id}] connection established.`);
 
     // awaits for client-side to callback and confirm connection.
     // echoes on the terminal every "back_to_server" message this socket sends
-    socket.on("back_to_server", msg => { // socket.id callback from client-side
+    socket.on("back_to_server", msg => {
       console.info(`Client side socket id: ${msg}`);
       if(msg==socket.id) {
         onlineClients.add(socket.id);
@@ -254,46 +258,42 @@ function onNewWebsocketConnection(socket) {
       }
     });
 
-    // server side socket receives bus stop code from client side socket
+    // server side receives bus stop code from client side socket
     socket.on("bus_arrivals", bus_stop_code => {
+      let intervalID=updateInterval.get(socket.id);
       let prevBusCode=previousBusCode.get(socket.id);
-      let prevUpdateInterval=updateInterval.get(socket.id);
 
-      console.log(`Requesting bus stop: ${bus_stop_code}`);
-      console.log(`Prev bus code: ${prevBusCode}. Prev update interval: ${prevUpdateInterval}`);
-
+      // when bus_stop_code is undefined it means client side has no required information
+      // to transfer to server side to fetch the Bus ETAs
       if(typeof bus_stop_code==="undefined") {
-          if( (typeof prevUpdateInterval!=="undefined") ) {
-            clearInterval(prevUpdateInterval);
-            prevUpdateInterval=undefined;
-            updateInterval.set(socket.id, undefined);
+        if( (typeof intervalID!=="undefined") ) { // When user had requested for another bus stop's ETAs previously
+          clearInterval(intervalID);
+          updateInterval.set(socket.id, undefined);
 
-            prevBusCode=undefined;
-            previousBusCode.set(socket.id, undefined);
-          }
-      } else if( (typeof prevBusCode==="undefined") || (prevBusCode !== bus_stop_code) ) {
-          prevBusCode=bus_stop_code;
-          previousBusCode.set(socket.id, bus_stop_code);
+          prevBusCode=undefined; // When user selects another bus stop, the ETAs for the previous selection should be removed
+          previousBusCode.set(socket.id, undefined);
+        }
+      } else if( (typeof prevBusCode==="undefined") || (prevBusCode !== bus_stop_code) ) { // User has selected another bus stop
+        previousBusCode.set(socket.id, bus_stop_code);
 
-          if( (typeof prevUpdateInterval!=="undefined") ) {
-            clearInterval(prevUpdateInterval);
-            updateInterval.set(socket.id, undefined);
-          }
-
-          prevUpdateInterval = setInterval(() => {
-            request({
-                url: `${API_ENDPOINT}/BusArrivalv2?BusStopCode=${bus_stop_code}`,
-                method: "GET",
-                json: true,
-                headers: {
-                  "AccountKey" : LTA_API_KEY,
-                  "accept" : "application/json"
-                }
-            }, (err, res, body) => {
-                socket.emit("get_bus_arrivals_info", JSON.stringify(body["Services"]));
-            });
-          }, 10000);
-          updateInterval.set(socket.id, prevUpdateInterval);
+        if( (typeof intervalID!=="undefined") ) { // To stop fetch ETAs for previous bus stop selected
+          clearInterval(intervalID);
+          updateInterval.set(socket.id, undefined);
+        }
+        intervalID = setInterval(() => {
+          request({
+              url: `${API_ENDPOINT}/BusArrivalv2?BusStopCode=${bus_stop_code}`,
+              method: "GET",
+              json: true,
+              headers: {
+                "AccountKey" : LTA_API_KEY,
+                "accept" : "application/json"
+              }
+          }, (err, res, body) => {
+              socket.emit("get_bus_arrivals_info", JSON.stringify(body["Services"]));
+          });
+        }, 10000);
+        updateInterval.set(socket.id, intervalID); // update the stored interval ID
       }
     });
 
@@ -304,7 +304,6 @@ function onNewWebsocketConnection(socket) {
       console.info(`Server side socket[${socket.id}] has disconnected.`);
     });
 }
-
 
 // will fire for every new socket connection: every user logs onto the web app
 io.on("connection", onNewWebsocketConnection);
