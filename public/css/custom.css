@@ -1,4 +1,3 @@
-
 html,
 body {
   margin: 0;
@@ -25,12 +24,12 @@ a:active {
   height: 1em;
   stroke-width: 0;
   stroke: currentColor;
-  fill: currentColor
+  fill: currentColor;
 }
 
 #sidebar .form-control {
   background: rgba(255, 255, 255, 0.75);
-  padding: 4px
+  padding: 4px;
 }
 
 .panel-title a,
@@ -41,7 +40,7 @@ a.card-link:hover,
   color: #16181b;
   cursor: default;
   text-decoration: none;
-  display: inline-block
+  display: inline-block;
 }
 
 #sidebar-wrapper {
@@ -74,11 +73,11 @@ a.card-link:hover,
   overflow-y: auto;
   margin: 0;
   padding: 0;
-  z-index: 1000
+  z-index: 1000;
 }
 
 #sidebar div.card-body {
-  height: calc(60vh - 48px);
+  height: calc(60vh - 35px);
   overflow-y: auto;
   overflow-x: hidden;
   background-image: linear-gradient(120deg, #eaee44, #33d0ff);
@@ -87,7 +86,7 @@ a.card-link:hover,
 
 #sidebar div.card {
   background-color: transparent;
-  border: none
+  border: none;
 }
 
 #sidebar div.card-header,
@@ -105,11 +104,12 @@ a.card-link:hover,
 #service_route_details div.card-body,
 #displayed_bus_route_details div.card-body,
 #bus_etas div.card-body {
-  height: calc(60vh - 108px);
+  height: calc(60vh - 118px);
   overflow-x: hidden;
   overflow-y: auto;
   padding: 0;
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
+  /*box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;*/
 }
 
 #sidebar div.card-header {
@@ -120,7 +120,7 @@ a.card-link:hover,
   -khtml-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
-  user-select: none
+  user-select: none;
 }
 
 #sidebar div.card-header h6 {
@@ -136,7 +136,7 @@ a.card-link:hover,
 #sidebar a.nav-link.rounded-0:active,
 #sidebar a.nav-link.rounded-0:focus {
   box-shadow: rgba(0, 0, 0, 0.15) 0 2px 4px 0 inset;
-  color: #606265
+  color: #606265;
 }
 
 #sidebar a.nav-link.rounded-0.active {
@@ -147,7 +147,7 @@ a.card-link:hover,
 .-tabs .nav-item.show .nav-link,
 .nav-tabs .nav-link.active {
   color: #16181b;
-  font-weight: bolder
+  font-weight: bolder;
 }
 
 input[type=range][orient=vertical] {
@@ -155,7 +155,7 @@ input[type=range][orient=vertical] {
   -webkit-appearance: slider-vertical;
   width: 8px;
   height: 175px;
-  padding: 0 5px
+  padding: 0 5px;
 }
 
 .leaflet-tooltip-left:before {
@@ -217,7 +217,7 @@ input[type=range][orient=vertical] {
   background-color: transparent;
   color: #fff;
   border: none;
-  font-size: 5px
+  font-size: 5px;
 }
 
 .bus-stop-marker {
@@ -256,8 +256,8 @@ input[type=range][orient=vertical] {
 }
 
 #toggle-sidebar-btn {
-  padding: 7px;
-  padding-left: 9px;
+  padding: 8px 10px;
+  margin: 2px;
   opacity: .75;
   box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, 
   rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, 
@@ -314,7 +314,7 @@ input.end_bus_stop_selection {
   vertical-align: middle;
   display: inline-table;
   font: status-bar;
-  font-size: small
+  font-size: smaller;
 }
 
 html {

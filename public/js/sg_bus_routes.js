@@ -650,7 +650,7 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
                   let service_route_details_htmlstr="";
                   service_route_details_htmlstr += '<div class="card-header">';
                   service_route_details_htmlstr += '<h6><a class="card-link w-100">';
-                  service_route_details_htmlstr += '<p class="pb-0 pt-1 mb-1 mt-1">';
+                  service_route_details_htmlstr += '<p class="pb-0 pt-1 mb-1 mt-1 small">';
 
                   service_route_details_htmlstr += '<span class="badge badge-success service_no">';
                   service_route_details_htmlstr += service_no;
@@ -786,17 +786,17 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
                     displayed_bus_route_htmlStr+="</span>";
 
                     displayed_bus_route_htmlStr+="&nbsp;";
-                    displayed_bus_route_htmlStr+="<span class='badge badge-warning'>";
+                    displayed_bus_route_htmlStr+="<span class='badge badge-warning small'>";
                     displayed_bus_route_htmlStr+=`<b>SATURDAY</b> <u>${saturday_hours}</u>`;
                     displayed_bus_route_htmlStr+="</span>";
 
                     displayed_bus_route_htmlStr+="&nbsp;";
-                    displayed_bus_route_htmlStr+="<span class='badge badge-warning'>";
+                    displayed_bus_route_htmlStr+="<span class='badge badge-warning small'>";
                     displayed_bus_route_htmlStr+=`<b>SUNDAY</b> <u>${sunday_hours}</u>`;
                     displayed_bus_route_htmlStr+="</span>";
                     displayed_bus_route_htmlStr+="</span>";
 
-                    displayed_bus_route_htmlStr+="<button id='exportDisplayedBusRoute' type='button' class='btn btn-md btn-secondary rounded-0 float-right'>📥 ᵃˢ ᴊsᴏɴ</button>";
+                    displayed_bus_route_htmlStr+="<button id='exportDisplayedBusRoute' type='button' class='btn btn-md btn-secondary rounded-0 float-right'>📥 ᴊsᴏɴ</button>";
 
                     displayed_bus_route_htmlStr+="</a></h6>";
                     displayed_bus_route_htmlStr+="</div>";
