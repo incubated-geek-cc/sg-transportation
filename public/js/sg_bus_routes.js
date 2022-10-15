@@ -1,7 +1,6 @@
 const myApp = Object.create(null);
-
 // ======================= MAP =========================
-const basemapUrl="https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=jOzR6tdpUGnAtK2TkJCx";
+const basemapUrl="https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=fzwCe1gVmN1XHr6rvFPG"; // jOzR6tdpUGnAtK2TkJCx
 const attributionStr= "&nbsp;<a href='https://www.maptiler.com/copyright/' target='_blank'>© MapTiler</a> <a href='https://www.openstreetmap.org/copyright' target='_blank'>© OpenStreetMap contributors</a>&nbsp;";
 
 const northEast = [1.56073, 104.1147];
