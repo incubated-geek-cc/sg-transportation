@@ -121,7 +121,6 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
       var bus_stops_mapping={};
       var bus_services_mapping={};
       var service_routes_mapping={};
-      
 
       const reverse_latlngs = (input_latlngs) => {
         let reverse_latlngs_arr=[];
@@ -144,18 +143,18 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
         $("#search_bus_stop").trigger("keyup");
       });
 
-      $("#sidebar").on("mouseover", function () {
-          map.dragging.disable();
-          map.doubleClickZoom.disable(); 
-          map.scrollWheelZoom.disable();
-          map.touchZoom.disable();
-      });
-      $("#sidebar").on("mouseout", function () {
-          map.dragging.enable();
-          map.doubleClickZoom.enable(); 
-          map.scrollWheelZoom.enable();
-          map.touchZoom.enable();
-      });
+      // $("#sidebar").on("mouseover", function () {
+      //     map.dragging.disable();
+      //     map.doubleClickZoom.disable(); 
+      //     map.scrollWheelZoom.disable();
+      //     map.touchZoom.disable();
+      // });
+      // $("#sidebar").on("mouseout", function () {
+      //     map.dragging.enable();
+      //     map.doubleClickZoom.enable(); 
+      //     map.scrollWheelZoom.enable();
+      //     map.touchZoom.enable();
+      // });
 
       const mode="prod"; // prod | dev
       const apiHeaders={
@@ -365,7 +364,6 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
               if(responseObj.length==0) {
                 busRoutesRetrieved=false;
               }
-              // console.log(JSON.stringify(responseObj));
             } catch(err) {
               console.log(err, "initServiceRoutes");
               busRoutesRetrieved=false;
