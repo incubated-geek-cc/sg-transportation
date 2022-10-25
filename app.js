@@ -206,6 +206,27 @@ router.post("/ltaodataservice/:transportation/:client_offset", async(req, res) =
     });
   }
 });
+
+// to call map tiles from maptiler
+// https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=fzwCe1gVmN1XHr6rvFPG
+// router.get("/wake_up", (req, res) => {
+//   let baseUrl="https://api.opencagedata.com/geocode/v1/json?"; 
+//   let params=req.params;
+//   params["key"]=OPENCAGE_API_KEY;
+//   params["no_annotations"]="1";
+//   let fullUrl=concatParams(baseUrl,params);
+//   request({ url: fullUrl }, (err, response, body) => {
+//     if (err || response.statusCode !== 200) {
+//       return res.status(500).json({
+//         type: "error", 
+//         message: (err !== null && typeof err.message !== "undefined") ? err.message : "Error. Unabled to retrieve data from OpenCageData Geocoding API."
+//       });
+//     }
+//     res.json(JSON.parse(body))
+//   })
+// });
+
+
 router.get("/wake_up", (req, res) => {
   res.json({"status":"app_is_awake"});
 });
