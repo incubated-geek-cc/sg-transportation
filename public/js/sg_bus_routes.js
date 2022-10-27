@@ -994,10 +994,10 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
             let feature="";
             let eta=bus1_eta;
             let nextBus=bus1;
-            if(bus1_eta<0) {
+            if(typeof bus2_eta!=='undefined' && bus2_eta!=='' && bus1_eta<0) {
               nextBus=bus2;
               eta=bus2_eta;
-              if(bus2_eta<0) {
+              if(typeof bus3_eta!=='undefined' && bus3_eta!=='' && bus2_eta<0) {
                 nextBus=bus3;
                 eta=bus3_eta;
               }
