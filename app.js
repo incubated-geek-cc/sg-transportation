@@ -258,7 +258,6 @@ app.use(express.static(path.join(__dirname, "public")))
 .get("/", (req, res) => res.render("index.html"))
 
 
-
 const onlineClients = new Set(); // Used to track the no. of connected client sockets and ids
 const previousBusCode = new Map(); // Stores the latst bus stop no. ETAs requested by a client
 const updateInterval = new Map(); // Stores latest intervalID of the socket tagged to its client to stop fetching data when not needed

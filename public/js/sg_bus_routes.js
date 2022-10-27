@@ -143,18 +143,18 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
         $("#search_bus_stop").trigger("keyup");
       });
 
-      // $("#sidebar").on("mouseover", function () {
-      //     map.dragging.disable();
-      //     map.doubleClickZoom.disable(); 
-      //     map.scrollWheelZoom.disable();
-      //     map.touchZoom.disable();
-      // });
-      // $("#sidebar").on("mouseout", function () {
-      //     map.dragging.enable();
-      //     map.doubleClickZoom.enable(); 
-      //     map.scrollWheelZoom.enable();
-      //     map.touchZoom.enable();
-      // });
+      $("#sidebar").on("mouseover", function () {
+          map.dragging.disable();
+          map.doubleClickZoom.disable(); 
+          map.scrollWheelZoom.disable();
+          map.touchZoom.disable();
+      });
+      $("#sidebar").on("mouseout", function () {
+          map.dragging.enable();
+          map.doubleClickZoom.enable(); 
+          map.scrollWheelZoom.enable();
+          map.touchZoom.enable();
+      });
 
       const mode="prod"; // prod | dev
       const apiHeaders={
@@ -166,7 +166,6 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
       };
 
       // --------------------------- INIT DATA FETCH HERE ------------------------  
-      // (async () => {
         let apiUrl="";
         let response="";
         let responseObj="";
@@ -507,7 +506,8 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
           let symbol = "➝"
           if(loop_description_mapped !== "") {
             symbol = "⟲"
-          } else if(typeof bus_services_mapping[service_no+"_"+1] !== "undefined" && typeof bus_services_mapping[service_no+"_"+2] !== "undefined") {
+          } else if(typeof bus_services_mapping[service_no+"_"+1] !== "undefined" 
+            && typeof bus_services_mapping[service_no+"_"+2] !== "undefined") {
             symbol = "⇆"
           }
           service_route_obj["symbol"]=symbol;
@@ -542,14 +542,14 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
             bus_service_selections += "<td>";
             bus_service_selections += "<input type='radio' data-serviceid='" + service_id + "' class='form-check-input service_route_selection' name='service_route_selection' />";
             if(symbol=="⇆") {
-              bus_service_selections += "&nbsp;<small class='ascii_chars'>ᴿᵒᵘᵗᵉ&nbsp;1</small>";
+              bus_service_selections += "<small class='ascii_chars'>ᴿᵒᵘᵗᵉ&nbsp;1&nbsp;</small>";
             }
             bus_service_selections += "</td>";
 
             if(symbol=="⇆") {
               bus_service_selections += "<td>";
               bus_service_selections += "<input type='radio' data-serviceid='"+service_no+"_2' class='form-check-input service_route_selection' name='service_route_selection' />";
-              bus_service_selections += "&nbsp;<small class='ascii_chars'>ᴿᵒᵘᵗᵉ&nbsp;2</small>";
+              bus_service_selections += "<small class='ascii_chars'>ᴿᵒᵘᵗᵉ&nbsp;2</small>";
               bus_service_selections += "</td>";
             } else {
               bus_service_selections += "<td>&nbsp;</td>";
@@ -613,7 +613,7 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
           let coordinates_arr=service_routes_mapping[service_route_selected]["coordinates_arr"];
           let latlngs=reverse_latlngs(coordinates_arr);
           let center=L.latLngBounds(latlngs).getCenter();
-          map.setView(center, defaultZoom);
+          map.flyTo(center, defaultZoom);
 
           service_route_selected_layer = L.polyline(latlngs, {
               color: "#cc1f5e",
@@ -757,23 +757,23 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
             displayed_bus_route_htmlStr+="<div class='card-header'>";
 
             displayed_bus_route_htmlStr+="<h6><a class='card-link w-100'>";
-            displayed_bus_route_htmlStr+="<span class='badge badge-primary'>"+ actual_distance_covered.toFixed(1) +"&nbsp;ᵏᵐ";
+            displayed_bus_route_htmlStr+="<span class='badge badge-primary'>"+ actual_distance_covered.toFixed(1) +"&nbsp;<span class='ascii_chars'>ᵏᵐ</span>";
             displayed_bus_route_htmlStr+="</span>";
 
             displayed_bus_route_htmlStr+="&nbsp;";
             displayed_bus_route_htmlStr+="<span class='mb-0 pb-0'>";
             displayed_bus_route_htmlStr+="<span class='badge badge-success'>";
-            displayed_bus_route_htmlStr+=`<b>WEEKDAY</b> <u>${weekday_hours}</u>`;
+            displayed_bus_route_htmlStr+=`<span>WEEKDAY</span> <u>${weekday_hours}</u>`;
             displayed_bus_route_htmlStr+="</span>";
 
             displayed_bus_route_htmlStr+="&nbsp;";
             displayed_bus_route_htmlStr+="<span class='badge badge-warning small'>";
-            displayed_bus_route_htmlStr+=`<b>SATURDAY</b> <u>${saturday_hours}</u>`;
+            displayed_bus_route_htmlStr+=`<span>SATURDAY</span> <u>${saturday_hours}</u>`;
             displayed_bus_route_htmlStr+="</span>";
 
             displayed_bus_route_htmlStr+="&nbsp;";
             displayed_bus_route_htmlStr+="<span class='badge badge-warning small'>";
-            displayed_bus_route_htmlStr+=`<b>SUNDAY</b> <u>${sunday_hours}</u>`;
+            displayed_bus_route_htmlStr+=`<span>SUNDAY</span> <u>${sunday_hours}</u>`;
             displayed_bus_route_htmlStr+="</span>";
             displayed_bus_route_htmlStr+="</span>";
 
@@ -794,7 +794,7 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
 
             let latlngs=reverse_latlngs(coordinates_arr);
             let center=L.latLngBounds(latlngs).getCenter();
-            map.setView(center, defaultZoom);
+            map.flyTo(center, defaultZoom);
 
             displayed_route_selected_layer = L.polyline(latlngs, {
               color: "#15727B",
@@ -1091,9 +1091,6 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
       socket.on("disconnect", () => {
         console.info(`Client side socket[${socket.id}] has disconnected.`);
       });
-
-
-    // })();
      
   }); // end document.addEventListener('DOMContentLoaded', async() => {
 }
