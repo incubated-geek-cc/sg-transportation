@@ -234,7 +234,6 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
                 pointToLayer: ((feature, latlng) => {
                   let busStopMarker;
                   let bus_stop_description=feature["properties"]["description"];
-
                   if(bus_stop_description.indexOf(" INT")>=0 || bus_stop_description.indexOf(" TER")>=0) {
                     busStopMarker=L.marker(latlng, {
                        icon: L.divIcon({     
@@ -506,10 +505,13 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
           let symbol = "➝"
           if(loop_description_mapped !== "") {
             symbol = "⟲"
-          } else if(typeof bus_services_mapping[service_no+"_"+1] !== "undefined" 
-            && typeof bus_services_mapping[service_no+"_"+2] !== "undefined") {
+          } else if(
+            typeof bus_services_mapping[service_no+"_"+1] !== "undefined" 
+            && typeof bus_services_mapping[service_no+"_"+2] !== "undefined"
+          ) {
             symbol = "⇆"
           }
+
           service_route_obj["symbol"]=symbol;
           service_routes_mapping[service_id]=service_route_obj;
 
@@ -517,39 +519,42 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
           if(symbol=="⟲") {
             caption+="<span class='ascii_chars'>ᴸᵒᵒᵖ@</span>" + loop_description_mapped;
           } else if(symbol=="⇆") {
-            caption+="<span class='ascii_chars'>2 ʳᵒᵘᵗᵉˢ</span>";
+            caption+="<span class='ascii_chars'>2ʳᵒᵘᵗᵉˢ</span>";
           } else {
-            caption+="<span class='ascii_chars'>1 ʳᵒᵘᵗᵉ ᵒⁿˡʸ</span>";
+            caption+="<span class='ascii_chars'>1ʳᵒᵘᵗᵉ ᵒⁿˡʸ</span>";
           }
           caption=`<span class='ascii_chars'>${caption}</span>`;
 
-          if( ( symbol=="⇆" && parseInt(direction)==1 ) ||  symbol!="⇆") {
-            let route_title = bus_stops_mapping[origin_code_mapped]["description"] + "&nbsp;➝&nbsp;" + bus_stops_mapping[destination_code_mapped]["description"];
-            route_title = "<small class='small'>" + route_title + "</small>";
+          if( ( symbol=="⇆" && parseInt(direction)==1 ) ||  symbol !== "⇆") {
+
+            let route_title = bus_stops_mapping[origin_code_mapped]["description"]+"➝"+bus_stops_mapping[destination_code_mapped]["description"];
+            route_title = "<small class='small'>"+route_title+"</small>";
+
             if(symbol=="⇆") {
               let route_2_origin_code=bus_services_mapping[service_no+"_"+2]["origin_code"];
               let route_2_destination_code=bus_services_mapping[service_no+"_"+2]["destination_code"];
-              let route_2_title = "<small class='small'>" + bus_stops_mapping[route_2_origin_code]["description"] + "&nbsp;➝&nbsp;" + bus_stops_mapping[route_2_destination_code]["description"] + "</small>";
+
+              let route_2_title="<small class='small'>" + bus_stops_mapping[route_2_origin_code]["description"]+"➝"+bus_stops_mapping[route_2_destination_code]["description"]+"</small>";
 
               route_title=route_title;
-              route_title=`${route_title}&nbsp;<b class="ascii_chars">ᵒʳ</b>&nbsp;${route_2_title}`;
+              route_title=`${route_title}<b class="ascii_chars p-1">ᵒʳ</b>${route_2_title}`;
             }
 
             bus_service_selections += "<tr>";
-            bus_service_selections += "<td><span class='badge badge-info service_no'>" + service_no + "</span></td>";
-            bus_service_selections += "<td class='small'>" + route_title + caption + "</td>";
+            bus_service_selections += "<td><span class='badge badge-info service_no'>"+service_no+"</span></td>";
+            bus_service_selections += "<td class='small'>"+route_title+caption+"</td>";
             
             bus_service_selections += "<td>";
-            bus_service_selections += "<input type='radio' data-serviceid='" + service_id + "' class='form-check-input service_route_selection' name='service_route_selection' />";
+            bus_service_selections += "<input type='radio' data-serviceid='"+service_id+"' class='form-check-input service_route_selection' name='service_route_selection' />";
             if(symbol=="⇆") {
-              bus_service_selections += "<small class='ascii_chars'>ᴿᵒᵘᵗᵉ&nbsp;1&nbsp;</small>";
+              bus_service_selections += "<small class='ascii_chars'>ᴿᵒᵘᵗᵉ1</small>";
             }
             bus_service_selections += "</td>";
 
             if(symbol=="⇆") {
               bus_service_selections += "<td>";
               bus_service_selections += "<input type='radio' data-serviceid='"+service_no+"_2' class='form-check-input service_route_selection' name='service_route_selection' />";
-              bus_service_selections += "<small class='ascii_chars'>ᴿᵒᵘᵗᵉ&nbsp;2</small>";
+              bus_service_selections += "<small class='ascii_chars'>ᴿᵒᵘᵗᵉ2</small>";
               bus_service_selections += "</td>";
             } else {
               bus_service_selections += "<td>&nbsp;</td>";
@@ -694,8 +699,8 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
 
                   service_route_details_htmlstr+="<tr>";
 
-                  service_route_details_htmlstr+="<td class='small'><b>Stop&nbsp;#"+ stop_sequence+"</b></td>";
-                  service_route_details_htmlstr+="<td colspan='3' class='small text-left'>"+bus_stop_description+"&nbsp;<small>(" + bus_stop_code +")</small><br><small>"+bus_stop_road_name+"</small></td>";
+                  service_route_details_htmlstr+="<td class='small'>№<b>"+ stop_sequence+"</b></td>";
+                  service_route_details_htmlstr+="<td colspan='3' class='small text-left'>"+bus_stop_description+"<small class='p1-1 pr-1'>(" + bus_stop_code +")</small><br><small>"+bus_stop_road_name+"</small></td>";
 
                   service_route_details_htmlstr += "<td colspan='2'><div class='form-check'><label class='form-check-label'><input type='radio' class='form-check-input start_bus_stop_selection' data-serviceid='"+service_route_selected+"' name='start_bus_stop' id='start_s"+stop_sequence+"' " + ( stop_sequence==1 ? "checked" : "") + "/><span class='ascii_chars'> ᴼʳⁱᵍⁱⁿ</span></label></div></td>";
 
@@ -757,7 +762,7 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
             displayed_bus_route_htmlStr+="<div class='card-header'>";
 
             displayed_bus_route_htmlStr+="<h6><a class='card-link w-100'>";
-            displayed_bus_route_htmlStr+="<span class='badge badge-primary'>"+ actual_distance_covered.toFixed(1) +"&nbsp;<span class='ascii_chars'>ᵏᵐ</span>";
+            displayed_bus_route_htmlStr+="<span class='badge badge-primary'>"+ actual_distance_covered.toFixed(1) +"<span class='ascii_chars pl-1 pr-1'>ᵏᵐ</span>";
             displayed_bus_route_htmlStr+="</span>";
 
             displayed_bus_route_htmlStr+="&nbsp;";
@@ -937,7 +942,6 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
             });
             let dwnlnk = document.createElement("a");
             dwnlnk.download = "bus_route.json";
-            dwnlnk.innerHTML = "Download File";
             if (window.webkitURL != null) {
                 dwnlnk.href = window.webkitURL.createObjectURL(textblob);
             } 
@@ -953,66 +957,68 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
         });
 
         const noOfMillisecondsPerDay=86400000;
-        const currentTimestamp = new Date();
+        // const currentTimestamp = new Date();
 
         function processBusStopETA(res) {
+          let responseArr=JSON.parse(JSON.stringify(res));
+
           let busEtaHtmlStr="";
           busEtaHtmlStr+="<div class='card-body rounded-0'>";
           busEtaHtmlStr+="<table class='w-100'><tbody>";
 
-          let rowCounter=1;
-          for(let r in res) {
-            let serviceArrival=res[r];
-            let ServiceNo=serviceArrival["ServiceNo"];
+          var colCounter=1;
+          for(let r in responseArr) {
+            let busEtaObj=responseArr[r];
 
-            let NextBus=serviceArrival["NextBus"];
-            let NextBus2=serviceArrival["NextBus2"];
-            let NextBus3=serviceArrival["NextBus3"];
+            let svc_no=busEtaObj["ServiceNo"]; // 12
+            let svc_op=busEtaObj["Operator"]; // GAS
 
-            let EstimatedArrival=NextBus["EstimatedArrival"];
-            let d = new Date(EstimatedArrival);
-            
-            let EstimatedArrival2=NextBus2["EstimatedArrival"];
-            let d2 = new Date(EstimatedArrival2);
+            let bus1=busEtaObj["NextBus"];
+            let bus1_eta=bus1["EstimatedArrival"]; // "2022-10-27T20:23:14+08:00"
+            bus1_eta = ((new Date(bus1_eta)-new Date())/noOfMillisecondsPerDay )*24*60; // min left
+            let bus1_feature=bus1["Feature"]; // WAB (Wheelchair Accessible) | <blank>
 
-            let EstimatedArrival3=NextBus3["EstimatedArrival"];
-            let d3 = new Date(EstimatedArrival3);
+            // -----------------------------------------
+            let bus2=busEtaObj["NextBus2"];
+            let bus2_eta=bus2["EstimatedArrival"]; // "2022-10-27T20:27:47+08:00"
+            bus2_eta = ((new Date(bus2_eta)-new Date())/noOfMillisecondsPerDay )*24*60; // min left
+            let bus2_feature=bus2["Feature"]; // WAB (Wheelchair Accessible) | <blank>
 
-            let eta = d-currentTimestamp;
-            eta=(eta/noOfMillisecondsPerDay)*24*60;
+            // -----------------------------------------
+            let bus3=busEtaObj["NextBus3"];
+            let bus3_eta=bus3["EstimatedArrival"]; // "2022-10-27T20:38:55+08:00"
+            bus3_eta = ((new Date(bus3_eta)-new Date())/noOfMillisecondsPerDay )*24*60; // min left
+            let bus3_feature=bus3["Feature"]; // WAB (Wheelchair Accessible) | <blank>
 
-            let eta2 = d2-currentTimestamp;
-            eta2=(eta2/noOfMillisecondsPerDay)*24*60;
-
-            let eta3 = d3-currentTimestamp;
-            eta3=(eta3/noOfMillisecondsPerDay)*24*60;
 
             let feature="";
-            let Feature=NextBus["Feature"];
+            let eta=bus1_eta;
+            let nextBus=bus1;
+            if(bus1_eta<0) {
+              nextBus=bus2;
+              eta=bus2_eta;
+              if(bus2_eta<0) {
+                nextBus=bus3;
+                eta=bus3_eta;
+              }
+            }
+
+            let Feature=nextBus["Feature"];
             if(Feature=="WAB") {
               feature="&nbsp;<svg class='icon icon-wheelchair'><use xlink:href='symbol-defs.svg#icon-wheelchair'></use></svg>";
             } else {
               feature="&nbsp;<svg class='icon icon-non-wheelchair'><use xlink:href='symbol-defs.svg#icon-non-wheelchair'></use></svg>";
             }
 
-            if(rowCounter==1) {
+            if(colCounter==1) {
               busEtaHtmlStr+="<tr>";
             }
-
             busEtaHtmlStr+="<td width='33.33%'>";
-            busEtaHtmlStr+="<span style='border-radius:0;margin-top:5px;margin-bottom:5px' class='badge badge-warning service_no rounded-left'>" + ServiceNo + "</span><span style='border-radius:0;margin-top:5px;margin-bottom:5px' class='badge badge-secondary service_no rounded-right small'><small class='small' style='color:#fff'>";
-            if(parseInt(eta)==0) {
+            busEtaHtmlStr+="<span style='border-radius:0;margin-top:5px;margin-bottom:5px' class='badge badge-warning service_no rounded-left'>" + svc_no + "</span><span style='border-radius:0;margin-top:5px;margin-bottom:5px' class='badge badge-secondary service_no rounded-right small'><small class='small' style='color:#fff'>";
+            if(parseInt(eta)<=0) {
               busEtaHtmlStr+="<span class='ascii_chars'>ᴬʳʳ</span>";
             } else if(parseInt(eta)>0) {
-              busEtaHtmlStr+=(parseInt(eta)+"<span class='ascii_chars'> ᵐⁱⁿ</span>");
-            } else if(parseInt(eta2)==0) {
-              busEtaHtmlStr+="<span class='ascii_chars'>ᴬʳʳ</span>";
-            } else if(parseInt(eta2)>0) {
-              busEtaHtmlStr+=(parseInt(eta2)+"<span class='ascii_chars'> ᵐⁱⁿ</span>");
-            } else if(parseInt(eta3)==0) {
-              busEtaHtmlStr+="<span class='ascii_chars'>ᴬʳʳ</span>";
-            } else if(parseInt(eta3)>0) {
-              busEtaHtmlStr+=(parseInt(eta3)+"<span class='ascii_chars'> ᵐⁱⁿ</span>");
+              busEtaHtmlStr+=(parseInt(eta)+"<span class='ascii_chars'>ᵐⁱⁿ</span>");
             } else {
               busEtaHtmlStr+="<span class='ascii_chars'>⁽ᴺᴬ⁾</span>"
             }
@@ -1020,25 +1026,23 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
             busEtaHtmlStr+="</small></span>";
             busEtaHtmlStr+="</td>";
 
-            if(r==(res.length-1)) {
-              if(rowCounter==1) {
+            if(r==(responseArr.length-1)) {
+              if(colCounter==1) {
                 busEtaHtmlStr+="<td width='33.33%'>&nbsp;</td><td width='33.33%'>&nbsp;</td></tr>";
-              } else if(rowCounter==2) {
+              } else if(colCounter==2) {
                 busEtaHtmlStr+="<td width='33.33%'>&nbsp;</td></tr>";
               }
             }
-            if(rowCounter==3) {
+            if(colCounter==3) {
               busEtaHtmlStr+="</tr>";
-              rowCounter=0;
+              colCounter=0;
             }
-            rowCounter++;
-          }
-
+            colCounter++;
+          } // end for-loop
           busEtaHtmlStr+="</tbody></table>";
-
           busEtaHtmlStr+="</div>";
           $("#bus_etas").html(busEtaHtmlStr);
-        } // end for-loop
+        } // end processBusStopETA
 
 
          // --------------------------- CLIENT SIDE WEB SOCKET INIT ------------------------
