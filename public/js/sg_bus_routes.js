@@ -16,8 +16,6 @@ var lat = ( northEast[0]+southWest[0] )/2; // 1.3603649999999998
 var lng = ( northEast[1]+southWest[1] )/2; // 103.80834999999999
 var zoom=defaultZoom;
 
-const drawRectInCenter = ((x, y, width, height) => [x - width / 2, y - height / 2, width, height]);
-
 const initMap = (lat, lng, zoom) => {
   let position = L.tileLayer(basemapUrl, {
     attribution: attributionStr,
@@ -42,50 +40,14 @@ const initMap = (lat, lng, zoom) => {
   }
 };
 
-L.Canvas.FPCanvas = L.Canvas.extend({
-  options: { width: 1, height: 1 },
-
-  initialize: function(name, options) {
-    this.name = name;
-    L.setOptions(this, options);
-    L.Canvas.prototype.initialize.call(this, { padding: 0.5 });
-  },
-
-  _draw: function () {
-    let layer,bounds = this._redrawBounds;
-    this._ctx.save();
-    if (bounds) {
-      let size = bounds.getSize();
-      this._ctx.beginPath();
-      this._ctx.rect(bounds.min.x, bounds.min.y, size.x, size.y);
-      this._ctx.clip();
-    }
-    this._drawing = true;
-
-    for (let order = this._drawFirst; order; order = order.next) {
-      if (window.CP.shouldStopExecution(0)) break;
-      layer = order.layer;
-      if (!bounds || layer._pxBounds && layer._pxBounds.intersects(bounds)) {
-        layer._updatePath();
-      }
-    }
-    window.CP.exitedLoop(0);
-    this._drawing = false;
-    this._ctx.restore();
-  } 
-});
-L.canvas.fpCanvas=( (id, options) => new L.Canvas.FPCanvas(id, options) );
-
 // ==================== ON LOAD ======================
 if (document.readyState === 'complete' || document.readyState !== 'loading' && !document.documentElement.doScroll) {
   callback();
 } else {
   document.addEventListener('DOMContentLoaded', async() => {
       console.log('DOMContentLoaded');
-      let myRenderer = L.canvas({ padding: 0.5 });
       // Handler when the DOM is fully loaded
       myApp.map = initMap(lat, lng, zoom);
-      let fpRender = L.canvas.fpCanvas({ padding: 0.5 });
 
       var geojsonBusStopMarkerOptions = {
           radius: 1.5,
@@ -618,7 +580,7 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
           let coordinates_arr=service_routes_mapping[service_route_selected]["coordinates_arr"];
           let latlngs=reverse_latlngs(coordinates_arr);
           let center=L.latLngBounds(latlngs).getCenter();
-          map.flyTo(center, defaultZoom);
+          map.flyTo(center, minZoomVal);
 
           service_route_selected_layer = L.polyline(latlngs, {
               color: "#cc1f5e",
@@ -799,7 +761,7 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
 
             let latlngs=reverse_latlngs(coordinates_arr);
             let center=L.latLngBounds(latlngs).getCenter();
-            map.flyTo(center, defaultZoom);
+            map.flyTo(center, minZoomVal);
 
             displayed_route_selected_layer = L.polyline(latlngs, {
               color: "#15727B",
