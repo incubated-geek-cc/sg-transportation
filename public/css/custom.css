@@ -74,7 +74,7 @@ a.card-link:hover,
   left: calc(20px + 2rem);
   width: -webkit-fill-available;
   z-index: 1000;  
-  box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
+  /*box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;*/
 }
 
 #sidebar div.card-body {
@@ -174,15 +174,15 @@ input[type=range][orient=vertical] {
   position: absolute;
   padding: 4px;
   background-color: rgba(255, 255, 255, 0.75);
-  border: 2px solid #0b0b75;
-  color: #454545;
+  border: 2px solid #7b1fa2;
+  color: #7b1fa2;
   white-space: nowrap;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
   pointer-events: none;
-  box-shadow: 0 1px 2px rgba(69, 69, 69, 0.4)
+  box-shadow: 0 1px 2px rgba(69, 69, 69, 0.4);
 }
 
 .leaflet-tooltip-own {
@@ -201,7 +201,7 @@ input[type=range][orient=vertical] {
 }
 
 .leaflet-tooltip-own-2 {
-  border: 2px solid #15727B;
+  border: 2px solid #17a2b8;
 }
 
 .service_route_selection:hover {
@@ -222,9 +222,10 @@ input[type=range][orient=vertical] {
 
 .bus-stop-marker {
   color: #fff;
-  border-radius: 50%;
-  padding: 1px 3px 4px 4px;
+  font-size: 0.55rem;
+  padding: 0.15rem 0.175rem 0.175rem 0.175rem;
   border: 1px solid #fff;
+  opacity: 0.99;
 }
 
 .badge.service_no {
@@ -238,12 +239,20 @@ input[type=range][orient=vertical] {
   overflow: hidden;
 }
 
-.table td,
+.table td, .table th {
+    padding: 4px;
+    vertical-align: middle;
+    min-width: 45px;
+    border-top: 1px solid #dee2e6;
+}
+
 .table th {
-  padding: 4px;
-  vertical-align: middle;
-  min-width: 45px;
-  border-top: 1px solid #dee2e6
+    padding-top: 2px;
+    padding-bottom: 0;
+}
+.table td {
+  padding-bottom: 4px;
+  padding-top: 0;
 }
 
 #sidebar {
@@ -396,4 +405,8 @@ div.map-container div.map-frame div.row {
 #toggle-sidebar-btn-a {
   position: fixed;
   left: 0;
+}
+
+strong {
+  font-weight: 800;
 }

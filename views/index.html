@@ -18,12 +18,15 @@
         <meta name='MobileOptimized' content='320' />
         <link rel="stylesheet" href="css/leaflet-1.3.1.css" />
         <script type="text/javascript" src="js/leaflet-1.3.1.min.js"></script>
+        <script type="text/javascript" src="js/leaflet-antpath.min.js"></script>
         <script type="text/javascript" src="js/leaflet.polyline.offset.js"></script>
+        
         <link rel="stylesheet" href="css/bootstrap-4.5.2.min.css" />
         <link rel="stylesheet" href="css/custom.css" />
     </head>
   <body>
   <noscript>You need to enable JavaScript to run this app.</noscript>
+ 
 	<div class="container">
     <div class="map-container">
       <div class="map-frame">
@@ -53,7 +56,7 @@
                     <div class="card rounded-0">
                       <div class="card-header">
                         <h6><a class="card-link w-100">
-                        <div class="form-check-inline w-100"><span>🔍</span>&nbsp;&nbsp;<input class="form-control form-control-md rounded-25" id="search_bus_stop" type="text" placeholder="Input Bus Service or Bus Stop No.…"/>&nbsp;&nbsp;<button id="search_bus_stop_clear" type="button" class="btn btn-outline-danger btn-sm rounded-circle pr-2 pl-2 pt-0 pb-0"><big><strong>×</strong></big></button></div>
+                        <div class="form-check-inline w-100"><span>🔍</span>&nbsp;&nbsp;<input class="form-control form-control-md rounded-pill" id="search_bus_stop" type="text" placeholder="Search Bus Service No. or Bus Stop Name…"/>&nbsp;&nbsp;<button id="search_bus_stop_clear" type="button" class="btn btn-outline-danger btn-sm rounded-circle pr-2 pl-2 pt-0 pb-0"><big><strong>×</strong></big></button></div>
                         </a></h6>
                       </div>
                       <div id="bus_services" class="w-100">
