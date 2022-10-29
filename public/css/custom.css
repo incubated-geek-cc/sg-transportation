@@ -72,7 +72,7 @@ a.card-link:hover,
   margin: 0;
   padding: 0;
   left: calc(20px + 2rem);
-  width: fit-content;
+  width: -webkit-fill-available;
   z-index: 1000;  
   box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
 }
