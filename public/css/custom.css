@@ -72,6 +72,7 @@ a.card-link:hover,
   margin: 0;
   padding: 0;
   left: calc(20px + 2rem);
+  width: fit-content;
   z-index: 1000;  
   box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
 }
@@ -97,7 +98,7 @@ a.card-link:hover,
 #bus_etas div.card-body {
   background-image: linear-gradient(120deg, #eaee44, #33d0ff);
   padding: 0;
-  user-select: none
+  user-select: none;
 }
 
 #bus_services div.card-body,
