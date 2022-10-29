@@ -6,21 +6,22 @@ const attributionStr= "&nbsp;<a href='https://www.maptiler.com/copyright/' targe
 const northEast = [1.56073, 104.1147];
 const southWest = [1.16, 103.502];
 
-const minZoomVal=13;
+const minZoomVal=9;
 const maxZoomVal=18;
-const defaultZoom=14;
+const defaultZoom=13;
 
 var map="";
 
 var lat = ( northEast[0]+southWest[0] )/2; // 1.3603649999999998
 var lng = ( northEast[1]+southWest[1] )/2; // 103.80834999999999
-var zoom=defaultZoom;
+var zoom=11;
 
 const initMap = (lat, lng, zoom) => {
   let position = L.tileLayer(basemapUrl, {
     attribution: attributionStr,
     minZoom: minZoomVal,
-    maxZoom: maxZoomVal
+    maxZoom: maxZoomVal,
+    errorTileUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIAAQMAAADOtka5AAAAA1BMVEX28eS888QlAAAANklEQVR4nO3BAQEAAACCIP+vbkhAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB8G4IAAAHSeInwAAAAAElFTkSuQmCC"
   });
 
   map = L.map("map-id", {
@@ -31,10 +32,6 @@ const initMap = (lat, lng, zoom) => {
     map.setMaxBounds([northEast, southWest]);
     map.setView([lat, lng], zoom);
     position.addTo(map);
-
-    L.control.zoom({
-      position: "bottomright"
-    }).addTo(map);
 
     return map;
   }
@@ -128,98 +125,100 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
       };
 
       // --------------------------- INIT DATA FETCH HERE ------------------------  
-        let apiUrl="";
-        let response="";
-        let responseObj="";
+      let apiUrl="";
+      let response="";
+      let responseObj="";
 
-        apiUrl = (mode=="prod" ? "api/ltaodataservice/all/BusStops" : "data/BusStops.json");
+      apiUrl = (mode=="prod" ? "api/ltaodataservice/all/BusStops" : "data/BusStops.json");
 
-        // ================ INIT bus stops =======================
-        let busStopsRetrieved=true;
+      // ================ INIT bus stops =======================
+      let busStopsRetrieved=true;
 
-        try {
-          response = await fetch(apiUrl, apiHeaders);
-          responseObj = await response.json();
-          if(responseObj.length==0) {
-            busStopsRetrieved=false;
-          }
-        } catch(err) {
-          console.log(err, "initBusStops");
+      try {
+        response = await fetch(apiUrl, apiHeaders);
+        responseObj = await response.json();
+        if(responseObj.length==0) {
           busStopsRetrieved=false;
         }
-        if(!busStopsRetrieved) {
-          apiHeaders["method"]="GET";
-          response = await fetch("data/BusStops.json", apiHeaders);
-          responseObj = await response.json();
-          busStopsRetrieved=true;
-        }
+      } catch(err) {
+        console.log(err, "initBusStops");
+        busStopsRetrieved=false;
+      }
+      if(!busStopsRetrieved) {
+        apiHeaders["method"]="GET";
+        response = await fetch("data/BusStops.json", apiHeaders);
+        responseObj = await response.json();
+        busStopsRetrieved=true;
+      }
+      // wait 100 milliseconds
+      await new Promise((resolve, reject) => setTimeout(resolve, 100));
+
+      if(busStopsRetrieved) {
+        for(let bus_stop of responseObj) {
+            if( bus_stop.hasOwnProperty('BusStopCode') && bus_stop.hasOwnProperty('RoadName') && bus_stop.hasOwnProperty('Description') && bus_stop.hasOwnProperty('Latitude') && bus_stop.hasOwnProperty('Longitude') ) {
+              let code=bus_stop["BusStopCode"];
+              let road_name=bus_stop["RoadName"].toUpperCase();
+              let description=bus_stop["Description"].toUpperCase();
+              
+              let Latitude=bus_stop["Latitude"];
+              let Longitude=bus_stop["Longitude"];
+              
+              let bus_stop_no=code+"";
+
+              bus_stops_mapping[bus_stop_no]={}
+              bus_stops_mapping[bus_stop_no]={
+                "road_name":road_name,
+                "description":description,
+                "latitude":Latitude,
+                "longitude":Longitude
+              };
+
+              let bus_stop_feature={
+                "type":"Feature",
+                "properties":{
+                  "code": code,
+                  "description": description,
+                  "road_name": road_name
+                },
+                "geometry": {
+                  "type":"Point",
+                  "coordinates": [ Longitude, Latitude ]
+                }
+              }
+              all_bus_stops_geojson["features"].push(bus_stop_feature);
+            }
+          }
         // wait 100 milliseconds
         await new Promise((resolve, reject) => setTimeout(resolve, 100));
-
-        if(busStopsRetrieved) {
-          for(let bus_stop of responseObj) {
-            let code=bus_stop["BusStopCode"];
-            let road_name=bus_stop["RoadName"].toUpperCase();
-            let description=bus_stop["Description"].toUpperCase();
-            
-            let Latitude=bus_stop["Latitude"];
-            let Longitude=bus_stop["Longitude"];
-            
-            let bus_stop_no=code+"";
-
-            bus_stops_mapping[bus_stop_no]={}
-            bus_stops_mapping[bus_stop_no]={
-              "road_name":road_name,
-              "description":description,
-              "latitude":Latitude,
-              "longitude":Longitude
-            };
-
-            let bus_stop_feature={
-              "type":"Feature",
-              "properties":{
-                "code": code,
-                "description": description,
-                "road_name": road_name
-              },
-              "geometry": {
-                "type":"Point",
-                "coordinates": [ Longitude, Latitude ]
-              }
-            }
-            all_bus_stops_geojson["features"].push(bus_stop_feature);
-          }
-          // wait 100 milliseconds
-          await new Promise((resolve, reject) => setTimeout(resolve, 100));
-          if(all_bus_stops_geojson["features"].length>0) {
-            all_bus_stops_geojson_layer = L.geoJSON(all_bus_stops_geojson, {
-                pointToLayer: ((feature, latlng) => {
-                  let busStopMarker;
-                  let bus_stop_description=feature["properties"]["description"];
-                  if(bus_stop_description.indexOf(" INT")>=0 || bus_stop_description.indexOf(" TER")>=0) {
-                    busStopMarker=L.marker(latlng, {
-                       icon: L.divIcon({     
-                           html: '<span class="bus-stop-marker" style="background-color:' + geojsonBusStopMarkerOptions["fillColor"] + ';"><svg class="icon icon-bus"><use xlink:href="symbol-defs.svg#icon-bus"></use></svg></span>',
-                           className: "leaflet-marker-own"
-                       })
-                    });
-                  } else {
-                    busStopMarker=L.circleMarker(latlng, geojsonBusStopMarkerOptions);
-                  }
-
-                  busStopMarker.bindTooltip(
-                    "<div><span style='background:rgba(11, 11, 117, 0.15);padding:1px;color:" + geojsonBusStopMarkerOptions["fillColor"] + "'><b>" + feature["properties"]["code"] + "</b></span>&nbsp;" + bus_stop_description + "</div>", { 
-                    className: "leaflet-tooltip-custom", 
-                    offset: [0, 0]
+        if(all_bus_stops_geojson["features"].length>0) {
+          all_bus_stops_geojson_layer = L.geoJSON(all_bus_stops_geojson, {
+              pointToLayer: ((feature, latlng) => {
+                let busStopMarker;
+                let bus_stop_description=feature["properties"]["description"];
+                if(bus_stop_description.indexOf(" INT")>=0 || bus_stop_description.indexOf(" TER")>=0) {
+                  busStopMarker=L.marker(latlng, {
+                     icon: L.divIcon({     
+                         html: '<span class="bus-stop-marker" style="background-color:' + geojsonBusStopMarkerOptions["fillColor"] + ';"><svg class="icon icon-bus"><use xlink:href="symbol-defs.svg#icon-bus"></use></svg></span>',
+                         className: "leaflet-marker-own"
+                     })
                   });
-                  return busStopMarker;
-                })
-            });
-            await new Promise((resolve, reject) => setTimeout(resolve, 100));
-            if(typeof all_bus_stops_geojson_layer !== 'undefined') {
-              map.addLayer(all_bus_stops_geojson_layer);
-            }
+                } else {
+                  busStopMarker=L.circleMarker(latlng, geojsonBusStopMarkerOptions);
+                }
+
+                busStopMarker.bindTooltip(
+                  "<div><span style='background:rgba(11, 11, 117, 0.15);padding:1px;color:" + geojsonBusStopMarkerOptions["fillColor"] + "'><b>" + feature["properties"]["code"] + "</b></span>&nbsp;" + bus_stop_description + "</div>", { 
+                  className: "leaflet-tooltip-custom", 
+                  offset: [0, 0]
+                });
+                return busStopMarker;
+              })
+          });
+          await new Promise((resolve, reject) => setTimeout(resolve, 100));
+          if(typeof all_bus_stops_geojson_layer !== 'undefined') {
+            map.addLayer(all_bus_stops_geojson_layer);
           }
+        }
 
           // ================ INIT bus services ==============================
           apiHeaders["method"]=(mode=="prod" ? "POST" : "GET");
@@ -489,14 +488,14 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
 
           if( ( symbol=="⇆" && parseInt(direction)==1 ) ||  symbol !== "⇆") {
 
-            let route_title = bus_stops_mapping[origin_code_mapped]["description"]+"➝"+bus_stops_mapping[destination_code_mapped]["description"];
+            let route_title = bus_stops_mapping[origin_code_mapped]["description"]+"<span class='ascii_chars ml-1 mr-1'>➝</span>"+bus_stops_mapping[destination_code_mapped]["description"];
             route_title = "<small class='small'>"+route_title+"</small>";
 
             if(symbol=="⇆") {
               let route_2_origin_code=bus_services_mapping[service_no+"_"+2]["origin_code"];
               let route_2_destination_code=bus_services_mapping[service_no+"_"+2]["destination_code"];
 
-              let route_2_title="<small class='small'>" + bus_stops_mapping[route_2_origin_code]["description"]+"➝"+bus_stops_mapping[route_2_destination_code]["description"]+"</small>";
+              let route_2_title="<small class='small'>" + bus_stops_mapping[route_2_origin_code]["description"]+"<span class='ascii_chars ml-1 mr-1'>➝</span>"+bus_stops_mapping[route_2_destination_code]["description"]+"</small>";
 
               route_title=route_title;
               route_title=`${route_title}<b class="ascii_chars p-1">ᵒʳ</b>${route_2_title}`;
@@ -580,7 +579,7 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
           let coordinates_arr=service_routes_mapping[service_route_selected]["coordinates_arr"];
           let latlngs=reverse_latlngs(coordinates_arr);
           let center=L.latLngBounds(latlngs).getCenter();
-          map.flyTo(center, minZoomVal);
+          map.flyTo(center, defaultZoom);
 
           service_route_selected_layer = L.polyline(latlngs, {
               color: "#cc1f5e",
@@ -606,7 +605,7 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
 
           service_route_details_htmlstr += '<span class="ml-1 mr-1">';
           service_route_details_htmlstr += bus_stops_mapping[service_routes_mapping[service_route_selected]["origin_code_mapped"]]["description"];
-          service_route_details_htmlstr += "<b class='ml-1 mr-1'>"+symbol+"</b>";
+          service_route_details_htmlstr += "<b class='ascii_chars ml-1 mr-1'>"+symbol+"</b>";
           service_route_details_htmlstr += bus_stops_mapping[ service_routes_mapping[service_route_selected]["destination_code_mapped"]]["description"];
           service_route_details_htmlstr += '</span>';
 
@@ -662,7 +661,7 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
                   service_route_details_htmlstr+="<tr>";
 
                   service_route_details_htmlstr+="<td class='small'>№<b>"+ stop_sequence+"</b></td>";
-                  service_route_details_htmlstr+="<td colspan='3' class='small text-left'>"+bus_stop_description+"<small class='p1-1 pr-1'>(" + bus_stop_code +")</small><br><small>"+bus_stop_road_name+"</small></td>";
+                  service_route_details_htmlstr+="<td colspan='3' class='small text-left'>"+bus_stop_description+"<small class='ml-1'>(" + bus_stop_code +")</small><br><small>"+bus_stop_road_name+"</small></td>";
 
                   service_route_details_htmlstr += "<td colspan='2'><div class='form-check'><label class='form-check-label'><input type='radio' class='form-check-input start_bus_stop_selection' data-serviceid='"+service_route_selected+"' name='start_bus_stop' id='start_s"+stop_sequence+"' " + ( stop_sequence==1 ? "checked" : "") + "/><span class='ascii_chars'> ᴼʳⁱᵍⁱⁿ</span></label></div></td>";
 
@@ -761,7 +760,7 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
 
             let latlngs=reverse_latlngs(coordinates_arr);
             let center=L.latLngBounds(latlngs).getCenter();
-            map.flyTo(center, minZoomVal);
+            map.flyTo(center, defaultZoom);
 
             displayed_route_selected_layer = L.polyline(latlngs, {
               color: "#15727B",
