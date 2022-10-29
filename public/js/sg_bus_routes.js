@@ -6,9 +6,9 @@ const attributionStr= "&nbsp;<a href='https://www.maptiler.com/copyright/' targe
 const northEast = [1.56073, 104.1147];
 const southWest = [1.16, 103.502];
 
-const minZoomVal=9;
+const minZoomVal=10;
 const maxZoomVal=18;
-const defaultZoom=13;
+const defaultZoom=12;
 
 var map="";
 

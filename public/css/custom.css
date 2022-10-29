@@ -45,8 +45,6 @@ a.card-link:hover,
 
 #sidebar-wrapper {
   z-index: 1002;
-  border-radius: 5px;
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px;
 }
 
 #sidebar-wrapper.collapse {
@@ -60,7 +58,7 @@ a.card-link:hover,
 }
 
 #sidebar-wrapper.collapse.show {
-  height: calc(60vh - 34px);
+  height: calc(60vh - 12px - 2em);
   -webkit-transition: height .5s ease-in-out;
   -moz-transition: height .5s ease-in-out;
   -o-transition: height .5s ease-in-out;
@@ -73,11 +71,13 @@ a.card-link:hover,
   overflow-y: auto;
   margin: 0;
   padding: 0;
-  z-index: 1000;
+  left: calc(20px + 2rem);
+  z-index: 1000;  
+  box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 4px 0px, rgba(14, 30, 37, 0.32) 0px 2px 16px 0px;
 }
 
 #sidebar div.card-body {
-  height: calc(60vh - 35px);
+  height: calc(60vh - 36px - 6em);
   overflow-y: auto;
   overflow-x: hidden;
   background-image: linear-gradient(120deg, #eaee44, #33d0ff);
@@ -104,12 +104,11 @@ a.card-link:hover,
 #service_route_details div.card-body,
 #displayed_bus_route_details div.card-body,
 #bus_etas div.card-body {
-  height: calc(60vh - 114px);
+  height: calc(60vh - 38px - 6em);
   overflow-x: hidden;
   overflow-y: auto;
   padding: 0;
-  box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;
-  /*box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;*/
+  /*box-shadow: rgba(0, 0, 0, 0.05) 0px 0px 0px 1px;*/
 }
 
 #sidebar div.card-header {
@@ -248,7 +247,7 @@ input[type=range][orient=vertical] {
 
 #sidebar {
   top: 0;
-  bottom: 40vh;
+  bottom: calc(12px + 2em + 40vh);
   overflow: hidden;
   position: absolute
 }
@@ -262,9 +261,14 @@ input[type=range][orient=vertical] {
   padding: 8px 10px;
   margin: 2px;
   opacity: .75;
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, 
-  rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, 
-  rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
+  box-shadow: rgba(0, 0, 0, 0.17) 0px -23px 25px 0px inset, 
+  rgba(0, 0, 0, 0.15) 0px -36px 30px 0px inset, 
+  rgba(0, 0, 0, 0.1) 0px -79px 40px 0px inset, 
+  rgba(0, 0, 0, 0.06) 0px 2px 1px, 
+  rgba(0, 0, 0, 0.09) 0px 4px 2px, 
+  rgba(0, 0, 0, 0.09) 0px 8px 4px, 
+  rgba(0, 0, 0, 0.09) 0px 16px 8px, 
+  rgba(0, 0, 0, 0.09) 0px 32px 16px;
 }
 
 #toggle-sidebar-btn svg.icon {
@@ -280,28 +284,28 @@ input[type=range][orient=vertical] {
 @media (min-width:576px) {
   #sidebar {
     top: 0;
-    bottom: 40vh
+    bottom: calc(12px + 2em + 40vh)
   }
 }
 
 @media (min-width:768px) {
   #sidebar {
     top: 0;
-    bottom: 40vh
+    bottom: calc(12px + 2em + 40vh)
   }
 }
 
 @media (min-width:992px) {
   #sidebar {
     top: 0;
-    bottom: 40vh
+    bottom: calc(12px + 2em + 40vh)
   }
 }
 
 @media (min-width:1200px) {
   #sidebar {
     top: 0;
-    bottom: 40vh
+    bottom: calc(12px + 2em + 40vh)
   }
 }
 
@@ -388,6 +392,7 @@ div.map-container div.map-frame div.row {
   margin-right: 0
 }
 
-.bg-custom-one {
-  background-image: linear-gradient(120deg, #eaee44, #33d0ff);
+#toggle-sidebar-btn-a {
+  position: fixed;
+  left: 0;
 }
