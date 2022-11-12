@@ -1,140 +1,97 @@
-const myApp = Object.create(null);
-// ======================= MAP =========================
-const basemapUrl="https://api.maptiler.com/maps/bright-v2/{z}/{x}/{y}.png?key=fzwCe1gVmN1XHr6rvFPG"; // jOzR6tdpUGnAtK2TkJCx
-const attributionStr= "&nbsp;<a href='https://www.maptiler.com/copyright/' target='_blank'>© MapTiler</a> <a href='https://www.openstreetmap.org/copyright' target='_blank'>© OpenStreetMap contributors</a>&nbsp;";
-
-const northEast = [1.56073, 104.1147];
-const southWest = [1.16, 103.502];
-
-const minZoomVal=10;
-const maxZoomVal=18;
-const defaultZoom=15;
-
-var map="";
-
-var lat = ( northEast[0]+southWest[0] )/2; // 1.3603649999999998
-var lng = ( northEast[1]+southWest[1] )/2; // 103.80834999999999
-var zoom=11;
-
-const initMap = (lat, lng, zoom) => {
-  let position = L.tileLayer(basemapUrl, {
-    attribution: attributionStr,
-    minZoom: minZoomVal,
-    maxZoom: maxZoomVal,
-    errorTileUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIAAQMAAADOtka5AAAAA1BMVEX28eS888QlAAAANklEQVR4nO3BAQEAAACCIP+vbkhAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB8G4IAAAHSeInwAAAAAElFTkSuQmCC"
-  });
-
-  map = L.map("map-id", {
-    zoomControl: false,
-    renderer: L.svg()
-  });
-  if(map !== "") {
-    map.setMaxBounds([northEast, southWest]);
-    map.setView([lat, lng], zoom);
-    position.addTo(map);
-
-    return map;
-  }
-};
-
 // ==================== ON LOAD ======================
-if (document.readyState === 'complete' || document.readyState !== 'loading' && !document.documentElement.doScroll) {
-  callback();
-} else {
-  document.addEventListener('DOMContentLoaded', async() => {
+  if (document.readyState === 'complete' || document.readyState !== 'loading' && !document.documentElement.doScroll) {
+    callback();
+  } else {
+    document.addEventListener('DOMContentLoaded', async() => {
       console.log('DOMContentLoaded');
-      // Handler when the DOM is fully loaded
-      const selected_bus_route_detailsObj={
-          html: true, 
-          placement: "right",
-          animation: true,
-          delay: 100,
-          dismissible: true,
-          trigger: "click"
-      };
 
-      myApp.map = initMap(lat, lng, zoom);
-
-
-      var geojsonBusStopMarkerOptions = {
-          radius: 1.5,
-          fillColor: "#7b1fa2",
-          color: "#ffffff",
-          weight: 0.5,
-          opacity: 1.0,
-          fillOpacity: 1.0
-      };
-
-      var geojsonSelectedRouteBusStopMarkerOptions = {
-          radius: 1.5,
-          fillColor: "#cc1f5e",
-          color: "#ffffff",
-          weight: 0.5,
-          opacity: 1.0,
-          fillOpacity: 1.0
-      };
-
-      var all_bus_stops_geojson_layer;
-      var displayed_bus_stops_geojson_layer;
-      var displayed_route_selected_layer;
-      
-      var bus_stops_by_service_geojson_layer;
-      var service_route_selected_layer;
-
-      var bus_stops_by_service_geojson = {
-        "type":"FeatureCollection",
-        "features":[]
-      };
-
-      var displayed_bus_stops_geojson={
-        "type":"FeatureCollection",
-        "features": []
-      };
-
-      var all_bus_stops_geojson={
-        "type":"FeatureCollection",
-        "features":[]
-      };
-
-      var bus_stops_mapping={};
-      var bus_services_mapping={};
-      var service_routes_mapping={};
-
-      const reverse_latlngs = (input_latlngs) => {
-        let reverse_latlngs_arr=[];
+      const reverseLatLngsUtil = (input_latlngs) => {
+        let reverseLatLngsUtil_arr=[];
         for(let rv in input_latlngs) {
           let latlng = input_latlngs[rv];
           let lat=latlng[1];
           let lng=latlng[0];
           let reverse_latlng=[lat,lng];
-          reverse_latlngs_arr.push(reverse_latlng);
+          reverseLatLngsUtil_arr.push(reverse_latlng);
         }
-        return reverse_latlngs_arr;
+        return reverseLatLngsUtil_arr;
       };
-
       const toCamelCase = (str) => ( (str.toLowerCase()).replace(/\w+/g, ((str) => ( str.charAt(0).toUpperCase()+str.substr(1) ).replace(/\r/g, "")) ) );
+      const removeArrNullVals = ((arr) => arr.filter(element => (element !== null) ? true : false));
 
-      var service_route_selected="";
-      var selected_start_sequence=1;
-      var selected_stop_sequence=1;
+      // IE8
+      // IE9+ and other modern browsers
+      function triggerEvent(el, type) {
+        let e = ( ('createEvent' in document) ? document.createEvent('HTMLEvents') : document.createEventObject() );
+        if ('createEvent' in document) { 
+          e.initEvent(type, false, true);
+          el.dispatchEvent(e);
+        } else { 
+          e.eventType = type;
+          el.fireEvent('on' + e.eventType, e);
+        }
+      }
 
-      $("#search_bus_stop_clear").click((e)=> {
-        $("#search_bus_stop").val("");
-        $("#search_bus_stop").trigger("keyup");
-      });
+      const geojsonBusStopMarkerOptions = {
+          radius: 1.5,
+          fillColor: "#53738C",
+          color: "#ffffff",
+          weight: 0.5,
+          opacity: 1.0,
+          fillOpacity: 1.0
+      };
+      const antpathSettings={
+        "delay": 400,
+        "dashArray": [5, 20],
+        "weight": 5,
+        "color": " #123B5C",
+        "pulseColor": "#FFFFFF",
+        "paused": false,
+        "reverse": false,
+        "hardwareAccelerated": true
+      };
+      antpathSettings["renderer"]=L.svg();
 
-      $("#sidebar").on("mouseenter", function () {
-          map.dragging.disable();
-          map.doubleClickZoom.disable(); 
-          map.scrollWheelZoom.disable();
-          map.touchZoom.disable();
+      const northEast = [1.56073, 104.1147];
+      const southWest = [1.16, 103.502];
+
+      const minZoomVal=10;
+      const maxZoomVal=18;
+      const defaultZoom=11;
+
+      const lat = ( northEast[0]+southWest[0] )/2; // 1.3603649999999998
+      const lng = ( northEast[1]+southWest[1] )/2; // 103.80834999999999
+
+      var map = L.map("map", {
+          zoomControl: false
       });
-      $("#sidebar").on("mouseleave", function () {
-          map.dragging.enable();
-          map.doubleClickZoom.enable(); 
-          map.scrollWheelZoom.enable();
-          map.touchZoom.enable();
-      });
+      // jOzR6tdpUGnAtK2TkJCx
+      const basemapUrl="https://api.maptiler.com/maps/bright-v2/{z}/{x}/{y}.png?key=fzwCe1gVmN1XHr6rvFPG"; 
+      // basemapUrl="https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png";
+      const attributionStr= "<span class='pl-1 pr-1 user-select-none'><a href='https://www.maptiler.com/copyright/' target='_blank'>© MapTiler</a> <a href='https://www.openstreetmap.org/copyright' target='_blank'>© OpenStreetMap contributors</a></span>";
+
+      let basemapLayer = L.tileLayer(basemapUrl, {
+        attribution: attributionStr,
+        minZoom: minZoomVal,
+        maxZoom: maxZoomVal,
+        errorTileUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIAAQMAAADOtka5AAAAA1BMVEX28eS888QlAAAANklEQVR4nO3BAQEAAACCIP+vbkhAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB8G4IAAAHSeInwAAAAAElFTkSuQmCC"
+      }).addTo(map);
+
+      var selectedRouteLayers = L.layerGroup();
+      map.addLayer(selectedRouteLayers);
+
+      function animateSidebar() {
+        $("#sidebar").animate({
+          width: "toggle"
+        }, 
+        350, function() {
+          map.invalidateSize();
+        });
+      }
+
+      function sizeLayerControl() {
+        $(".leaflet-control-layers").css("max-height", $("#map").height() - 50);
+      }
 
       const mode="prod"; // prod | dev
       const apiHeaders={
@@ -144,14 +101,13 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
           },
           method: ( (mode=="prod" && navigator.onLine) ? "POST" : "GET" )
       };
-      // --------------------------- INIT DATA FETCH HERE ------------------------  
+      // ====================== init data here ===========================
       let apiUrl="";
       let response="";
       let responseObj="";
 
       apiUrl = (mode=="prod" ? "api/ltaodataservice/all/BusStops" : "data/BusStops.json");
 
-      // ================ INIT bus stops =======================
       let busStopsRetrieved=true;
 
       try {
@@ -172,943 +128,980 @@ if (document.readyState === 'complete' || document.readyState !== 'loading' && !
       }
       // wait 100 milliseconds
       await new Promise((resolve, reject) => setTimeout(resolve, 100));
+      var busStopsGeojsonObj={
+        "type":"FeatureCollection",
+        "features": []
+      };
+      var busStops={};
 
       if(busStopsRetrieved) {
-        for(let bus_stop of responseObj) {
-              let code=bus_stop["BusStopCode"];
-              let road_name=toCamelCase( bus_stop["RoadName"] );
-              let description=toCamelCase( bus_stop["Description"] );
-              
-              let Latitude=bus_stop["Latitude"];
-              let Longitude=bus_stop["Longitude"];
-              
-              let bus_stop_no=code+"";
+        const busStopsArr=JSON.parse(JSON.stringify(responseObj));
+        for(let busStopObj of busStopsArr) {
+          let BusStopCode=busStopObj["BusStopCode"]+"";
+          let RoadName=busStopObj["RoadName"];
+          let Description=busStopObj["Description"];
 
-              bus_stops_mapping[bus_stop_no]={}
-              bus_stops_mapping[bus_stop_no]={
-                "road_name":road_name,
-                "description":description,
-                "latitude":Latitude,
-                "longitude":Longitude
-              };
+          let Latitude=busStopObj["Latitude"];
+          let Longitude=busStopObj["Longitude"];
 
-              let bus_stop_feature={
-                "type":"Feature",
-                "properties":{
-                  "code": code,
-                  "description": description,
-                  "road_name": road_name
-                },
-                "geometry": {
-                  "type":"Point",
-                  "coordinates": [ Longitude, Latitude ]
-                }
-              }
-              all_bus_stops_geojson["features"].push(bus_stop_feature);
-          }
-        // wait 100 milliseconds
-        await new Promise((resolve, reject) => setTimeout(resolve, 100));
-        if(all_bus_stops_geojson["features"].length>0) {
-          all_bus_stops_geojson_layer = L.geoJSON(all_bus_stops_geojson, {
-              pointToLayer: ((feature, latlng) => {
-                let busStopMarker;
-                let bus_stop_description=feature["properties"]["description"];
-                if( (bus_stop_description.toUpperCase()).indexOf(" INT")>=0 || (bus_stop_description.toUpperCase()).indexOf(" TER")>=0) {
-                  busStopMarker=L.marker(latlng, {
-                     icon: L.divIcon({     
-                         html: '<span class="bus-stop-marker rounded-circle" style="background-color:' + geojsonBusStopMarkerOptions["fillColor"] + '"><svg class="icon icon-bus"><use xlink:href="symbol-defs.svg#icon-bus"></use></svg></span>',
-                         className: "leaflet-marker-own"
-                     })
-                  });
-                } else {
-                  busStopMarker=L.circleMarker(latlng, geojsonBusStopMarkerOptions);
-                }
-
-                busStopMarker.bindTooltip(
-                  "<div><span style='background:rgba(123, 31, 162, 0.15);padding:1px;color:" + geojsonBusStopMarkerOptions["fillColor"] + "'><b>" + feature["properties"]["code"] + "</b></span>&nbsp;" + bus_stop_description + "</div>", { 
-                  className: "leaflet-tooltip-custom", 
-                  offset: [0, 0]
-                });
-                return busStopMarker;
-              })
-          });
-          await new Promise((resolve, reject) => setTimeout(resolve, 100));
-          if(typeof all_bus_stops_geojson_layer !== 'undefined') {
-            map.addLayer(all_bus_stops_geojson_layer);
-          }
-        }
-
-          // ================ INIT bus services ==============================
-          apiHeaders["method"]=(mode=="prod" ? "POST" : "GET");
-          apiUrl = (mode=="prod" ? "api/ltaodataservice/all/BusServices" : "data/BusServices.json");
-
-          let busServicesRetrieved=true;
-
-          try {
-            response = await fetch(apiUrl, apiHeaders);
-            responseObj = await response.json();
-            if(responseObj.length==0) {
-              busServicesRetrieved=false;
-            }
-          } catch(err) {
-            console.log(err, "initBusServices");
-            busServicesRetrieved=false;
-          }
-          if(!busServicesRetrieved) {
-            apiHeaders["method"]="GET";
-            response = await fetch("data/BusServices.json", apiHeaders);
-            responseObj = await response.json();
-            busServicesRetrieved=true;
-          }
-          // wait 100 milliseconds
-          await new Promise((resolve, reject) => setTimeout(resolve, 100));
-
-          if(busServicesRetrieved) {
-            for(let bus_service of responseObj) {
-              let ServiceNo=bus_service["ServiceNo"]+"";
-              let Operator=bus_service["Operator"];
-              let Direction=bus_service["Direction"];
-              let Category=bus_service["Category"];
-              let OriginCode=bus_service["OriginCode"]+"";
-              let DestinationCode=bus_service["DestinationCode"]+"";
-              let LoopDesc=toCamelCase( bus_service["LoopDesc"] );
-
-              let AM_Peak_Freq=bus_service["AM_Peak_Freq"];
-              let AM_Offpeak_Freq=bus_service["AM_Offpeak_Freq"];
-              let PM_Peak_Freq=bus_service["PM_Peak_Freq"];
-              let PM_Offpeak_Freq=bus_service["PM_Offpeak_Freq"];
-
-              let origin_bus_stop="";
-              let destination_bus_stop="";
-
-              let service_id=ServiceNo+"_"+Direction;
-              if(typeof bus_stops_mapping[OriginCode] !== "undefined") {
-                origin_bus_stop=bus_stops_mapping[OriginCode]["description"];
-              }
-              if(typeof bus_stops_mapping[DestinationCode] !== "undefined") {
-                destination_bus_stop=bus_stops_mapping[DestinationCode]["description"];
-              }
-
-              bus_services_mapping[service_id]={};
-              bus_services_mapping[service_id]={
-                "service_no":ServiceNo,
-                "operator":Operator,
-                "direction":Direction,
-                "category":Category,
-                "origin_code":OriginCode,
-                "destination_code":DestinationCode,
-                "origin_bus_stop": origin_bus_stop,
-                "destination_bus_stop": destination_bus_stop,
-                "loop_description":LoopDesc
-              };
-            }
-          }
-          await new Promise((resolve, reject) => setTimeout(resolve, 100));
-          // ================= INIT service routes ===========================
-          const PAGE_SIZE = 5000; // How many records the API returns in a page.
-          apiHeaders["method"]=(mode=="prod" ? "POST" : "GET");
-          let busRoutesRetrieved=true;
-
-          async function callAPI() {
-            let arr_result=[];
-            let client_offset = 0;
-
-            let result = [];
-            let toContinue=true;
-            while(toContinue) {
-              if(client_offset==0 || result.length==PAGE_SIZE) {
-                apiHeaders["method"]="POST";
-                response = await fetch(`api/ltaodataservice/BusRoutes/${client_offset}`, apiHeaders);
-                result = await response.json();
-                client_offset += PAGE_SIZE;
-              } else if(result.length < PAGE_SIZE) {
-                toContinue=false;
-              }
-              arr_result=arr_result.concat(result);
-            }
-            return Promise.resolve(arr_result);
+          busStops[BusStopCode]={
+            "RoadName": RoadName,
+            "Description": Description,
+            "Coordinates": [Longitude, Latitude]
           };
-
-          if(mode=="dev") {
-            response = await fetch("data/BusRoutes.json", apiHeaders);
-            responseObj = await response.json();
-            if(responseObj.length==0) {
-              busRoutesRetrieved=false;
-            }
-          } else if(mode=="prod") {
-            try {
-              responseObj=await callAPI();
-              if(responseObj.length==0) {
-                busRoutesRetrieved=false;
-              }
-            } catch(err) {
-              console.log(err, "initServiceRoutes");
-              busRoutesRetrieved=false;
-            }
-          } 
-          if(!busRoutesRetrieved) {
-            apiHeaders["method"]="GET";
-            response = await fetch("data/BusRoutes.json", apiHeaders);
-            responseObj = await response.json();
-            busRoutesRetrieved=true;
-          }
-          // wait 100 milliseconds
-          await new Promise((resolve, reject) => setTimeout(resolve, 100));
-
-          if(busRoutesRetrieved) {
-            for(let bus_route of responseObj) {
-              let ServiceNo=bus_route["ServiceNo"];
-              let Direction=bus_route["Direction"];
-              let Operator=bus_route["Operator"];
-
-              let WD_FirstBus=bus_route["WD_FirstBus"];
-              let WD_LastBus=bus_route["WD_LastBus"];
-              let SAT_FirstBus=bus_route["SAT_FirstBus"];
-              let SAT_LastBus=bus_route["SAT_LastBus"];
-              let SUN_FirstBus=bus_route["SUN_FirstBus"];
-              let SUN_LastBus=bus_route["SUN_LastBus"];
-
-              let service_id=ServiceNo+"_"+Direction;
-              let service_obj=bus_services_mapping[service_id];
-              
-              let stop_sequence=bus_route["StopSequence"];
-              let bus_stop_code=bus_route["BusStopCode"]+"";
-              let distance=parseFloat(bus_route["Distance"]);
-
-              if(typeof service_routes_mapping[service_id]=="undefined") {
-                service_routes_mapping[service_id]={
-                  "service_no_mapped":service_obj["service_no"],
-                  "operator_mapped":service_obj["operator"],
-                  "direction_mapped":service_obj["direction"],
-                  "category_mapped":service_obj["category"],
-                  "origin_code_mapped":service_obj["origin_code"],
-                  "destination_code_mapped":service_obj["destination_code"],
-                  "loop_description_mapped":service_obj["loop_description"],
-
-                  "service_no":ServiceNo,
-                  "direction":Direction,
-                  "operator":Operator,
-                  "weekday_first_bus":WD_FirstBus,
-                  "weekday_last_bus":WD_LastBus,
-                  "saturday_first_bus":SAT_FirstBus,
-                  "saturday_last_bus":SAT_LastBus,
-                  "sunday_first_bus":SUN_FirstBus,
-                  "sunday_last_bus":SUN_LastBus,
-                  "total_distance": 0,
-                  "cumulated_distance":{},
-                  "bus_stops": {},
-                  "coordinates": {}
-                };
-              }
-              service_routes_mapping[service_id]["bus_stops"][stop_sequence]=bus_stop_code;
-              service_routes_mapping[service_id]["cumulated_distance"][stop_sequence]=distance;
-              service_routes_mapping[service_id]["total_distance"] = distance;
-
-              if(typeof bus_stops_mapping[bus_stop_code]!="undefined") {
-                let bus_stop_latitude=bus_stops_mapping[bus_stop_code]["latitude"];
-                let bus_stop_longitude=bus_stops_mapping[bus_stop_code]["longitude"];
-                let bus_stop_coordinate=[bus_stop_longitude,bus_stop_latitude];
-
-                service_routes_mapping[service_id]["coordinates"][stop_sequence]=bus_stop_coordinate;
-              }
-            }
-          }
-        }
-        await new Promise((resolve, reject) => setTimeout(resolve, 100));
-        // service_routes_mapping
-        console.log("All data initialised.");
-
-
-        // ============================== RENDER OUTPUT ====================================================
-        let bus_service_selections = "";
-        bus_service_selections+="<div class='card-body rounded-0'>";
-        bus_service_selections+="<table class='table table-condensed table-hover w-100'><tbody>";
-
-        for(let s in service_routes_mapping) {
-          let service_route=service_routes_mapping[s];
-
-          let cumulated_distance_obj=service_route["cumulated_distance"];
-          let cumulated_distance_arr=Object.values(cumulated_distance_obj);
-          
-          let bus_stops_obj=service_route["bus_stops"];
-          let bus_stops_arr=Object.values(bus_stops_obj);
-
-          let coordinates_obj=service_route["coordinates"];
-          let coordinates_arr=Object.values(coordinates_obj);
-
-          let loop_description_mapped = service_route["loop_description_mapped"];
-          let origin_code_mapped = service_route["origin_code_mapped"];
-          let destination_code_mapped = service_route["destination_code_mapped"];
-
-          let service_no = service_route["service_no"];
-          let direction = service_route["direction"];
-          let service_id = service_no+"_"+direction;
-          let operator = service_route["operator"];
-
-          let weekday_first_bus = service_route["weekday_first_bus"].substr(0,2) + ":" + service_route["weekday_first_bus"].substr(2);
-          let weekday_last_bus = service_route["weekday_last_bus"].substr(0,2) + ":" + service_route["weekday_last_bus"].substr(2);
-
-          let saturday_first_bus = service_route["saturday_first_bus"].substr(0,2) + ":" + service_route["saturday_first_bus"].substr(2);
-          let saturday_last_bus = service_route["saturday_first_bus"].substr(0,2) + ":" + service_route["saturday_first_bus"].substr(2);
-
-          let sunday_first_bus = service_route["sunday_first_bus"].substr(0,2) + ":" + service_route["sunday_first_bus"].substr(2);
-          let sunday_last_bus = service_route["sunday_last_bus"].substr(0,2) + ":" + service_route["sunday_last_bus"].substr(2);
-
-          let total_distance = service_route["total_distance"];
-
-          let service_route_obj={
-            "service_id": service_id,
-            "service_no": service_no,
-            "direction": direction,
-            "operator": operator,
-            "weekday": `${weekday_first_bus} to ${weekday_last_bus}`,
-            "saturday": `${saturday_first_bus} to ${saturday_last_bus}`,
-            "sunday": `${sunday_first_bus} to ${sunday_last_bus}`,
-            "total_distance":  total_distance,
-            "origin_bus_stop": bus_stops_arr[0],
-            "dest_bus_stop": bus_stops_arr[bus_stops_arr.length-1],
-            
-            "service_no_mapped":service_route["service_no_mapped"],
-            "operator_mapped":service_route["operator_mapped"],
-            "direction_mapped":service_route["direction_mapped"],
-            "category_mapped":service_route["category_mapped"],
-            "origin_code_mapped":origin_code_mapped,
-            "destination_code_mapped":destination_code_mapped,
-            "loop_description_mapped":loop_description_mapped,
-            "coordinates_arr": coordinates_arr,
-            "cumulated_distance": cumulated_distance_obj,
-            "bus_stops": bus_stops_obj,
-            "coordinates":coordinates_obj
-          };
-
-          let symbol = "➝"
-          if(loop_description_mapped !== "") {
-            symbol = "⟲"
-          } else if(
-            typeof bus_services_mapping[service_no+"_"+1] !== "undefined" 
-            && typeof bus_services_mapping[service_no+"_"+2] !== "undefined"
-          ) {
-            symbol = "⇆"
-          }
-
-          service_route_obj["symbol"]=symbol;
-          service_routes_mapping[service_id]=service_route_obj;
-
-          let caption="";
-          if(symbol=="⟲") {
-            caption+="<span class='ascii_chars'>ʟᴏᴏᴘ@</span>" + loop_description_mapped;
-          } else if(symbol=="⇆") {
-            caption+="<span class='ascii_chars'>2 ʀᴏᴜᴛᴇs</span>";
-          } else {
-            caption+="<span class='ascii_chars'>1 ʀᴏᴜᴛᴇ ᴏɴʟʏ</span>";
-          }
-          caption=`<span class='ascii_chars'>${caption}</span>`;
-
-          if( ( symbol=="⇆" && parseInt(direction)==1 ) ||  symbol !== "⇆") {
-
-            let route_title = bus_stops_mapping[origin_code_mapped]["description"]+"<span class='ascii_chars ml-1 mr-1'>➝</span>"+bus_stops_mapping[destination_code_mapped]["description"];
-            route_title = "<small class='small'>"+route_title+"</small>";
-
-            let route_2_title;
-            if(symbol=="⇆") {
-              let route_2_origin_code=bus_services_mapping[service_no+"_"+2]["origin_code"];
-              let route_2_destination_code=bus_services_mapping[service_no+"_"+2]["destination_code"];
-
-              route_2_title="<small class='small'>" + bus_stops_mapping[route_2_origin_code]["description"]+"<span class='ascii_chars ml-1 mr-1'>➝</span>"+bus_stops_mapping[route_2_destination_code]["description"]+"</small>";
-            }
-
-            bus_service_selections += "<tr>";
-            bus_service_selections += "<th><span class='badge service_no' style='color:"+geojsonBusStopMarkerOptions['color']+";background-color:"+geojsonBusStopMarkerOptions['fillColor']+"'>"+service_no+"</span></th>";
-         
-            // #7b1fa2
-
-            bus_service_selections += "<th class='text-right'><input type='radio' data-serviceid='"+service_id+"' class='form-check-input service_route_selection' name='service_route_selection' /></th>";
-            
-            if(symbol=="⇆") {
-              bus_service_selections += "<td><small class='small'><span class='ascii_chars pr-1'>▶</span><span class='emoji'>🚌</span>"; // <b>ʀᴏᴜᴛᴇ 1 </b>
-            } else {
-              bus_service_selections += "<td colspan='3'><small class='small'><span class='ascii_chars pr-1'>▶</span><span class='emoji'>🚌</span>"; // <b>"+caption+" ▶</b>
-            }
-
-            bus_service_selections += '<button type="button" class="btn btn-sm btn-secondary rounded-sm pt-0 pb-0 mt-0 mb-0 mr-1 ml-1 ascii_chars small" data-toggle="popover" data-title="Route Information" data-dismissible="true" data-placement="right" data-content="'+caption+'">ℹ</button>';
-
-            bus_service_selections += route_title+"</small></td>";
-
-            
-            
-           
-            if(symbol=="⇆") {
-              bus_service_selections += "<th class='text-right'><input type='radio' data-serviceid='"+service_no+"_2' class='form-check-input service_route_selection' name='service_route_selection' /></th>";
-
-              bus_service_selections += "<td><small class='small'><span class='ascii_chars pr-1'>▶</span><span class='emoji'>🚌</span>"; // <b>ʀᴏᴜᴛᴇ 2 ▶</b>
-              bus_service_selections += '<button type="button" class="btn btn-sm btn-secondary rounded-sm pt-0 pb-0 mt-0 mb-0 mr-1 ml-1 ascii_chars small" data-toggle="popover" data-title="Route Information" data-dismissible="true" data-placement="right" data-content="'+caption+'">ℹ</button>';
-
-              bus_service_selections +=  route_2_title+"</small></td>";
-            }
-            bus_service_selections += "</tr>";
-          }
-
-          for(let sIndex in coordinates_obj) {
-            let featurePropertiesCopy = JSON.parse(JSON.stringify((service_route_obj)));
-            let bus_stop_code=bus_stops_obj[sIndex];
-
-            featurePropertiesCopy["stop_sequence"]=parseInt(sIndex);
-            featurePropertiesCopy["cumulated_distance"]=cumulated_distance_arr[sIndex];
-            featurePropertiesCopy["bus_stop_code"]=bus_stop_code;
-            featurePropertiesCopy["bus_stop_description"]=bus_stops_mapping[bus_stop_code]["description"];
-            featurePropertiesCopy["bus_stop_road_name"]=bus_stops_mapping[bus_stop_code]["road_name"];
-
-            let bus_stop_feature={
-              "type":"Feature",
-              "properties": featurePropertiesCopy,
+          let busStopFeatureObj={
+            "type":"Feature",
+              "properties":{
+                "BusStopCode": BusStopCode,
+                "Description": Description,
+                "RoadName": RoadName
+              },
               "geometry": {
-                "type": "Point",
-                "coordinates": [ 
-                  bus_stops_mapping[bus_stop_code]["longitude"],
-                  bus_stops_mapping[bus_stop_code]["latitude"] 
-                ]
+                "type":"Point",
+                "coordinates": [ Longitude, Latitude ]
               }
-            }
-            bus_stops_by_service_geojson["features"].push(bus_stop_feature);
-          } // nested for-loop
-        } // outer for-loop
-        await new Promise((resolve, reject) => setTimeout(resolve, 100));
-
-        bus_service_selections += "</tbody></table>"
-        bus_service_selections+="</div>";
-        $("#bus_services").html(bus_service_selections);
-
-        console.log("Output is rendered.");
-        $('[data-toggle="popover"]').popover(selected_bus_route_detailsObj);
-
-        $(".service_route_selection").change((ele) => {
-          $(".service_route_selection").each((ele2) => {
-              $(".service_route_selection")[ele2].checked=false;
-          });
-          service_route_selected=ele.target.dataset.serviceid;
-          ele.target.checked=true;
-
-          if(typeof all_bus_stops_geojson_layer !== "undefined") {
-            map.removeLayer(all_bus_stops_geojson_layer);
-          }
-          if(typeof bus_stops_by_service_geojson_layer !== "undefined") {
-            map.removeLayer(bus_stops_by_service_geojson_layer);
-          }
-          if(typeof service_route_selected_layer !== "undefined") {
-            map.removeLayer(service_route_selected_layer);
-          }
-          if(typeof displayed_bus_stops_geojson_layer !== "undefined") {
-            map.removeLayer(displayed_bus_stops_geojson_layer);
-          }
-          if(typeof displayed_route_selected_layer !== "undefined") {
-            map.removeLayer(displayed_route_selected_layer);
-          }
-
-          let coordinates_arr=service_routes_mapping[service_route_selected]["coordinates_arr"];
-          let latlngs=reverse_latlngs(coordinates_arr);
-         
-          const antpathSettings={
-            "delay": 400,
-            "dashArray": [5, 20],
-            "weight": 4,
-            "color": "#952C5F",
-            "pulseColor": "#550C37",
-            "paused": false,
-            "reverse": false,
-            "hardwareAccelerated": true
           };
+          busStopsGeojsonObj["features"].push(busStopFeatureObj);
+        }
+      }
+      // -------------------------------- Bus Stops Done ----------------------------------
+      await new Promise((resolve, reject) => setTimeout(resolve, 150));
+      // =================================================================
+      apiHeaders["method"]=(mode=="prod" ? "POST" : "GET");
+      apiUrl = (mode=="prod" ? "api/ltaodataservice/all/BusServices" : "data/BusServices.json");
 
-          antpathSettings["renderer"]=L.svg();
-          service_route_selected_layer = L.polyline.antPath(latlngs, antpathSettings);
-          map.addLayer(service_route_selected_layer);
-          map.flyToBounds(L.latLngBounds(latlngs));
+      var busServices={};
+      apiHeaders["method"]=(mode=="prod" ? "POST" : "GET");
+      apiUrl = (mode=="prod" ? "api/ltaodataservice/all/BusServices" : "data/BusServices.json");
 
-          // let originMarker=L.marker(latlngs_1[0], {
-          //     icon: blueBusIcon
-          // });
-          // map.addLayer(originMarker);
+      let busServicesRetrieved=true;
 
-          // let destinationMarker=L.marker(latlngs_1[latlngs_1.length - 1], {
-          //     icon: blueBusIcon
-          // });
-          // map.addLayer(destinationMarker);
+      try {
+        response = await fetch(apiUrl, apiHeaders);
+        responseObj = await response.json();
+        if(responseObj.length==0) {
+          busServicesRetrieved=false;
+        }
+      } catch(err) {
+        console.log(err, "initBusServices");
+        busServicesRetrieved=false;
+      }
+      if(!busServicesRetrieved) {
+        apiHeaders["method"]="GET";
+        response = await fetch("data/BusServices.json", apiHeaders);
+        responseObj = await response.json();
+        busServicesRetrieved=true;
+      }
+      // wait 100 milliseconds
+      await new Promise((resolve, reject) => setTimeout(resolve, 100));
 
+      if(busServicesRetrieved) {
+        const busServicesArr=JSON.parse(JSON.stringify(responseObj));
 
-          let service_no=service_routes_mapping[service_route_selected]["service_no"];
-          let direction=service_routes_mapping[service_route_selected]["direction"];
-          let symbol=service_routes_mapping[service_route_selected]["symbol"];
+        for(let busServicesObj of busServicesArr) {
+          let ServiceNo=busServicesObj["ServiceNo"]+"";
+          let Direction=busServicesObj["Direction"]+"";
 
-          let service_route_details_htmlstr="";
-          service_route_details_htmlstr += '<div class="card-header">';
-          service_route_details_htmlstr += '<h6><a class="card-link w-100">';
-          service_route_details_htmlstr += '<p class="pb-0 pt-1 mb-0 mt-0 small">';
+          let BusServiceID=ServiceNo+"_"+Direction;
 
-          service_route_details_htmlstr += '<span class="badge service_no text-light" style="background-color:#15727B">';
-          service_route_details_htmlstr += service_no;
-          service_route_details_htmlstr += '</span>';
+          let Operator=busServicesObj["Operator"];
+          let Category=busServicesObj["Category"];
+          let AM_Peak_Freq=busServicesObj["AM_Peak_Freq"];
+          let AM_Offpeak_Freq=busServicesObj["AM_Offpeak_Freq"];
+          let PM_Peak_Freq=busServicesObj["PM_Peak_Freq"];
+          let PM_Offpeak_Freq=busServicesObj["PM_Offpeak_Freq"];
+          let LoopDesc=busServicesObj["LoopDesc"];
 
-          if(symbol=="⇆") {
-            service_route_details_htmlstr += '<span class="badge badge-muted service_no rounded-25 small"><small class="small"><b class="ascii_chars">ʀᴏᴜᴛᴇ '+direction+'</b></small></span>';
+          let OriginCode=busServicesObj["OriginCode"]+"";
+          let DestinationCode=busServicesObj["DestinationCode"]+"";
+
+          let OriginPoint=[0,0];
+          if(typeof busStops[OriginCode] !== "undefined") {
+            OriginPoint=busStops[OriginCode]["Coordinates"];
           }
+          let DestinationPoint=[0,0];
+          if(typeof busStops[DestinationCode] !== "undefined") {
+            DestinationPoint=busStops[DestinationCode]["Coordinates"];
+          }
+          busServices[BusServiceID]={
+            "ServiceNo": ServiceNo,
+            "Direction": Direction,
+            "Operator": Operator,
+            "Category": Category,
+            "AM_Peak_Freq": AM_Peak_Freq,
+            "AM_Offpeak_Freq": AM_Offpeak_Freq,
+            "PM_Peak_Freq": PM_Peak_Freq,
+            "PM_Offpeak_Freq": PM_Offpeak_Freq,
+            "IsLoop": (LoopDesc.length==0) ? "N" : "Y",
+            "LoopDesc": LoopDesc,
+            "OriginCode": OriginCode,
+            "DestinationCode": DestinationCode,
+            "OriginPoint": OriginPoint,
+            "DestinationPoint": DestinationPoint
+          };
+        }
+      }
+      await new Promise((resolve, reject) => setTimeout(resolve, 150));
+      // ================= INIT service routes ===========================
+      const PAGE_SIZE = 5000; // How many records the API returns in a page.
+      apiHeaders["method"]=(mode=="prod" ? "POST" : "GET");
+      let busRoutesRetrieved=true;
 
-          service_route_details_htmlstr += '<span class="badge service_no text-dark rounded-0 small"><small class="small"><span class="ascii_chars pr-1">▶</span><strong>';
-          service_route_details_htmlstr += toCamelCase(bus_stops_mapping[service_routes_mapping[service_route_selected]["origin_code_mapped"]]["description"]);
-          service_route_details_htmlstr += "<span class='ascii_chars ml-1 mr-1'>"+symbol+"</span>";
-          service_route_details_htmlstr += toCamelCase(bus_stops_mapping[ service_routes_mapping[service_route_selected]["destination_code_mapped"]]["description"]);
-          service_route_details_htmlstr += '</strong></small></span>';
+      async function callAPI() {
+        let arr_result=[];
+        let client_offset = 0;
 
-          let service_routes_operator=service_routes_mapping[service_route_selected]["operator"];
-          let service_routes_category=service_routes_mapping[service_route_selected]["category_mapped"];
+        let result = [];
+        let toContinue=true;
+        while(toContinue) {
+          if(client_offset==0 || result.length==PAGE_SIZE) {
+            apiHeaders["method"]="POST";
+            response = await fetch(`api/ltaodataservice/BusRoutes/${client_offset}`, apiHeaders);
+            result = await response.json();
+            client_offset += PAGE_SIZE;
+          } else if(result.length < PAGE_SIZE) {
+            toContinue=false;
+          }
+          arr_result=arr_result.concat(result);
+        }
+        return Promise.resolve(arr_result);
+      };
 
-         // service_route_details_htmlstr += "<a href='#' class='btn btn-sm btn-warning p-1 rounded-0 text-left' data-title='Header' data-toggle='popover' data-placement='right' data-html='true' data-content='<div><small class='text-muted'><table class='table table-condensed table-bordered'><tr><th>Bus Operator</th><td>"+service_routes_operator+"</td></tr><tr><th>Category</th><td>"+service_routes_category+"</td></tr></table></small></div>'>[📖]</a>";
-       
-          service_route_details_htmlstr += '</p>';
-          service_route_details_htmlstr += '</a></h6>';
-          service_route_details_htmlstr += '</div>';
+      if(mode=="dev") {
+        response = await fetch("data/BusRoutes.json", apiHeaders);
+        responseObj = await response.json();
+        if(responseObj.length==0) {
+          busRoutesRetrieved=false;
+        }
+      } else if(mode=="prod") {
+        try {
+          responseObj=await callAPI();
+          if(responseObj.length==0) {
+            busRoutesRetrieved=false;
+          }
+        } catch(err) {
+          console.log(err, "initServiceRoutes");
+          busRoutesRetrieved=false;
+        }
+      } 
+      if(!busRoutesRetrieved) {
+        apiHeaders["method"]="GET";
+        response = await fetch("data/BusRoutes.json", apiHeaders);
+        responseObj = await response.json();
+        busRoutesRetrieved=true;
+      }
+      // wait 100 milliseconds
+      await new Promise((resolve, reject) => setTimeout(resolve, 100));
 
-          service_route_details_htmlstr += '<div id="service_selected" class="w-100">';
-          service_route_details_htmlstr += '<div class="card-body rounded-0">';
+      var busRouteFeatures={};
+      if(busRoutesRetrieved) {
+        const busRoutesArr=JSON.parse(JSON.stringify(responseObj));
 
-          service_route_details_htmlstr+="<table class='table table-condensed table-hover w-100'>";
-          service_route_details_htmlstr+="<tbody>";
+        for(let busRouteObj of busRoutesArr) {
+          let ServiceNo=busRouteObj["ServiceNo"]+"";
+          let Direction=busRouteObj["Direction"]+"";
 
-          bus_stops_by_service_geojson_layer = L.geoJSON(bus_stops_by_service_geojson, {
-            pointToLayer: ((feature, latlng) => {
-              let busStopMarker=L.marker(latlng, {
+          let BusServiceID=ServiceNo+"_"+Direction;
+          
+          let StopSequence=parseInt(busRouteObj["StopSequence"]);
+          let BusStopCode=busRouteObj["BusStopCode"]+"";
+          let Distance=busRouteObj["Distance"];
+
+          if(typeof busRouteFeatures[BusServiceID]=="undefined") {
+            let Operator=busRouteObj["Operator"];
+            let WD_FirstBus=busRouteObj["WD_FirstBus"];
+            let WD_LastBus=busRouteObj["WD_LastBus"];
+            let SAT_FirstBus=busRouteObj["SAT_FirstBus"];
+            let SAT_LastBus=busRouteObj["SAT_LastBus"];
+            let SUN_FirstBus=busRouteObj["SUN_FirstBus"];
+            let SUN_LastBus=busRouteObj["SUN_LastBus"];
+
+            busRouteFeatures[BusServiceID]={
+              "ServiceNo":ServiceNo,
+              "Direction":Direction,
+
+              "Operator":Operator,
+              "Category": busServices[BusServiceID]["Category"],
+
+              "IsLoop": busServices[BusServiceID]["IsLoop"],
+              "LoopDesc": busServices[BusServiceID]["LoopDesc"],
+
+              "OriginCode": busServices[BusServiceID]["OriginCode"],
+              "DestinationCode": busServices[BusServiceID]["DestinationCode"],
+              "OriginPoint": busServices[BusServiceID]["OriginPoint"],
+              "DestinationPoint": busServices[BusServiceID]["DestinationPoint"],
+
+              "AM_Peak_Freq": busServices[BusServiceID]["AM_Peak_Freq"],
+              "AM_Offpeak_Freq": busServices[BusServiceID]["AM_Offpeak_Freq"],
+              "PM_Peak_Freq": busServices[BusServiceID]["PM_Peak_Freq"],
+              "PM_Offpeak_Freq": busServices[BusServiceID]["PM_Offpeak_Freq"],
+
+              "WD_FirstBus":WD_FirstBus,
+              "WD_LastBus":WD_LastBus,
+              "SAT_FirstBus":SAT_FirstBus,
+              "SAT_LastBus":SAT_LastBus,
+              "SUN_FirstBus":SUN_FirstBus,
+              "SUN_LastBus":SUN_LastBus,
+
+              "Coordinates": [],
+              "Distance": [],
+
+              "BusStopCodes": [],
+              "BusStopDescriptions": [],
+              "BusStopRoadNames": []
+            };
+          }
+          busRouteFeatures[BusServiceID]["Coordinates"][StopSequence]=JSON.parse(JSON.stringify(busStops[BusStopCode]["Coordinates"]));
+          busRouteFeatures[BusServiceID]["Distance"][StopSequence]=parseFloat(Distance)*1000;
+
+          busRouteFeatures[BusServiceID]["BusStopCodes"][StopSequence]=BusStopCode;
+          busRouteFeatures[BusServiceID]["BusStopDescriptions"][StopSequence]=busStops[BusStopCode]["Description"];
+          busRouteFeatures[BusServiceID]["BusStopRoadNames"][StopSequence]=busStops[BusStopCode]["RoadName"];
+        }
+      }
+      await new Promise((resolve, reject) => setTimeout(resolve, 150));
+      // =======================
+
+      // Consolidate Bus Service No.
+      const loopSymbol=' ⥀ ';
+      const twowaySymbol=' ⮀ '; 
+      const onewaySymbol=' ⭢ ';
+
+      var busServiceRoutes={};
+      for(let busSvcID in busRouteFeatures) {
+        let busRouteFeatureObj=busRouteFeatures[busSvcID];
+
+        let ServiceNo=busRouteFeatureObj["ServiceNo"];
+        let Direction=busRouteFeatureObj["Direction"];
+
+        if(typeof busServiceRoutes[ServiceNo] === 'undefined') {
+          busServiceRoutes[ServiceNo]={};
+        }
+        busServiceRoutes[ServiceNo][busSvcID]={};
+
+        let IsLoop=busRouteFeatureObj["IsLoop"];
+        let LoopDesc=busRouteFeatureObj["LoopDesc"];
+
+        let Operator=busRouteFeatureObj["Operator"];
+        let Category=busRouteFeatureObj["Category"];
+
+        let OriginCode=busRouteFeatureObj["OriginCode"];
+        let DestinationCode=busRouteFeatureObj["DestinationCode"];
+
+        let OriginBusStopObj=busStops[OriginCode];
+        let DestinationBusStopObj=busStops[DestinationCode];
+
+        let BusServiceSymbolType=loopSymbol;
+        let BusServiceCaption='';
+        if(IsLoop=='Y' && typeof OriginBusStopObj !== 'undefined') {
+          BusServiceCaption=toCamelCase(OriginBusStopObj['Description'])+' <span class="unicode">'+BusServiceSymbolType+'</span> '+toCamelCase(LoopDesc);
+        } else {
+          let svc_1=ServiceNo+'_1';
+          let svc_2=ServiceNo+'_2';
+          BusServiceSymbolType=twowaySymbol;
+          if(typeof busRouteFeatures[svc_2] === 'undefined') {
+            BusServiceSymbolType=onewaySymbol;
+          }
+          if(typeof OriginBusStopObj !== 'undefined' && typeof DestinationBusStopObj !== 'undefined') {
+            BusServiceCaption=toCamelCase(OriginBusStopObj['Description'])+' <span class="unicode">'+BusServiceSymbolType+'</span> '+toCamelCase(DestinationBusStopObj['Description']);
+          }
+        }
+        busServiceRoutes[ServiceNo]["BusServiceCaption"]=BusServiceCaption;
+
+        let busServiceRouteCoords=removeArrNullVals(busRouteFeatureObj["Coordinates"]);
+        busServiceRoutes[ServiceNo][busSvcID]["Coordinates"]=busServiceRouteCoords;
+
+        let busServiceRouteDistanceArr=removeArrNullVals(busRouteFeatureObj["Distance"]);
+        busServiceRoutes[ServiceNo][busSvcID]["Distance"]=busServiceRouteDistanceArr;
+
+        let busStopCodesArr=removeArrNullVals(busRouteFeatureObj["BusStopCodes"]);
+        busServiceRoutes[ServiceNo][busSvcID]["BusStopCodes"] = busStopCodesArr;
+
+        let busStopDescriptionsArr=removeArrNullVals(busRouteFeatureObj["BusStopDescriptions"]);
+        busServiceRoutes[ServiceNo][busSvcID]["BusStopDescriptions"]=busStopDescriptionsArr;
+
+        let busStopRoadNamesArr=removeArrNullVals(busRouteFeatureObj["BusStopRoadNames"]);
+        busServiceRoutes[ServiceNo][busSvcID]["BusStopRoadNames"]=busStopRoadNamesArr;
+      }
+
+      let busServicesList=document.querySelector('#feature-list tbody');
+      for(let busSvcNo in busServiceRoutes) {
+        let busRouteFeatureObj=busServiceRoutes[busSvcNo];
+
+        let BusServiceCaption=busRouteFeatureObj['BusServiceCaption'];
+
+        let busServicesListItem=document.createElement('tr');
+        busServicesListItem.className='feature-row';
+        busServicesListItem.setAttribute('busSvcNo', busSvcNo);
+
+        busServicesListItem.innerHTML='<td class="w-20"><span class="rounded-sm m-1 busSvcNoSelection">'+busSvcNo+'</span></td><td class="feature-name">' + BusServiceCaption + '</td><td class="w-15"><span class="pull-right">❯</span></td>';
+        busServicesList.appendChild(busServicesListItem);
+      }
+
+      await new Promise((resolve, reject) => setTimeout(resolve, 100));
+      // service_routes_mapping
+      console.log("All data initialised.");
+
+      // ======================== all data loaded ===============================\\
+      function renderBusStopsGeojsonLayer(busStopCodesArr) {
+        let busStopsGeojsonLayer;
+        let tooltipPropObj={ 
+          className: "leaflet-tooltip-custom", 
+          offset: [0, 0]
+        };
+        
+        let busStopMarker;
+
+        busStopsGeojsonLayer = L.geoJSON(busStopsGeojsonObj, {
+          pointToLayer: ((feature, latlng) => {
+            let busStopDescription=feature["properties"]["Description"];
+            let busStopCode=feature["properties"]["BusStopCode"];
+
+            let isInterchange=((busStopDescription.toUpperCase()).indexOf(" INT")>=0 || (busStopDescription.toUpperCase()).indexOf(" TER")>=0);
+            let isSelected=(busStopCodesArr.length>0);
+
+            if( (!isSelected && isInterchange) || (isSelected && !isInterchange)) {
+              busStopMarker=L.marker(latlng, {
                  icon: L.divIcon({     
-                     html: '<span class="bus-stop-marker rounded-circle" style="background-color:' + geojsonSelectedRouteBusStopMarkerOptions["fillColor"] + '"><svg class="icon icon-bus"><use xlink:href="symbol-defs.svg#icon-bus"></use></svg></span>',
+                     html: '<span class="bus-stop-marker rounded-circle" style="background-color:' + geojsonBusStopMarkerOptions["fillColor"] + '"><svg class="icon icon-bus"><use xlink:href="symbol-defs.svg#icon-bus"></use></svg></span><span class="small busRouteStopNo" style="color:'+geojsonBusStopMarkerOptions["fillColor"]+'">'+busStopCode+'</span>',
                      className: "leaflet-marker-own"
                  })
               });
-              busStopMarker.bindTooltip(  
-                "<div><span style='background:rgba(204,31,94,0.15);padding:1px;color:"+ geojsonSelectedRouteBusStopMarkerOptions["fillColor"] +"'><b>" + feature["properties"]["bus_stop_code"] + "</b></span>&nbsp;" + feature["properties"]["bus_stop_description"] + "</div>", { 
-                className: "leaflet-tooltip-own", 
-                offset: [5.5, 5.5]
+            } else if(isSelected && busStopCodesArr[0]==busStopCode && isInterchange) { 
+              // origin marker
+              busStopMarker=L.marker(latlng, {
+                icon: L.icon({
+                  iconUrl: 'img/origin.png',
+                  iconSize: [25,25]
+                })
               });
-              return busStopMarker;
-            }),
-            filter: ((feature, layer) => {
-                if(feature["properties"]["service_id"]==service_route_selected) {
-                  let stop_sequence=feature["properties"]["stop_sequence"];
-                  let bus_stop_description=feature["properties"]["bus_stop_description"];
-                  let bus_stop_code=feature["properties"]["bus_stop_code"];
-                  let bus_stop_road_name=feature["properties"]["bus_stop_road_name"];
+            } else if(isSelected && busStopCodesArr[busStopCodesArr.length-1]==busStopCode && isInterchange) { 
+              // destination marker
+              busStopMarker=L.marker(latlng, {
+                icon: L.icon({
+                  iconUrl: 'img/destination.png',
+                  iconSize: [25,25]
+                })
+              });
+            }  else {
+              busStopMarker=L.circleMarker(latlng, geojsonBusStopMarkerOptions);
+            }
+            busStopMarker.bindTooltip(
+              "<div><span class='p-1 m-1 rounded-sm' style='background:rgba(83, 115, 140, 0.15);color:" + geojsonBusStopMarkerOptions["fillColor"] + "'><b>" + busStopCode + "</b></span><span>" + toCamelCase(busStopDescription) + "</span></div>", tooltipPropObj);
+            return busStopMarker;
+          }),
+          filter: ((feature, layer) => {
+            return (busStopCodesArr.length==0) ? true : (busStopCodesArr.includes(feature["properties"]["BusStopCode"]));
+          })
+        });
+        selectedRouteLayers.addLayer(busStopsGeojsonLayer);
+      }
 
-                  let destination_code_mapped=feature["properties"]["destination_code_mapped"];
+      renderBusStopsGeojsonLayer([]);
+      
 
-                  service_route_details_htmlstr+="<tr>";
-                  service_route_details_htmlstr+="<td class='text-center'>";
+      function checkMapZoomLevels() {
+        let currentZoom=map.getZoom();
+        if(currentZoom < 13) {
+          $('div.leaflet-marker-own').find('span.small.busRouteStopNo').hide();
+        } else {
+          $('div.leaflet-marker-own').find('span.small.busRouteStopNo').show();
+        } 
+      }
 
-                  let busStopLabel=`<span style="font-size: .85rem;font-weight: bold;font-variant: oldstyle-nums;" class='ascii_chars pl-1'>sᴛᴏᴘ ${stop_sequence}</span>`;
-                  service_route_details_htmlstr+='<p class="mb-0"><span class="bus-stop-marker rounded-circle" style="background-color:#cc1f5e;font-size: smaller;padding: 0.15em 0.2em 0.3em 0.3em"><svg class="icon icon-bus"><use xlink:href="symbol-defs.svg#icon-bus"></use></svg></span>'+busStopLabel+'</p>';
+      map.on('zoomend', ()=> {
+        checkMapZoomLevels();
+      });
 
-                 
-                  service_route_details_htmlstr+='</td>';
-                  service_route_details_htmlstr+="<td colspan='3' class='small text-left'>"+bus_stop_description+"<small class='ml-1'>(" + bus_stop_code +")</small><br><small>"+bus_stop_road_name+"</small></td>";
+      L.Control.PanelInfo = L.Control.extend({
+        options: {
+            position: 'bottomright'
+        },
+        onAdd: function (map) {
+            let controlDiv = L.DomUtil.create('div', 'leaflet-right leaflet-control rounded-25 user-select-none');
+            controlDiv.id='customInfoPanel';
+            let htmlContent='';
+            htmlContent+='<ul class="nav nav-tabs">';
+            htmlContent+='<li class="active"><a data-toggle="tab" class="pt-3 pb-2 pl-2 pr-2 ml-0 mr-1 mt-0 mb-1" href="#service_route_details_tab"><svg class="icon icon-route"><use xlink:href="symbol-defs.svg#icon-route"></use></svg> <span class="ascii-chars">ᴿᵒᵘᵗᵉ</span></a></li>';
+        
+            htmlContent+='<li><a id="bus_eta_details_pill" data-toggle="tab" class="pt-3 pb-2 pl-2 pr-2 ml-0 mr-1 mt-0 mb-1" href="#bus_eta_details_tab"><svg class="icon icon-bus-eta"><use xlink:href="symbol-defs.svg#icon-bus-eta"></use></svg> <span class="ascii-chars">ꭼꭲꭺ</span></a></li>';
 
-                  service_route_details_htmlstr += "<td colspan='2'><div class='form-check'><label class='form-check-label'><input type='radio' class='form-check-input start_bus_stop_selection' data-serviceid='"+service_route_selected+"' name='start_bus_stop' id='start_s"+stop_sequence+"' " + ( stop_sequence==1 ? "checked" : "") + "/><span class='ascii_chars'> ᴼʳⁱᵍⁱⁿ</span></label></div></td>";
+            htmlContent+='<button id="toggleInfoPanel" type="button" class="btn btn-sm btn-outline-primary rounded-sm pt-1 pb-1 pl-2 pr-2 m-2 float-right"><span class="emoji">🔼</span></button>';
 
-                  service_route_details_htmlstr += "<td colspan='2'><div class='form-check'><label class='form-check-label'><input type='radio' class='form-check-input end_bus_stop_selection' data-serviceid='"+service_route_selected+" name='end_bus_stop' id='end_s"+stop_sequence+"' " + ( stop_sequence!=1 && bus_stop_code==destination_code_mapped ? "checked" : "") + "/><span class='ascii_chars'> ᴰᵉˢᵗⁱⁿᵃᵗⁱᵒⁿ</span></label></div></td>";
+            htmlContent+='<button type=type="button" id="resetAll" class="btn btn-sm btn-outline-primary rounded-sm pt-1 pb-1 pl-2 pr-2 m-2 text-center float-right"><small class="emoji small">🔄</small><small class="ascii-chars ml-1">ᴿᵉˢᵉᵗ ᴬˡˡ</small></button>';
+            
 
-                  service_route_details_htmlstr+="</tr>";
+            htmlContent+='</ul>';
 
-                  selected_start_sequence=1;
-                  selected_stop_sequence=(stop_sequence!=1 && bus_stop_code==destination_code_mapped ? stop_sequence : 1)
-                }
-                return feature["properties"]["service_id"]==service_route_selected;
-            })
-          });
-          map.addLayer(bus_stops_by_service_geojson_layer);
+            htmlContent+='<div class="tab-content">';
 
-          service_route_details_htmlstr+="</tbody></table>";
-          service_route_details_htmlstr += "</div>";
-          service_route_details_htmlstr += "</div>";
+            htmlContent+='<div id="service_route_details_tab" class="tab-pane fade in active">';
 
-          $("#service_route_details").html(service_route_details_htmlstr);
-          $("#service_route_details_pill").click();
+            htmlContent+='<table class="mt-2 mb-2 w-100">';
+            htmlContent+='<tr>';
+            htmlContent+='<td class="text-left" id="selectedBusSvcNo"></td>';
+            htmlContent+='<th class="text-left h5"><strong id="selectedBusSvcCaption"></strong></th>';
+            htmlContent+='<td class="text-right w-20"><button id="exportSelectedBusRoute" type="button" class="btn btn-sm btn-primary pl-1 pr-1 pt-0 pb-0 m-1 unicode">⭳<span class="ascii-chars">ᴱˣᵖᵒʳᵗ</span></button></td>';
+            htmlContent+='</tr>';
 
-          // ================================================================== view service route bus stops ====================
-          $("#displayed_bus_route_details").html("");
-          let displayed_bus_route_htmlStr="";
+            htmlContent+='<tr><th colspan="3" class="p-2"></th></tr>';
+
+            htmlContent+='<tr class="busRouteDetailsSubtitle">';
+            htmlContent+='<td colspan="3" class="text-left">';
+            htmlContent+='<small class="text-dark">';
+            htmlContent+='<form id="optRouteForm">';
+            htmlContent+='<label id="optRoute_0" class="radio-inline"><input type="radio" name="optRoute" class="optRoute" value="0" checked />Route 1</label>';
+            htmlContent+='<label id="optRoute_1" class="radio-inline"><input type="radio" name="optRoute" class="optRoute" value="1" />2</label>';
+            htmlContent+='<span id="selectedBusRouteBusStops" class="ml-1"></span>';
+            htmlContent+='</form>';
+            htmlContent+='</small>';
+            htmlContent+='</td>';
+            htmlContent+='</tr>';
+            htmlContent+='</table>';
+            htmlContent+='<form id="start_end_bus_route_form">';
+            htmlContent+='<div class="busRouteDetailContentPanel"></div>';
+            htmlContent+='</form>';
+
+            htmlContent+='</div>';
+
+            htmlContent+='<div id="bus_eta_details_tab" class="tab-pane fade">';
+            htmlContent+='<h6 class="pl-2 pr-2 pt-1 pb-1 mt-2 mb-2"><span id="bus_etas_title" class="w-100"></span></h6>';
+            htmlContent+='<div id="bus_etas">';
+            htmlContent+='<div class="busETAContentPanel pl-2 pr-2 pt-1 pb-1 mt-3 mb-3"></div>';
+            htmlContent+='</div>';
+
+            htmlContent+='</div>';
+
+            controlDiv.innerHTML=htmlContent;
+            
+            if (!L.Browser.touch) {
+              L.DomEvent
+              .disableClickPropagation(controlDiv)
+              .disableScrollPropagation(controlDiv);
+            } else {
+              L.DomEvent.disableClickPropagation(controlDiv);
+            }
+            return controlDiv;
+        }
+      });
+      const infoPanel = new L.Control.PanelInfo();
+      map.addControl(infoPanel);
+
+      await new Promise((resolve, reject) => setTimeout(resolve, 150));
+      $('#exportSelectedBusRoute').hide();
+      
+      $("#loading").hide();
+      sizeLayerControl();
+
+      map.fitBounds([northEast, southWest]);
+      map.setView([lat, lng], defaultZoom);
+
+      checkMapZoomLevels();
+
+      $("#searchbar").on("keyup", function() {
+        let searchVal = $(this).val().toLowerCase();
+        $("#feature-list tr.feature-row").filter(function() {
+          $(this).toggle($(this).text().toLowerCase().indexOf(searchVal) > -1)
+        });
+      });
+
+      $('#customInfoPanel').on('mouseenter', () => {
+          map.dragging.disable();
+          map.doubleClickZoom.disable(); 
+          map.scrollWheelZoom.disable();
+          map.touchZoom.disable();
+      });
+
+      $('#customInfoPanel').on('mouseleave', () => {
+          map.dragging.enable();
+          map.doubleClickZoom.enable(); 
+          map.scrollWheelZoom.enable();
+          map.touchZoom.enable();
+      });
+
+      $(document).on("click", ".feature-row", function(e) {
+        sidebarClick($(this).attr("busSvcNo"));
+      });
+      
+      var toExportObj=[];
+
+      var selected_start_sequence;
+      var selected_stop_sequence;
+
+      $('#optRoute_0').hide();
+      $('#optRoute_1').hide();
+      function renderSelectedBusServiceRoute(selectedBusServiceRouteObj) {
+        $('#exportSelectedBusRoute').show();
+
+        toExportObj=[];
+        selectedRouteLayers.clearLayers();
+        // ====================================================
+        let BusStopCodes=selectedBusServiceRouteObj['BusStopCodes'];
+        let BusStopRoadNames=selectedBusServiceRouteObj['BusStopRoadNames'];
+        let BusStopDescriptions=selectedBusServiceRouteObj['BusStopDescriptions'];
+        let Distance=selectedBusServiceRouteObj['Distance'];
+        let Coordinates=selectedBusServiceRouteObj['Coordinates'];
+
+        let noOfBusStops=BusStopCodes.length;
+
+        if(typeof selected_start_sequence==='undefined' && typeof selected_stop_sequence==='undefined') {
+          selected_start_sequence=0;
+          selected_stop_sequence=noOfBusStops-1;
+        }
+
+        let BusStopCodesCopy=JSON.parse(JSON.stringify(BusStopCodes)).slice(selected_start_sequence, selected_stop_sequence+1);
+        let BusStopRoadNamesCopy=JSON.parse(JSON.stringify(BusStopRoadNames)).slice(selected_start_sequence, selected_stop_sequence+1);
+        let BusStopDescriptionsCopy=JSON.parse(JSON.stringify(BusStopDescriptions)).slice(selected_start_sequence, selected_stop_sequence+1);
+        let DistanceCopy=JSON.parse(JSON.stringify(Distance)).slice(selected_start_sequence, selected_stop_sequence+1);
+        let CoordinatesCopy=JSON.parse(JSON.stringify(Coordinates)).slice(selected_start_sequence, selected_stop_sequence+1);
+
+        let noOfBusStopsCopy=BusStopCodesCopy.length;
+        let CumulatedDistance=0;
+        // ====================================================
+        let latlngs=reverseLatLngsUtil(CoordinatesCopy);
+        let displayedRouteLayer = L.polyline.antPath(latlngs, antpathSettings);
+        selectedRouteLayers.addLayer(displayedRouteLayer);
+
+        renderBusStopsGeojsonLayer(BusStopCodesCopy);
+        map.flyToBounds(L.latLngBounds(latlngs));
+        checkMapZoomLevels();
+        // ====================================================
+        let distanceBetweenBusStops=[];
+
+        for(let d=Distance.length-1;d>=0;d--) {
+          if(Distance[d]>0) {
+            let distanceBetweenStops=parseInt(Distance[d]) - parseInt(Distance[d-1]);
+            distanceBetweenBusStops.push(distanceBetweenStops);
+          }
+        }
+        let distanceBetweenBusStopsCopy=JSON.parse(JSON.stringify(distanceBetweenBusStops));
+        distanceBetweenBusStops=distanceBetweenBusStops.reverse();
+        // ====================================================
+        distanceBetweenBusStopsCopy.push(0);
+        distanceBetweenBusStopsCopy=distanceBetweenBusStopsCopy.reverse();
+        distanceBetweenBusStopsCopy=distanceBetweenBusStopsCopy.slice(selected_start_sequence, selected_stop_sequence+1);
+
+        // console.log(distanceBetweenBusStopsCopy, [selected_start_sequence,selected_stop_sequence]);
+
+        for(let x=0; x<distanceBetweenBusStopsCopy.length;x++) {
+          let distance=distanceBetweenBusStopsCopy[x];
+          CumulatedDistance+=distance;
+         
+          let exportObj={
+            "bus_stop_code": (BusStopCodesCopy[x]+''),
+            "bus_stop_description": toCamelCase(BusStopDescriptionsCopy[x]),
+            "bus_stop_road_name": toCamelCase(BusStopRoadNamesCopy[x]),
+            "bus_stop_distance": distance,
+            "bus_stop_sequence": (x+1),
+            "Latitude": CoordinatesCopy[x][1],
+            "Longitude": CoordinatesCopy[x][0]
+          };
+          toExportObj.push(exportObj);
+        }
+
+        // ====================================================
+        let serviceRouteDetailsTabHtmlContent='';
+        serviceRouteDetailsTabHtmlContent+='<table class="table w-100">';
+        for(let i=0;i<noOfBusStops;i++) {
+          let BusStopCode=BusStopCodes[i];
+          let DistanceBetweenStops=parseInt(distanceBetweenBusStops[i]);
+          let BusStopDescription=toCamelCase(BusStopDescriptions[i]);
+
+          serviceRouteDetailsTabHtmlContent+='<tr>';
+
+          serviceRouteDetailsTabHtmlContent+='<td class="text-right pl-0 pr-0 border-0 w-40">';
+          serviceRouteDetailsTabHtmlContent+='<button type="button" class="text-right rounded-sm btn-busStopSelection view_bus_arrivals" value="'+BusStopCode+'">';
+          serviceRouteDetailsTabHtmlContent+='<small class="busRouteStopNo" style="color:'+geojsonBusStopMarkerOptions["fillColor"]+'">'+BusStopCode+'</small>';
+          serviceRouteDetailsTabHtmlContent+='<br><strong class="small">'+BusStopDescription+'</strong>';
+          serviceRouteDetailsTabHtmlContent+='</button>';
+          serviceRouteDetailsTabHtmlContent+='</td>';
           
-          function renderServiceRoute() {
-            let service_routes_mappingObj=service_routes_mapping[service_route_selected];
-            let service_no=service_routes_mappingObj["service_no"];
-            let operator=service_routes_mappingObj["operator"];
-            let category=service_routes_mappingObj["category_mapped"];
-            let total_distance=service_routes_mappingObj["total_distance"];
-
-            let weekday_hours=service_routes_mappingObj["weekday"];
-
-            let saturday_hours=service_routes_mappingObj["saturday"];
-            let sunday_hours=service_routes_mappingObj["sunday"];
-
-            let cumulated_distance=service_routes_mappingObj["cumulated_distance"];
-            let bus_stops=service_routes_mappingObj["bus_stops"];
-            let coordinates=service_routes_mappingObj["coordinates"];
-
-            let initial_distance_unconvered=cumulated_distance[selected_start_sequence];
-            let distance_with_extra=cumulated_distance[selected_stop_sequence];
-            let actual_distance_covered=distance_with_extra-initial_distance_unconvered;
-
-            if(typeof displayed_bus_stops_geojson_layer !== "undefined") {
-              map.removeLayer(displayed_bus_stops_geojson_layer);
-            }
-            if(typeof displayed_route_selected_layer !== "undefined") {
-              map.removeLayer(displayed_route_selected_layer);
-            }
-
-            displayed_bus_stops_geojson={
-              "type":"FeatureCollection",
-              "features": []
-            };
-
-            $("#displayed_bus_route_details").html("");
-
-            displayed_bus_route_htmlStr="";
-            displayed_bus_route_htmlStr+="<div class='card-header'>";
-
-            displayed_bus_route_htmlStr+="<h6><a class='card-link w-100'>";
-            displayed_bus_route_htmlStr+="<span class='badge badge-primary'>"+ actual_distance_covered.toFixed(1) +"<span class='ascii_chars pl-1 pr-1'>ᵏᵐ</span>";
-            displayed_bus_route_htmlStr+="</span>";
-
-            displayed_bus_route_htmlStr+="&nbsp;";
-            displayed_bus_route_htmlStr+="<span class='mb-0 pb-0'>";
-            displayed_bus_route_htmlStr+="<span class='badge badge-success'>";
-            displayed_bus_route_htmlStr+=`<span>Weekday</span> <u>${weekday_hours}</u>`;
-            displayed_bus_route_htmlStr+="</span>";
-
-            displayed_bus_route_htmlStr+="&nbsp;";
-            displayed_bus_route_htmlStr+="<span class='badge badge-warning small'>";
-            displayed_bus_route_htmlStr+=`<span>Saturday</span> <u>${saturday_hours}</u>`;
-            displayed_bus_route_htmlStr+="</span>";
-
-            displayed_bus_route_htmlStr+="&nbsp;";
-            displayed_bus_route_htmlStr+="<span class='badge badge-warning small'>";
-            displayed_bus_route_htmlStr+=`<span>Sunday</span> <u>${sunday_hours}</u>`;
-            displayed_bus_route_htmlStr+="</span>";
-            displayed_bus_route_htmlStr+="</span>";
-
-            displayed_bus_route_htmlStr+="<button id='exportDisplayedBusRoute' type='button' class='btn btn-md btn-secondary rounded-0 float-right'>📥 ᴊsᴏɴ</button>";
-
-            displayed_bus_route_htmlStr+="</a></h6>";
-            displayed_bus_route_htmlStr+="</div>";
-
-            displayed_bus_route_htmlStr+="<div id='displayed_route_selected' class='w-100'>";
-            displayed_bus_route_htmlStr+="<div class='card-body rounded-0'>";
-
-            displayed_bus_route_htmlStr+="<table class='table table-condensed table-hover w-100'>";
-            displayed_bus_route_htmlStr+="<tbody>";
-
-            let selected_route=[]
-            let coordinates_arr = service_routes_mappingObj["coordinates_arr"];
-            coordinates_arr=coordinates_arr.slice( (selected_start_sequence-1), (selected_stop_sequence) )
-
-            let latlngs=reverse_latlngs(coordinates_arr);
-            displayed_route_selected_layer = L.polyline(latlngs, {
-              color: "#15727B",
-              weight: 3.5,
-              strokeOpacity: 1.0,
-              offset: 2.5,
-              renderer: L.svg()
-            });
-            map.addLayer(displayed_route_selected_layer);
-            map.flyToBounds(L.latLngBounds(latlngs));
-
-            for(let i=selected_start_sequence;i<=selected_stop_sequence;i++) {
-              try {
-                let coordinate=coordinates[i];
-
-                let bus_stop_code=bus_stops[i];
-                let bus_stop_distance= (i==selected_start_sequence) ? 0 : (cumulated_distance[i]-cumulated_distance[i-1]);
-                let bus_stop_description=bus_stops_mapping[bus_stop_code]["description"];
-
-                let displayed_bus_stop_feature={
-                  "type":"Feature",
-                  "properties": {
-                    "bus_stop_code": bus_stop_code,
-                    "bus_stop_description": bus_stop_description,
-                    "bus_stop_road_name": bus_stops_mapping[bus_stop_code]["road_name"],
-                    "bus_stop_distance": bus_stop_distance,
-                    "bus_stop_sequence": i
-                  },
-                  "geometry": {
-                    "type": "Point",
-                    "coordinates": coordinate
-                  }
-                };
-                displayed_bus_stops_geojson["features"].push(displayed_bus_stop_feature);
-
-                displayed_bus_route_htmlStr+="<tr>";
-
-                displayed_bus_route_htmlStr+="<td class='text-center'>";
-                displayed_bus_route_htmlStr+='<span class="bus-stop-marker rounded-circle" style="background-color:#15727B;font-size: smaller;padding: 0.15em 0.2em 0.3em 0.3em"><svg class="icon icon-bus"><use xlink:href="symbol-defs.svg#icon-bus"></use></svg></span>';
-                displayed_bus_route_htmlStr+="</td>";
-
-                displayed_bus_route_htmlStr+="<td class='small'>";
-                displayed_bus_route_htmlStr+="<button type='button' class='view_bus_arrivals btn btn-outline-secondary btn-sm rounded-0' value='"+bus_stop_code+"'><svg class='icon icon-bus-eta'><use xlink:href='symbol-defs.svg#icon-bus-eta'></use></svg>&nbsp;<small>("+bus_stop_code+")</small></button>";
-                displayed_bus_route_htmlStr+="</td>";
-                displayed_bus_route_htmlStr+="<th class='small'>"+bus_stop_description+"</th>";
-                displayed_bus_route_htmlStr+="<td class='small'>"+(bus_stop_distance*1000).toFixed(0)+" m</td>";
-
-                displayed_bus_route_htmlStr+="</tr>";
-
-              } catch(err) { console.log(err, "renderServiceRoute") }
-            } // end for-loop
-
-            displayed_bus_route_htmlStr+="</tbody>";
-            displayed_bus_route_htmlStr+="</table>";
-
-            displayed_bus_route_htmlStr+="</div>";
-            displayed_bus_route_htmlStr+="</div>";
-
-            $("#displayed_bus_route_details").html(displayed_bus_route_htmlStr);
-
-            displayed_bus_stops_geojson_layer=L.geoJSON(displayed_bus_stops_geojson, {
-              pointToLayer: ((feature, latlng) => {
-                let busStopMarker=L.marker(latlng, {
-                   icon: L.divIcon({      
-                       html: '<span class="bus-stop-marker rounded-circle" style="background-color:#15727B"><svg class="icon icon-bus"><use xlink:href="symbol-defs.svg#icon-bus"></use></svg></span>',
-                       className: "leaflet-marker-own"
-                   })
-                });
-                busStopMarker.bindTooltip(
-                  "<div><span style='background:rgba(21,124,113,0.15);padding:1px;color:#15727B'><b>" + feature["properties"]["bus_stop_code"] + "</b></span>&nbsp;" + feature["properties"]["bus_stop_description"] + "</div>", { 
-                  className: "leaflet-tooltip-own-2",
-                  offset: [2.5, 2.5]
-                });
-                return busStopMarker;
-              })
-            });
-            map.addLayer(displayed_bus_stops_geojson_layer);
-          } // renderServiceRoute
-
-
-          function disabledStartStopBusStops() {
-            $(".start_bus_stop_selection").each((ele2) => { 
-              let startBusStop=$(".start_bus_stop_selection")[ele2];
-              let startSequence=parseInt(startBusStop.id.split("start_s")[1]);
-              if(startSequence != selected_start_sequence) {
-                startBusStop.checked=false;
-              }
-              if(startSequence<selected_stop_sequence) {
-                startBusStop.disabled=false;
-              } else {
-                startBusStop.disabled=true;
-              }
-            });
-            $(".end_bus_stop_selection").each((ele2) => {
-              let stopBusStop=$(".end_bus_stop_selection")[ele2];
-              let stopSequence=parseInt(stopBusStop.id.split("end_s")[1]);
-              if(stopSequence != selected_stop_sequence) {
-                stopBusStop.checked=false;
-              }
-              if(stopSequence>selected_start_sequence) {
-                stopBusStop.disabled=false;
-              } else {
-                stopBusStop.disabled=true;
-              }
-            });
-          } // disabledStartStopBusStops
-
-          renderServiceRoute();
-
-          $(".start_bus_stop_selection").change((ele) => {
-            let serviceid_selected=ele.target.dataset.serviceid;
-            ele.target.checked=true;
-            selected_start_sequence=parseInt((ele.target.id).split("start_s")[1]);
-            disabledStartStopBusStops();
-            renderServiceRoute();
-          });
-          $(".end_bus_stop_selection").change((ele) => {
-            let serviceid_selected=ele.target.dataset.serviceid;
-            selected_stop_sequence=parseInt((ele.target.id).split("end_s")[1]);
-            ele.target.checked=true;
-            disabledStartStopBusStops();
-            renderServiceRoute();
-          });
-        });
-
-        await new Promise((resolve, reject) => setTimeout(resolve, 100));
-
-
-        $("body").on("click", "#exportDisplayedBusRoute", () => {
-          let exportObj=[];
-          let exportFeatures=displayed_bus_stops_geojson["features"];
-          for(let e in exportFeatures) {
-            let ef=exportFeatures[e];
-            let ePropertiesObj=JSON.parse(JSON.stringify( (ef["properties"]) ));
-            ePropertiesObj["Latitude"]=ef["geometry"]["coordinates"][1];
-            ePropertiesObj["Longitude"]=ef["geometry"]["coordinates"][0];
-            exportObj.push(ePropertiesObj);
-          }
-          if (!window.Blob) {
-            alert("Your browser does not support HTML5 'Blob' function required to save a file.");
+          serviceRouteDetailsTabHtmlContent+='<td class="text-center pl-0 pr-0 border-0 w-20">';
+          if(i==0) {
+            serviceRouteDetailsTabHtmlContent+='<img src="img/origin.png" width="20px" height="20px" />';
+          } else if(i==(noOfBusStops-1)) {
+            serviceRouteDetailsTabHtmlContent+='<img src="img/destination.png" width="20px" height="20px" />';
           } else {
-            let textblob = new Blob([JSON.stringify(exportObj)], {
-                type: "text/plain"
-            });
-            let dwnlnk = document.createElement("a");
-            dwnlnk.download = "bus_route.json";
-            if (window.webkitURL != null) {
-                dwnlnk.href = window.webkitURL.createObjectURL(textblob);
-            } 
-            dwnlnk.click();
+            serviceRouteDetailsTabHtmlContent+='<span class="bus-stop-marker rounded-circle" style="background-color:'+geojsonBusStopMarkerOptions["fillColor"] + '"><svg class="icon icon-bus"><use xlink:href="symbol-defs.svg#icon-bus"></use></svg></span>';
+          }
+
+          if(i>=0 && i<(noOfBusStops-1)) {
+              serviceRouteDetailsTabHtmlContent+='<div style="color:#145b93" class="mt-1 mb-1">';
+              serviceRouteDetailsTabHtmlContent+='⇣';
+              serviceRouteDetailsTabHtmlContent+='<br><small>'+DistanceBetweenStops+'m</small>';
+              serviceRouteDetailsTabHtmlContent+='<br>⇣';
+              serviceRouteDetailsTabHtmlContent+='</div>';
+          }
+
+          serviceRouteDetailsTabHtmlContent+='</td>';
+
+          serviceRouteDetailsTabHtmlContent+='<td class="text-center pl-0 pr-0 border-0 w-20">';
+          serviceRouteDetailsTabHtmlContent+='<input type="radio" name="start_bus_stop" class="start_bus_stop" value="'+i+'" '+( (i==selected_start_sequence)?'checked':'' )+' /><span class="ascii-chars"> ˢᵗᵃʳᵗ</span>';
+          serviceRouteDetailsTabHtmlContent+='</td>';
+
+
+          serviceRouteDetailsTabHtmlContent+='<td class="text-center pl-0 pr-0 border-0 w-20">';
+          serviceRouteDetailsTabHtmlContent+='<input type="radio" name="end_bus_stop" class="end_bus_stop" value="'+i+'" '+( (i==(selected_stop_sequence))?'checked':'' )+' /><span class="ascii-chars"> ᵉⁿᵈ</span>';
+          serviceRouteDetailsTabHtmlContent+='</td>';
+
+          serviceRouteDetailsTabHtmlContent+='</tr>';
+        }
+        serviceRouteDetailsTabHtmlContent+='</table>';
+
+        CumulatedDistance=(parseInt(CumulatedDistance)/1000.0).toFixed(1);
+        $('#selectedBusRouteBusStops').html('<span class="emoji ml-2">🚍</span> '+noOfBusStopsCopy+' bus stops <svg class="icon icon-roads pl-1"><use xlink:href="symbol-defs.svg#icon-road"></use></svg> '+CumulatedDistance+' km');
+        $('#service_route_details_tab div.busRouteDetailContentPanel').html(serviceRouteDetailsTabHtmlContent);
+        // ============================
+      }
+
+      var selectedBusServiceRouteObjs=[];
+      var selectedBusServiceRouteObj;
+
+      $(window).resize(function() {
+        sizeLayerControl();
+      });
+      
+      $('#toggleInfoPanel').on("click", (evt)=> {
+        if($('#customInfoPanel').hasClass('expand')) {
+          $('#customInfoPanel').removeClass('expand');
+          $('#toggleInfoPanel').html('<span class="emoji">🔼</span>');
+        } else {
+          $('#customInfoPanel').addClass('expand');
+          $('#toggleInfoPanel').html('<span class="emoji">🔽</span>');
+        }
+      });
+      
+      $("#list-btn").click(function() {
+        animateSidebar();
+        return false;
+      });
+      $("#sidebar-toggle-btn").click(function() {
+        animateSidebar();
+        return false;
+      });
+
+      function sidebarClick(busSvcNo) {
+        if(!$('#customInfoPanel').hasClass('expand')) {
+          $('#toggleInfoPanel').click();
+        }
+
+        selected_start_sequence=undefined;
+        selected_stop_sequence=undefined;
+
+        $('#optRoute_0').hide();
+        $('#optRoute_1').hide();
+
+        selectedBusServiceRouteObjs=[];
+
+        let busServiceRouteObjs=busServiceRoutes[busSvcNo];
+        let busServiceRouteObjsCopy=JSON.parse(JSON.stringify(busServiceRouteObjs));
+
+        let BusServiceCaption=busServiceRouteObjs['BusServiceCaption'];
+        delete busServiceRouteObjsCopy['BusServiceCaption'];
+
+        for(let busSvcID in busServiceRouteObjsCopy) {
+          selectedBusServiceRouteObjs.push(busServiceRouteObjsCopy[busSvcID]);
+        }
+
+        $('#optRoute_0').show();
+        $('#optRoute_0').find('input:radio[name="optRoute"]').prop('checked', true);
+
+        if(BusServiceCaption.includes(twowaySymbol)) {
+          $('#optRoute_1').show();
+          $('#optRoute_1').find('input:radio[name="optRoute"]').prop('checked', false);
+        }
+        
+        $('#selectedBusSvcNo').html('<span class="rounded-sm mt-1 mb-1 ml-1 mr-2 busSvcNoSelection">'+busSvcNo+'</span>');
+        $('#selectedBusSvcCaption').html(BusServiceCaption);
+
+        selectedBusServiceRouteObj=selectedBusServiceRouteObjs[0];
+        renderSelectedBusServiceRoute(selectedBusServiceRouteObj);
+        if (document.body.clientWidth <= 767) {
+          $("#sidebar").hide();
+          map.invalidateSize();
+        }
+      }
+
+      function disableStartStopBusStops() {
+        $(".start_bus_stop").each((ele2) => { 
+          let startBusStop=$(".start_bus_stop")[ele2];
+          let startSequence=parseInt(startBusStop.value);
+          if(startSequence != selected_start_sequence) {
+            startBusStop.checked=false;
+          }
+          if(startSequence<selected_stop_sequence) {
+            startBusStop.disabled=false;
+          } else {
+            startBusStop.disabled=true;
+          }
+        });
+        $(".end_bus_stop").each((ele2) => {
+          let stopBusStop=$(".end_bus_stop")[ele2];
+          let stopSequence=parseInt(stopBusStop.value);
+          if(stopSequence != selected_stop_sequence) {
+            stopBusStop.checked=false;
+          }
+          if(stopSequence>selected_start_sequence) {
+            stopBusStop.disabled=false;
+          } else {
+            stopBusStop.disabled=true;
+          }
+        });
+      } // disableStartStopBusStops
+
+      $('#start_end_bus_route_form').on('change', async(e1) => {
+        let eleTarget=e1.target;
+        eleTarget.checked=true;
+
+        let dirSelected=eleTarget.className;
+        let valSelected=parseInt(eleTarget.value);
+
+        if(dirSelected=='start_bus_stop') {
+          selected_start_sequence=valSelected;
+        } else if(dirSelected=='end_bus_stop') {
+          selected_stop_sequence=valSelected;
+        }
+        renderSelectedBusServiceRoute(selectedBusServiceRouteObj);
+        disableStartStopBusStops();
+        e1.stopPropagation();
+      }); 
+
+      $('#optRouteForm').on('change', (e2) => {
+        selected_start_sequence=undefined;
+        selected_stop_sequence=undefined;
+
+        let routeIndex=e2.target.value;  
+        selectedBusServiceRouteObj=selectedBusServiceRouteObjs[parseInt(routeIndex)];
+        renderSelectedBusServiceRoute(selectedBusServiceRouteObj);
+      });
+
+      $("#exportSelectedBusRoute").on("click", () => {
+        let txtToSave=JSON.stringify(toExportObj);
+        let textblob = new Blob([txtToSave], {
+            type: "text/plain"
+        });
+        let dwnlnk = document.createElement("a");
+        dwnlnk.download = "bus_route.json";
+        if (window.webkitURL != null) {
+            dwnlnk.href = window.webkitURL.createObjectURL(textblob);
+        }
+        dwnlnk.click();
+      });
+
+      $("#resetAll").on("click", async() => {
+        $("#loading").show();
+        $('#exportSelectedBusRoute').hide();
+
+        $('#service_route_details_tab div.busRouteDetailContentPanel').html('');
+        $('#selectedBusRouteBusStops').html('');
+        
+        $('#selectedBusSvcNo').html('');
+        $('#selectedBusSvcCaption').html('');
+
+        $('#optRoute_0').hide();
+        $('#optRoute_1').hide();
+
+        selectedRouteLayers.clearLayers();
+
+        selected_start_sequence=undefined;
+        selected_stop_sequence=undefined;
+        selectedBusServiceRouteObjs=[];
+        selectedBusServiceRouteObj=undefined;
+        toExportObj=[];
+
+        searchbar.value='';
+        triggerEvent(searchbar, 'keyup');
+
+        renderBusStopsGeojsonLayer([]);
+
+        map.fitBounds([northEast, southWest]);
+        map.setView([lat, lng], defaultZoom);
+        checkMapZoomLevels();
+
+        await new Promise((resolve, reject) => setTimeout(resolve, 150));
+
+        $("#loading").hide();
+      });
+
+
+
+      // -------------------------- Web Socket for Bus ETAs ---------------------------
+      const noOfMillisecondsPerDay=86400000;
+
+      function processBusStopETA(res) {
+        let responseArr=JSON.parse(JSON.stringify(res));
+
+        let busEtaHtmlStr="";
+        busEtaHtmlStr+="<div class='busETAContentPanel'>";
+        busEtaHtmlStr+="<table class='w-100'>";
+        busEtaHtmlStr+="<tbody>";
+
+        let colCounter=1;
+        for(let r in responseArr) {
+          let busEtaObj=responseArr[r];
+
+          let svc_no=busEtaObj["ServiceNo"]; // 12
+          let svc_op=busEtaObj["Operator"]; // GAS
+
+          let bus1=busEtaObj["NextBus"];
+          let bus1_eta=bus1["EstimatedArrival"]; // "2022-10-27T20:23:14+08:00"
+          bus1_eta = ((new Date(bus1_eta)-new Date())/noOfMillisecondsPerDay )*24*60; // min left
+          let bus1_feature=bus1["Feature"]; // WAB (Wheelchair Accessible) | <blank>
+
+          // -----------------------------------------
+          let bus2=busEtaObj["NextBus2"];
+          let bus2_eta=bus2["EstimatedArrival"]; // "2022-10-27T20:27:47+08:00"
+          bus2_eta = ((new Date(bus2_eta)-new Date())/noOfMillisecondsPerDay )*24*60; // min left
+          let bus2_feature=bus2["Feature"]; // WAB (Wheelchair Accessible) | <blank>
+
+          // -----------------------------------------
+          let bus3=busEtaObj["NextBus3"];
+          let bus3_eta=bus3["EstimatedArrival"]; // "2022-10-27T20:38:55+08:00"
+          bus3_eta = ((new Date(bus3_eta)-new Date())/noOfMillisecondsPerDay )*24*60; // min left
+          let bus3_feature=bus3["Feature"]; // WAB (Wheelchair Accessible) | <blank>
+
+
+          let feature="";
+          let eta=bus1_eta;
+          let nextBus=bus1;
+          if(typeof bus2_eta!=='undefined' && bus2_eta!=='' && bus1_eta<0) {
+            nextBus=bus2;
+            eta=bus2_eta;
+            if(typeof bus3_eta!=='undefined' && bus3_eta!=='' && bus2_eta<0) {
+              nextBus=bus3;
+              eta=bus3_eta;
+            }
+          }
+
+          let Feature=nextBus["Feature"];
+          if(Feature=="WAB") {
+            feature="<svg class='icon icon-wheelchair ml-1'><use xlink:href='symbol-defs.svg#icon-wheelchair'></use></svg>";
+          } else {
+            feature="<span class='pr-1 pl-1'></span>";
+          }
+
+          if(colCounter==1) {
+            busEtaHtmlStr+="<tr>";
+          }
+          busEtaHtmlStr+="<td width='33.33%'>";
+
+          busEtaHtmlStr+="<span class='badge service_no rounded-left mt-1 mb-1'>" + svc_no + "</span>";
+
+          busEtaHtmlStr+="<span class='badge badge-secondary service_no rounded-right mt-1 mb-1 small'>";
+          busEtaHtmlStr+="<small class='small text-white pl-1'>";
+
+          if(parseInt(eta)<=0) {
+            busEtaHtmlStr+="<span class='ascii-chars'>ᴬʳʳ</span>";
+          } else if(parseInt(eta)>0) {
+            busEtaHtmlStr+=(parseInt(eta)+"<span class='ascii-chars'>ᵐⁱⁿ</span>");
+          } else {
+            busEtaHtmlStr+="<span class='ascii-chars'>⁽ᴺᴬ⁾</span>"
+          }
+
+          busEtaHtmlStr+=feature;
+          busEtaHtmlStr+="</small>";
+
+          busEtaHtmlStr+="</span>";
+
+          busEtaHtmlStr+="</td>";
+
+          if(r==(responseArr.length-1)) {
+            if(colCounter==1) {
+              busEtaHtmlStr+="<td width='33.33%' class='pl-1 pr-1'>";
+              busEtaHtmlStr+="</td><td width='33.33%' class='pl-1 pr-1'></td>";
+            } else if(colCounter==2) {
+              busEtaHtmlStr+="<td width='33.33%' class='pl-1 pr-1'></td>";
+            }
+            busEtaHtmlStr+="</tr>";
+          }
+          if(colCounter==3) {
+            busEtaHtmlStr+="</tr>";
+            colCounter=0;
+          }
+          colCounter++;
+        } // end for-loop
+
+        busEtaHtmlStr+="</tbody>";
+        busEtaHtmlStr+="</table>";
+        busEtaHtmlStr+="</div>";
+
+        $("#bus_etas").html(busEtaHtmlStr);
+      } // end processBusStopETA
+
+
+      // --------------------------- CLIENT SIDE WEB SOCKET INIT ------------------------
+      const errMsg = "<div class='text-center text-dark'><b><span class='emoji'>⚠️</span> Information unavailable. Please select another Bus Stop.</b></div>";
+      const offlineErrMsg = "<div class='text-center text-dark'><b><span class='emoji'>🚫</span> Application is currently running offline. Please ensure that device is internet connected and <span class='emoji'>🔄</span> refresh browser before retrying.</b></div>";
+
+      const socket = io();
+      socket.on("connect", async() => {
+      console.info(`Client side socket[${socket.id}] connection established at: ${window.navigator.userAgent}`);
+
+      // callback from client-side to server-side
+      socket.emit("back_to_server", `${socket.id}`);
+      await new Promise((resolve, reject) => setTimeout(resolve, 100));
+
+      $(document).on("click",".view_bus_arrivals", (ele3) => {
+        $(".view_bus_arrivals").each(function(){
+          if($(this).hasClass('active')) {
+            $(this).removeClass('active');
           }
         });
 
-        $("body").on("keyup", "#search_bus_stop", function() {
-          let value = $(this).val().toLowerCase();
-          $("body").find("#bus_services tr").filter(function() {
-            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-          });
-        });
+        $("#bus_etas").html("");
+        $("#bus_etas_title").html("");
+        $("#bus_eta_details_pill").click();
 
-        const noOfMillisecondsPerDay=86400000;
-
-        function processBusStopETA(res) {
-          let responseArr=JSON.parse(JSON.stringify(res));
-
-          let busEtaHtmlStr="";
-          busEtaHtmlStr+="<div class='card-body rounded-0'>";
-          busEtaHtmlStr+="<table class='w-100'><tbody>";
-
-          var colCounter=1;
-          for(let r in responseArr) {
-            let busEtaObj=responseArr[r];
-
-            let svc_no=busEtaObj["ServiceNo"]; // 12
-            let svc_op=busEtaObj["Operator"]; // GAS
-
-            let bus1=busEtaObj["NextBus"];
-            let bus1_eta=bus1["EstimatedArrival"]; // "2022-10-27T20:23:14+08:00"
-            bus1_eta = ((new Date(bus1_eta)-new Date())/noOfMillisecondsPerDay )*24*60; // min left
-            let bus1_feature=bus1["Feature"]; // WAB (Wheelchair Accessible) | <blank>
-
-            // -----------------------------------------
-            let bus2=busEtaObj["NextBus2"];
-            let bus2_eta=bus2["EstimatedArrival"]; // "2022-10-27T20:27:47+08:00"
-            bus2_eta = ((new Date(bus2_eta)-new Date())/noOfMillisecondsPerDay )*24*60; // min left
-            let bus2_feature=bus2["Feature"]; // WAB (Wheelchair Accessible) | <blank>
-
-            // -----------------------------------------
-            let bus3=busEtaObj["NextBus3"];
-            let bus3_eta=bus3["EstimatedArrival"]; // "2022-10-27T20:38:55+08:00"
-            bus3_eta = ((new Date(bus3_eta)-new Date())/noOfMillisecondsPerDay )*24*60; // min left
-            let bus3_feature=bus3["Feature"]; // WAB (Wheelchair Accessible) | <blank>
-
-
-            let feature="";
-            let eta=bus1_eta;
-            let nextBus=bus1;
-            if(typeof bus2_eta!=='undefined' && bus2_eta!=='' && bus1_eta<0) {
-              nextBus=bus2;
-              eta=bus2_eta;
-              if(typeof bus3_eta!=='undefined' && bus3_eta!=='' && bus2_eta<0) {
-                nextBus=bus3;
-                eta=bus3_eta;
-              }
+        if(window.navigator.onLine) {
+          try {
+            let selectedBusStopEle=ele3.currentTarget;
+            let selectedBusStop=selectedBusStopEle.value;
+            if(!selectedBusStopEle.classList.contains('active')) {
+              selectedBusStopEle.classList.add('active');
             }
+            let selectedBusStopObj=busStops[selectedBusStop];
+            let busStopLngLat=selectedBusStopObj['Coordinates'];
 
-            let Feature=nextBus["Feature"];
-            if(Feature=="WAB") {
-              feature="&nbsp;<svg class='icon icon-wheelchair'><use xlink:href='symbol-defs.svg#icon-wheelchair'></use></svg>";
-            } else {
-              feature="&nbsp;<svg class='icon icon-non-wheelchair'><use xlink:href='symbol-defs.svg#icon-non-wheelchair'></use></svg>";
-            }
+            map.flyTo(L.latLng([busStopLngLat[1],busStopLngLat[0]]), maxZoomVal);
 
-            if(colCounter==1) {
-              busEtaHtmlStr+="<tr>";
-            }
-            busEtaHtmlStr+="<td width='33.33%'>";
-            busEtaHtmlStr+="<span style='border-radius:0;margin-top:5px;margin-bottom:5px' class='badge badge-warning service_no rounded-left'>" + svc_no + "</span><span style='border-radius:0;margin-top:5px;margin-bottom:5px' class='badge badge-secondary service_no rounded-right small'><small class='small' style='color:#fff'>";
-            if(parseInt(eta)<=0) {
-              busEtaHtmlStr+="<span class='ascii_chars'>ᴬʳʳ</span>";
-            } else if(parseInt(eta)>0) {
-              busEtaHtmlStr+=(parseInt(eta)+"<span class='ascii_chars'>ᵐⁱⁿ</span>");
-            } else {
-              busEtaHtmlStr+="<span class='ascii_chars'>⁽ᴺᴬ⁾</span>"
-            }
-            busEtaHtmlStr+="&nbsp"+feature;
-            busEtaHtmlStr+="</small></span>";
-            busEtaHtmlStr+="</td>";
+            let busStopDescription=selectedBusStopObj['Description'];
+            
+            console.log(selectedBusStop);
 
-            if(r==(responseArr.length-1)) {
-              if(colCounter==1) {
-                busEtaHtmlStr+="<td width='33.33%'>&nbsp;</td><td width='33.33%'>&nbsp;</td></tr>";
-              } else if(colCounter==2) {
-                busEtaHtmlStr+="<td width='33.33%'>&nbsp;</td></tr>";
-              }
-            }
-            if(colCounter==3) {
-              busEtaHtmlStr+="</tr>";
-              colCounter=0;
-            }
-            colCounter++;
-          } // end for-loop
-          busEtaHtmlStr+="</tbody></table>";
-          busEtaHtmlStr+="</div>";
-          $("#bus_etas").html(busEtaHtmlStr);
-        } // end processBusStopETA
-
-
-         // --------------------------- CLIENT SIDE WEB SOCKET INIT ------------------------
-        const errMsg = "<div class='text-center text-dark'><b><span class='ascii_chars'>⚠</span> Information unavailable. Please select another Bus Stop.</b></div>";
-        const offlineErrMsg = "<div class='text-center text-dark'><b><span class='ascii_chars'>🚫</span> Application is currently running offline. Please ensure that device is internet connected and <span class='emoji'>🔄</span> refresh browser before retrying.</b></div>";
-
-        const socket = io();
-        socket.on("connect", async() => {
-        console.info(`Client side socket[${socket.id}] connection established at: ${window.navigator.userAgent}`);
-
-        // callback from client-side to server-side
-        socket.emit("back_to_server", `${socket.id}`);
-        await new Promise((resolve, reject) => setTimeout(resolve, 100));
-
-          $("body").on("click",".view_bus_arrivals", (ele3) => {
-            $("#bus_etas").html("");
-            $("#bus_etas_title").html("");
-            $("#bus_eta_details_pill").click();
-
-            if(window.navigator.onLine) { 
-              try {
-                let selectedBusStop=ele3.target.value;
-                let busStopDescription=bus_stops_mapping[selectedBusStop];
-                console.log(selectedBusStop);
-
-                if(typeof busStopDescription=="undefined") {
-                  console.log("[view_bus_arrivals] 'busStopDescription' is undefined.");
-                  $("#bus_etas_title").html(errMsg);
-                  $("#bus_etas").html("");
-                  // Msg server to stop displaying current bus arrival info
-                  socket.emit("bus_arrivals", undefined);
-                } else {
-                  busStopDescription=busStopDescription["description"];
-                  $("#bus_etas").html("<div class='text-center'><div class='spinner-border'></div></div>");
-                  $("#bus_etas_title").html('<b><svg class="icon icon-bus-eta"><use xlink:href="symbol-defs.svg#icon-bus-eta"></use></svg> Bus ETAs at (' + selectedBusStop + ') ' + busStopDescription + '</b>');
-                  // send bus stop no. to server side socket
-                  socket.emit("bus_arrivals", selectedBusStop); 
-                  socket.on("get_bus_arrivals_info", (selectedBusStopETAJSON) => {
-                    let selectedBusStopETAs=JSON.parse(selectedBusStopETAJSON);
-                    processBusStopETA(selectedBusStopETAs);
-                  });
-                }
-              } catch(err) { 
-                console.log(err, "view_bus_arrivals");
-                $("#bus_etas_title").html(errMsg);
-                $("#bus_etas").html("");
-                // Msg server to stop displaying current bus arrival info
-                socket.emit("bus_arrivals", undefined);
-              }
-            } else {
-              console.log("Device is offline.","view_bus_arrivals");
-              $("#bus_etas_title").html(offlineErrMsg);
+            if(typeof busStopDescription=="undefined") {
+              console.log("[view_bus_arrivals] 'busStopDescription' is undefined.");
+              $("#bus_etas_title").html(errMsg);
               $("#bus_etas").html("");
+              // Msg server to stop displaying current bus arrival info
+              socket.emit("bus_arrivals", undefined);
+            } else {
+              $("#bus_etas").html("<div class='text-center'><div class='spinner-border'></div></div>");
+              $("#bus_etas_title").html('<span class="p-1 m-1 rounded-sm" style="background:rgba(83, 115, 140, 0.15);color:' + geojsonBusStopMarkerOptions["fillColor"] + '"><b>' + selectedBusStop + '</b></span><strong class="mr-1">'+ toCamelCase(busStopDescription)+"</strong>");
+
+              // send bus stop no. to server side socket
+              socket.emit("bus_arrivals", selectedBusStop); 
+              socket.on("get_bus_arrivals_info", (selectedBusStopETAJSON) => {
+                let selectedBusStopETAs=JSON.parse(selectedBusStopETAJSON);
+                processBusStopETA(selectedBusStopETAs);
+              });
             }
-          });
-        }); // --------------------------- // END CLIENT SIDE WEB SOCKET INIT ------------------------
-        socket.on("disconnect", () => {
-          console.info(`Client side socket[${socket.id}] has disconnected.`);
-        });
-     
-  }); // end document.addEventListener('DOMContentLoaded', async() => {
+          } catch(err) { 
+            console.log(err, "view_bus_arrivals");
+            $("#bus_etas_title").html(errMsg);
+            $("#bus_etas").html("");
+            // Msg server to stop displaying current bus arrival info
+            socket.emit("bus_arrivals", undefined);
+          }
+        } else {
+          console.log("Device is offline.","view_bus_arrivals");
+          $("#bus_etas_title").html(offlineErrMsg);
+          $("#bus_etas").html("");
+        }
+      });
+    }); // --------------------------- // END CLIENT SIDE WEB SOCKET INIT ------------------------
+    socket.on("disconnect", () => {
+      console.info(`Client side socket[${socket.id}] has disconnected.`);
+    });
+   
+  });
 }

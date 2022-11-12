@@ -1,92 +1,110 @@
 <!DOCTYPE html>
 <html lang='en' class='notranslate' translate='no'>
-      <head>
-        <meta name='google' content='notranslate' />
-        <meta http-equiv='Content-Language' content='en' />
-        <meta charset='UTF-8'>
-        <meta name='description' content="A realtime application to monitor Bus ETAs via LTA's API. Uses Redis, Nodejs and SocketIO.">
-        <meta name='keywords' content='JavaScript,Redis,Nodejs,SocketIO,Realtime'>
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-        <title>SG Bus Routes</title>
-        <meta name='msapplication-TileColor' content='#ffffff' />
-        <meta name='theme-color' content='#ffffff' />
-        <meta name='apple-mobile-web-app-status-bar-style' content='black-translucent' />
-        <meta name='apple-mobile-web-app-capable' content='yes' />
-        <meta name='mobile-web-app-capable' content='yes' />
-        <meta name='HandheldFriendly' content='True' />
-        <meta name='MobileOptimized' content='320' />
-        <link rel="stylesheet" href="css/leaflet-1.3.1.css" />
-        <script type="text/javascript" src="js/leaflet-1.3.1.min.js"></script>
-        <script type="text/javascript" src="js/leaflet-antpath.min.js"></script>
-        <script type="text/javascript" src="js/leaflet.polyline.offset.js"></script>
-        
-        <link rel="stylesheet" href="css/bootstrap-4.5.2.min.css" />
-        <link rel="stylesheet" href="css/custom.css" />
-    </head>
+    <head>
+      <meta charset='UTF-8'>
+      <meta name='google' content='notranslate' />
+      <meta name='viewport' content='width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no' />
+      <meta name="author" content="Charmaine Chui" />
+      <meta name='description' content="A realtime application to monitor Bus ETAs via LTA's API. Uses Redis, Nodejs and SocketIO.">
+      <meta name='keywords' content='JavaScript,Redis,Nodejs,SocketIO,Realtime'>
+      <meta name="subject" content="Bus Routes in Singapore" />
+
+      <meta http-equiv='Content-Language' content='en' />
+      <meta http-equiv='X-UA-Compatible' content='IE=Edge,chrome=1' />
+
+      <meta name='msapplication-TileColor' content='#ffffff' />
+      <meta name='theme-color' content='#ffffff' />
+      <meta name='apple-mobile-web-app-status-bar-style' content='black-translucent' />
+      <meta name='apple-mobile-web-app-capable' content='yes' />
+      <meta name='mobile-web-app-capable' content='yes' />
+      <meta name='HandheldFriendly' content='True' />
+      <meta name='MobileOptimized' content='320' />  
+
+      <link rel="apple-touch-icon" sizes="76x76" href="img/favicon-76.png">
+      <link rel="apple-touch-icon" sizes="120x120" href="img/favicon-120.png">
+      <link rel="apple-touch-icon" sizes="152x152" href="img/favicon-152.png">
+      <link rel="icon" sizes="196x196" href="img/favicon-196.png">
+      <link rel="icon" type="image/x-icon" href="img/favicon.ico">
+
+      <link rel="stylesheet" href="css/bootstrap.min.css">
+      <link rel="stylesheet" href="css/leaflet-1.3.1.css">
+      <link rel="stylesheet" href="css/custom.css">
+
+      <title>SG Bus Routes</title>
+       
+  </head>
   <body>
-  <noscript>You need to enable JavaScript to run this app.</noscript>
- 
-	<div class="container">
-    <div class="map-container">
-      <div class="map-frame">
-        <div id="map-id" class="row"><!-- map -->
-          <!-- <div class="col-sm-7"></div> -->
-            <div id="sidebar" class="col-sm-5"><!-- sidebar -->
-              <a id="toggle-sidebar-btn-a" class="card-link" data-toggle="collapse" data-target="#sidebar-wrapper">
-                <span id="toggle-sidebar-btn" class="btn btn-secondary btn-sm rounded-circle pr-3 pl-3"><big><strong>☰</strong></big></span>
-              </a> <!-- class="badge badge-secondary rounded-circle" -->
-              <div id="sidebar-wrapper" class="collapse show">
-                <ul class="nav nav-pills" role="tablist">
-                  <li class="nav-item rounded-0">
-                    <a class="nav-link rounded-0 active" data-toggle="pill" href="#bus_services_tab"><svg class="icon icon-bus"><use xlink:href="symbol-defs.svg#icon-bus"></use></svg> <span class='ascii_chars'>ᴮᵘˢᵉˢ</span></a>
-                  </li>
-                  <li class="nav-item rounded-0">
-                    <a id="service_route_details_pill" class="nav-link rounded-0" data-toggle="pill" href="#service_route_details_tab"><svg class="icon icon-road"><use xlink:href="symbol-defs.svg#icon-road"></use></svg> <span class='ascii_chars'>ᴿᵒᵘᵗᵉ</span></a>
-                  </li>
-                  <li class="nav-item rounded-0">
-                    <a id="displayed_bus_route_details_pill" class="nav-link rounded-0" data-toggle="pill" href="#displayed_bus_route_details_tab"><svg class="icon icon-route"><use xlink:href="symbol-defs.svg#icon-route"></use></svg> <span class='ascii_chars'>ᴾᵃᵗʰ</span></a>
-                  </li>
-                  <li class="nav-item rounded-0">
-                    <a id="bus_eta_details_pill" class="nav-link rounded-0" data-toggle="pill" href="#bus_eta_details_tab"><svg class="icon icon-bus-eta"><use xlink:href="symbol-defs.svg#icon-bus-eta"></use></svg> <span class='ascii_chars'>ꭼꭲꭺ</span></a>
-                  </li>
-                </ul>
-                <div class="tab-content">
-                  <div id="bus_services_tab" class="tab-pane active">
-                    <div class="card rounded-0">
-                      <div class="card-header">
-                        <h6><a class="card-link w-100">
-                        <div class="form-check-inline w-100"><span>🔍</span>&nbsp;&nbsp;<input class="form-control form-control-md rounded-pill" id="search_bus_stop" type="text" placeholder="Search Bus Service No. or Bus Stop Name…"/>&nbsp;&nbsp;<button id="search_bus_stop_clear" type="button" class="btn btn-outline-danger btn-sm rounded-circle pr-2 pl-2 pt-0 pb-0"><big><strong>×</strong></big></button></div>
-                        </a></h6>
-                      </div>
-                      <div id="bus_services" class="w-100">
-                        <div class="text-center"><div class="spinner-border"></div></div>
-                      </div>
-                    </div>
-                  </div>
-                  <div id="service_route_details_tab" class="tab-pane fade">
-                    <div id="service_route_details" class="card rounded-0"></div>
-                  </div>
-                  <div id="displayed_bus_route_details_tab" class="tab-pane fade">
-                    <div id="displayed_bus_route_details" class="card rounded-0"></div>
-                  </div>
-                  <div id="bus_eta_details_tab" class="tab-pane fade">
-                    <div class="card-header">
-                      <h6 class="pt-2 pb-2"><a id="bus_etas_title" class="card-link w-100"></a></h6>
-                    </div>
-                    <div id="bus_etas" class="card rounded-0"></div>
-                  </div>
-                </div><!-- //tab-content -->
-              </div><!-- //sidebar-wrapper -->
-            </div><!-- //sidebar -->
-          </div><!-- //map -->
+    <div class="navbar navbar-inverse navbar-fixed-top border-0" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <div class="navbar-icon-container">
+            <a id="sidebar-toggle-btn" href="#" class="navbar-icon pull-right visible-xs rounded-lg unicode">Ⲷ</a>
+          </div>
+          <a class="navbar-brand" href="#"></a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="hidden-xs"><a id="list-btn" href="#" data-toggle="collapse" data-target=".navbar-collapse.in" class="rounded-lg unicode">Ⲷ</a></li>
+          </ul>
+        </div><!--/.navbar-collapse -->
       </div>
     </div>
-  </div>
-  <script type="text/javascript" src="js/jquery-2.1.0.min.js"></script>
-  <script type="text/javascript" src="js/popper-1.16.0.min.js"></script>
-  <script type="text/javascript" src="js/bootstrap-4.5.2.min.js"></script>
-  <script defer type="text/javascript" src="js/svgxuse.min.js"></script>
-  <script type="text/javascript" src="js/socket.io.js"></script>
-  <script type="text/javascript" src="js/sg_bus_routes.js"></script>
-</body>
+
+
+    <div id="container">
+      <div id="sidebar">
+        <div class="sidebar-wrapper">
+          <div class="panel panel-default" id="features">
+            <div class="panel-heading pl-2 bg-none">
+              <h3 class="panel-title">🚌 </h3>
+            </div>
+            <div class="panel-body p-2">
+              <div class="row no-gutters">
+                <div class="col-xs-12 col-md-12">
+                  <div class="input-group pr-2 pt-3">
+                    <span class="input-group-addon border-0 pr-1 pl-1 bg-none emoji">🔍</span>
+                    <input id='searchbar' type="text" class="form-control w-100 search" placeholder="Search Bus Service..." />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="sidebar-table user-select-none">
+              <table class="table table-hover" id="feature-list">
+                <thead class="hidden">
+                  <tr><th>Icon</th></tr>
+                  <tr></tr>
+                  <tr><th>Name</th></tr>
+                  <tr></tr>
+                  <tr><th>Chevron</th></tr>
+                  <tr></tr>
+                </thead>
+                <tbody class="list"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="map"></div>
+    </div>
+
+
+    <div id="loading">
+      <div class="loading-indicator">
+        <div class="progress progress-striped active">
+          <div class="progress-bar progress-bar-info progress-bar-full"></div>
+        </div>
+      </div>
+    </div>
+
+
+    <script src="js/jquery-2.1.4.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/leaflet-1.3.1.min.js"></script>
+    <script type="text/javascript" src="js/leaflet-antpath.min.js"></script>
+    <script defer type="text/javascript" src="js/svgxuse.min.js"></script>
+    <script type="text/javascript" src="js/socket.io.js"></script>
+    <script type="text/javascript" src="js/sg_bus_routes.js"></script>
+
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+  </body>
+</html>
