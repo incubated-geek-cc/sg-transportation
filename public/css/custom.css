@@ -586,3 +586,8 @@ table#feature-list.table>thead>tr>th {
 #toggleInfoPanel:focus-visible {
   outline:none;
 }
+
+.navbar-inverse {
+  background-color: transparent !important;
+  border-color: #ddf6f7 !important;
+}
