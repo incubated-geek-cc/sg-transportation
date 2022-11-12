@@ -364,8 +364,8 @@
 
       // Consolidate Bus Service No.
       const loopSymbol=' ⥀ ';
-      const twowaySymbol=' ⮀ '; 
-      const onewaySymbol=' ⭢ ';
+      const twowaySymbol=' ⇆ '; 
+      const onewaySymbol=' ➝ ';
 
       var busServiceRoutes={};
       for(let busSvcID in busRouteFeatures) {
@@ -541,7 +541,7 @@
             htmlContent+='<tr>';
             htmlContent+='<td class="text-left" id="selectedBusSvcNo"></td>';
             htmlContent+='<th class="text-left h5"><strong id="selectedBusSvcCaption"></strong></th>';
-            htmlContent+='<td class="text-right w-20"><button id="exportSelectedBusRoute" type="button" class="btn btn-sm btn-primary pl-1 pr-1 pt-0 pb-0 m-1 unicode">⭳<span class="ascii-chars">ᴱˣᵖᵒʳᵗ</span></button></td>';
+            htmlContent+='<td class="text-right w-20"><button id="exportSelectedBusRoute" type="button" class="btn btn-sm btn-primary pl-1 pr-1 pt-0 pb-0 m-1 emoji">📥<span class="ascii-chars">ᴱˣᵖᵒʳᵗ</span></button></td>';
             htmlContent+='</tr>';
 
             htmlContent+='<tr><th colspan="3" class="p-2"></th></tr>';
