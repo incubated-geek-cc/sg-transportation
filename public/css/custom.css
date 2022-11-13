@@ -592,6 +592,9 @@ table#feature-list.table>thead>tr>th {
 }
 
 .navbar-inverse {
-  background-color: transparent !important;
-  border-color: #ddf6f7 !important;
+    background-color: transparent !important;
+    border-color: #ddf6f7 !important;
+    position: absolute;
+    top: 0;
+    z-index: 3000;
 }
