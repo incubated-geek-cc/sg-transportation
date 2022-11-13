@@ -1001,9 +1001,9 @@
           if(r==(responseArr.length-1)) {
             if(colCounter==1) {
               busEtaHtmlStr+="<td width='33.33%' class='pl-1 pr-1'>";
-              busEtaHtmlStr+="</td><td width='33.33%' class='pl-1 pr-1'></td>";
+              busEtaHtmlStr+="</td><td width='33.33%'>&nbsp;</td>";
             } else if(colCounter==2) {
-              busEtaHtmlStr+="<td width='33.33%' class='pl-1 pr-1'></td>";
+              busEtaHtmlStr+="<td width='33.33%'>&nbsp;</td>";
             }
             busEtaHtmlStr+="</tr>";
           }
