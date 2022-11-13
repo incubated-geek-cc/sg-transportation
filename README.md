@@ -9,20 +9,19 @@
 #### 1. [Tackling Heroku H12 timeout errors of Node.js Web APIs — Handling Long Response Times](https://towardsdatascience.com/tackling-heroku-h12-timeout-errors-of-node-js-web-apis-handling-long-response-times-8fbafe46cd40)
 #### 2. [Building a real-time web app in NodeJS Express with Socket.io library](https://towardsdatascience.com/building-a-real-time-web-app-in-nodejs-express-with-socket-io-library-d9b50aded6e6)
 
-### Includes the following:
-## Realtime Bus ETAs in Singapore
+### Realtime Bus ETAs in Singapore
 <br/>![Bus ETAs](https://miro.medium.com/max/1400/1*QKFF2dM6D7apIZfRLn30Jg.png)
-## Bus Route Origin-Destination selection
+### Bus Route Origin-Destination selection
 <br/>![OD Selection](https://miro.medium.com/max/1050/1*dDjLS1LBpUOlTFh357ozLg.png)
-## Bus Route data export functionality
+### Bus Route data export functionality
 <br/>![Data Export](https://miro.medium.com/max/1050/1*MrnOOOJPG62tror-WAPseg.png)
 ---
-## Important Note: As of 12 Nov 2022, UI has been revamped with existing functionalities still in place. 
+## ⚠️ Important Note: As of 12 Nov 2022, UI has been revamped with existing functionalities still in place. 
 
-### Screenshots as follow:
-## Select Bus Route:
+### Select Bus Route:
+<br/><img src="https://github.com/incubated-geek-cc/sg-transportation/raw/main/public/img/updated_mobile_ui.jpg" height="450px" />
 <br/><img src="https://github.com/incubated-geek-cc/sg-transportation/raw/main/public/img/updated_ui.jpg" width="800px" />
-## Origin-Destination selection for data export
+### Origin-Destination selection for data export
 <br/><img src="https://github.com/incubated-geek-cc/sg-transportation/raw/main/public/img/updated_ui_bus_route_od_selection.jpg" width="800px" />
-## Bus Route Realtime ETA
+### Bus Route Realtime ETA
 <br/><img src="https://github.com/incubated-geek-cc/sg-transportation/raw/main/public/img/updated_ui_bus_etas.jpg" width="800px" />
