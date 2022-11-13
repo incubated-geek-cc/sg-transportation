@@ -597,4 +597,5 @@ table#feature-list.table>thead>tr>th {
     position: absolute;
     top: 0;
     z-index: 3000;
+    max-width:150px;
 }
