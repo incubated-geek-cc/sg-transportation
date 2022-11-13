@@ -520,6 +520,7 @@
         onAdd: function (map) {
             let controlDiv = L.DomUtil.create('div', 'leaflet-right leaflet-control rounded-25 user-select-none');
             controlDiv.id='customInfoPanel';
+            controlDiv['style']['z-index']=3000;
             let htmlContent='';
             htmlContent+='<ul class="nav nav-tabs">';
             htmlContent+='<li class="active"><a data-toggle="tab" class="pt-3 pb-2 pl-2 pr-2 ml-0 mr-1 mt-0 mb-1" href="#service_route_details_tab"><svg class="icon icon-route"><use xlink:href="symbol-defs.svg#icon-route"></use></svg> <span class="ascii-chars">ᴿᵒᵘᵗᵉ</span></a></li>';
