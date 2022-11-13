@@ -4,7 +4,7 @@ require("dotenv").config();
 const PORT = process.env.PORT || 3000;
 const ORIGIN=process.env.ORIGIN || `http://localhost:${PORT}`;
 const LTA_API_KEY=process.env.LTA_API_KEY;
-
+const LTA_API_KEY_BACKUP=process.env.LTA_API_KEY_BACKUP;
 const API_ENDPOINT = "http://datamall2.mytransport.sg/ltaodataservice";
 const PAGE_SIZE = 500; // How many records the API returns in a page.
 const LIMIT_PER_CALL=4500;
@@ -310,11 +310,11 @@ var redisClient;
                 method: "GET",
                 json: true,
                 headers: {
-                  "AccountKey" : LTA_API_KEY,
+                  "AccountKey" : LTA_API_KEY, // LTA_API_KEY_BACKUP
                   "accept" : "application/json"
                 }
             }, (err, res, body) => {
-                socket.emit("get_bus_arrivals_info", JSON.stringify(body["Services"]));
+              socket.emit("get_bus_arrivals_info", JSON.stringify(body["Services"]));
             });
           }, 10000);
           updateInterval.set(socket.id, intervalID); // update the stored interval ID

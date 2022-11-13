@@ -19,18 +19,20 @@
       const toCamelCase = (str) => ( (str.toLowerCase()).replace(/\w+/g, ((str) => ( str.charAt(0).toUpperCase()+str.substr(1) ).replace(/\r/g, "")) ) );
       const removeArrNullVals = ((arr) => arr.filter(element => (element !== null) ? true : false));
 
-      // IE8
-      // IE9+ and other modern browsers
-      function triggerEvent(el, type) {
+      
+      
+      function triggerEvent(ele, type) {
+        // IE9+ and other modern browsers
         let e = ( ('createEvent' in document) ? document.createEvent('HTMLEvents') : document.createEventObject() );
         if ('createEvent' in document) { 
           e.initEvent(type, false, true);
-          el.dispatchEvent(e);
+          ele.dispatchEvent(e);
         } else { 
           e.eventType = type;
-          el.fireEvent('on' + e.eventType, e);
+          ele.fireEvent('on'+e.eventType, e); // IE8 Compatible
         }
       }
+
 
       const geojsonBusStopMarkerOptions = {
           radius: 1.5,
@@ -434,7 +436,7 @@
         busServicesListItem.className='feature-row';
         busServicesListItem.setAttribute('busSvcNo', busSvcNo);
 
-        busServicesListItem.innerHTML='<td class="w-20"><span class="rounded-sm m-1 busSvcNoSelection">'+busSvcNo+'</span></td><td class="feature-name">' + BusServiceCaption + '</td><td class="w-15"><span class="pull-right">❯</span></td>';
+        busServicesListItem.innerHTML='<td class="w-20"><span class="m-1 busSvcNoSelection">'+busSvcNo+'</span></td><td class="feature-name">' + BusServiceCaption + '</td><td class="w-15"><span class="pull-right">❯</span></td>';
         busServicesList.appendChild(busServicesListItem);
       }
 
@@ -605,21 +607,45 @@
         });
       });
 
-      $('#customInfoPanel').on('mouseenter', () => {
-          map.dragging.disable();
-          map.doubleClickZoom.disable(); 
-          map.scrollWheelZoom.disable();
-          map.touchZoom.disable();
-      });
 
-      $('#customInfoPanel').on('mouseleave', () => {
-          map.dragging.enable();
-          map.doubleClickZoom.enable(); 
-          map.scrollWheelZoom.enable();
-          map.touchZoom.enable();
-      });
+      const customInfoPanel = document.getElementById('customInfoPanel');
+      function addMultipleEvents(eventsArray, targetElem, handler) {
+        eventsArray.map((evt) => targetElem.addEventListener(evt, handler));
+      }
+
+      function enableMapInteraction() {
+        map.dragging.enable();
+        map.touchZoom.enable();
+        map.doubleClickZoom.enable();
+        map.scrollWheelZoom.enable();
+        map.boxZoom.enable();
+        map.keyboard.enable();
+        if (map.tap) {
+          map.tap.enable();
+        }
+      }
+       function disabledMapInteraction() {
+          map.dragging.disable();
+          map.touchZoom.disable();
+          map.doubleClickZoom.disable();
+          map.scrollWheelZoom.disable();
+          map.boxZoom.disable();
+          map.keyboard.disable();
+          if (map.tap) {
+           map.tap.disable();
+          }
+      }
+
+      addMultipleEvents(['mouseup', 'dragleave', 'keyup', 'touchend', 'blur', 'mouseleave'], customInfoPanel, enableMapInteraction);
+
+      addMultipleEvents(['mousedown', 'dragenter', 'keydown', 'mousewheel', 'dblclick', 'drag', 'dragstart', 'dragover', 'touchstart', 'focus'], customInfoPanel, disabledMapInteraction);
+
 
       $(document).on("click", ".feature-row", function(e) {
+        $('.busSvcNoSelection').each(function(){
+          $(this).removeClass('active');
+        });
+        $(this).find('.busSvcNoSelection').addClass('active');
         sidebarClick($(this).attr("busSvcNo"));
       });
       
@@ -704,6 +730,7 @@
         serviceRouteDetailsTabHtmlContent+='<table class="table w-100">';
         for(let i=0;i<noOfBusStops;i++) {
           let BusStopCode=BusStopCodes[i];
+          let RoadName=busStops[BusStopCode]['RoadName'];
           let DistanceBetweenStops=parseInt(distanceBetweenBusStops[i]);
           let BusStopDescription=toCamelCase(BusStopDescriptions[i]);
 
@@ -713,6 +740,7 @@
           serviceRouteDetailsTabHtmlContent+='<button type="button" class="text-right rounded-sm btn-busStopSelection view_bus_arrivals" value="'+BusStopCode+'">';
           serviceRouteDetailsTabHtmlContent+='<small class="busRouteStopNo" style="color:'+geojsonBusStopMarkerOptions["fillColor"]+'">'+BusStopCode+'</small>';
           serviceRouteDetailsTabHtmlContent+='<br><strong class="small">'+BusStopDescription+'</strong>';
+          serviceRouteDetailsTabHtmlContent+='<br><span class="small text-muted">'+RoadName+'</span>';
           serviceRouteDetailsTabHtmlContent+='</button>';
           serviceRouteDetailsTabHtmlContent+='</td>';
           
@@ -811,7 +839,7 @@
           $('#optRoute_1').find('input:radio[name="optRoute"]').prop('checked', false);
         }
         
-        $('#selectedBusSvcNo').html('<span class="rounded-sm mt-1 mb-1 ml-1 mr-2 busSvcNoSelection">'+busSvcNo+'</span>');
+        $('#selectedBusSvcNo').html('<span class="mt-1 mb-1 ml-1 mr-2 busSvcNoSelection">'+busSvcNo+'</span>');
         $('#selectedBusSvcCaption').html(BusServiceCaption);
 
         selectedBusServiceRouteObj=selectedBusServiceRouteObjs[0];
@@ -886,41 +914,6 @@
             dwnlnk.href = window.webkitURL.createObjectURL(textblob);
         }
         dwnlnk.click();
-      });
-
-      $("#resetAll").on("click", async() => {
-        $("#loading").show();
-        $('#exportSelectedBusRoute').hide();
-
-        $('#service_route_details_tab div.busRouteDetailContentPanel').html('');
-        $('#selectedBusRouteBusStops').html('');
-        
-        $('#selectedBusSvcNo').html('');
-        $('#selectedBusSvcCaption').html('');
-
-        $('#optRoute_0').hide();
-        $('#optRoute_1').hide();
-
-        selectedRouteLayers.clearLayers();
-
-        selected_start_sequence=undefined;
-        selected_stop_sequence=undefined;
-        selectedBusServiceRouteObjs=[];
-        selectedBusServiceRouteObj=undefined;
-        toExportObj=[];
-
-        searchbar.value='';
-        triggerEvent(searchbar, 'keyup');
-
-        renderBusStopsGeojsonLayer([]);
-
-        map.fitBounds([northEast, southWest]);
-        map.setView([lat, lng], defaultZoom);
-        checkMapZoomLevels();
-
-        await new Promise((resolve, reject) => setTimeout(resolve, 150));
-
-        $("#loading").hide();
       });
 
 
@@ -1063,9 +1056,7 @@
             let busStopLngLat=selectedBusStopObj['Coordinates'];
 
             map.flyTo(L.latLng([busStopLngLat[1],busStopLngLat[0]]), maxZoomVal);
-
             let busStopDescription=selectedBusStopObj['Description'];
-            
             console.log(selectedBusStop);
 
             if(typeof busStopDescription=="undefined") {
@@ -1102,6 +1093,51 @@
     socket.on("disconnect", () => {
       console.info(`Client side socket[${socket.id}] has disconnected.`);
     });
-   
+    
+
+
+   $("#resetAll").on("click", async() => {
+      $("#loading").show();
+      $('#exportSelectedBusRoute').hide();
+
+      $('#service_route_details_tab div.busRouteDetailContentPanel').html('');
+      $('#selectedBusRouteBusStops').html('');
+      
+      $('#selectedBusSvcNo').html('');
+      $('#selectedBusSvcCaption').html('');
+
+      $('#optRoute_0').hide();
+      $('#optRoute_1').hide();
+
+      $('.busSvcNoSelection').each(function(){
+        $(this).removeClass('active');
+      });
+      selectedRouteLayers.clearLayers();
+
+      selected_start_sequence=undefined;
+      selected_stop_sequence=undefined;
+      selectedBusServiceRouteObjs=[];
+      selectedBusServiceRouteObj=undefined;
+      toExportObj=[];
+
+      searchbar.value='';
+      triggerEvent(searchbar, 'keyup');
+
+      renderBusStopsGeojsonLayer([]);
+
+      map.fitBounds([northEast, southWest]);
+      map.setView([lat, lng], defaultZoom);
+      checkMapZoomLevels();
+
+      await new Promise((resolve, reject) => setTimeout(resolve, 150));
+
+      $("#bus_etas_title").html("");
+      $("#bus_etas").html("");
+      // Msg server to stop displaying current bus arrival info
+      socket.emit("bus_arrivals", undefined);
+      
+      $("#loading").hide();
+    });
+
   });
 }
