@@ -9,10 +9,11 @@ body {
 }
 
 html body div.navbar.navbar-inverse.navbar-fixed-top:first-child {
-    position: absolute;
-    top: unset;
-    background-color: transparent;
-    border-color: #ddf6f7;
+  position: absolute;
+  top: 0;
+  background-color: transparent;
+  border-color: #ddf6f7;
+  z-index: 3000;
 }
 
 input[type="radio"], 
@@ -352,6 +353,9 @@ input[type="radio"].end_bus_stop {
     font-size: calc(1em + calc(20px - 1em));
     height: unset;
     border: 1px solid #53738C;
+    position: absolute;
+    z-index: 3002;
+    left: 50px;
 }
 
 #list-btn:hover,
@@ -483,13 +487,13 @@ tr.feature-row td.feature-name {
   backdrop-filter: blur(5px);
 
   position: absolute;
-  z-index: 799;
+  z-index: 3799;
 }
     
 #customInfoPanel.expand {
     transform: translateY(calc(50vh - 50px));
     position: absolute;
-    z-index: 799;
+    z-index: 3799;
     bottom: calc(50vh - 50px);
 }
 

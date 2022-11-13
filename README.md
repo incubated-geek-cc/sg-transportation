@@ -21,8 +21,8 @@
 
 ### Screenshots as follow:
 ## Select Bus Route:
-<br/><img src="https://github.com/incubated-geek-cc/sg-transportation/raw/main/public/img/updated_ui.jpg" height="445px" />
+<br/><img src="https://github.com/incubated-geek-cc/sg-transportation/raw/main/public/img/updated_ui.jpg" width="800px" />
 ## Origin-Destination selection for data export
-<br/><img src="https://github.com/incubated-geek-cc/sg-transportation/raw/main/public/img/updated_ui_bus_route_od_selection.jpg" height="445px" />
+<br/><img src="https://github.com/incubated-geek-cc/sg-transportation/raw/main/public/img/updated_ui_bus_route_od_selection.jpg" width="800px" />
 ## Bus Route Realtime ETA
-<br/><img src="https://github.com/incubated-geek-cc/sg-transportation/raw/main/public/img/updated_ui_bus_etas.jpg" height="445px" />
+<br/><img src="https://github.com/incubated-geek-cc/sg-transportation/raw/main/public/img/updated_ui_bus_etas.jpg" width="800px" />
