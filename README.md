@@ -17,12 +17,12 @@
 ## Bus Route data export functionality
 <br/>![Data Export](https://miro.medium.com/max/1050/1*MrnOOOJPG62tror-WAPseg.png)
 ---
-## Important Note: As of 12 Nov 2022, UI has been revamped with existing functionalities still in place:
+## Important Note: As of 12 Nov 2022, UI has been revamped with existing functionalities still in place. 
 
-### Screenshots:
+### Screenshots as follow:
 ## Select Bus Route:
 <br/><img src="https://github.com/incubated-geek-cc/sg-transportation/raw/main/public/img/updated_ui.jpg" height="445px" />
-igin-Destination selection for data export
+## Origin-Destination selection for data export
 <br/><img src="https://github.com/incubated-geek-cc/sg-transportation/raw/main/public/img/updated_ui_bus_route_od_selection.jpg" height="445px" />
 ## Bus Route Readtime ETA
 <br/><img src="https://github.com/incubated-geek-cc/sg-transportation/raw/main/public/img/updated_ui_bus_etas.jpg" height="445px" />
