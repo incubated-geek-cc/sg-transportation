@@ -509,7 +509,7 @@ tr.feature-row td.feature-name {
   transform: translateY(calc(50vh - 50px));
 
   margin-bottom: 0;
-  width: 260px;
+  width: 300px;
   border-radius: 5px 5px 0 0;
 
   box-shadow: 0 0 1rem 0 rgb(0 0 0 / 20%);
