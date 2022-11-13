@@ -6,8 +6,8 @@
 **Bus route visualisation site built to aid me in an analytical task. Related articles are:**
 <div align="left">
 	<ol>
-		<li>[Tackling Heroku H12 timeout errors of Node.js Web APIs — Handling Long Response Times](https://towardsdatascience.com/tackling-heroku-h12-timeout-errors-of-node-js-web-apis-handling-long-response-times-8fbafe46cd40)</li>
-		<li>[Building a real-time web app in NodeJS Express with Socket.io library](https://towardsdatascience.com/building-a-real-time-web-app-in-nodejs-express-with-socket-io-library-d9b50aded6e6)</li>
+		<li><a href='https://towardsdatascience.com/tackling-heroku-h12-timeout-errors-of-node-js-web-apis-handling-long-response-times-8fbafe46cd40' target='_blank'>Tackling Heroku H12 timeout errors of Node.js Web APIs — Handling Long Response Times</a></li>
+		<li><a href='https://towardsdatascience.com/building-a-real-time-web-app-in-nodejs-express-with-socket-io-library-d9b50aded6e6' target='_blank'>Building a real-time web app in NodeJS Express with Socket.io library</a></li>
 	</ol>
 </div>
 </div>
@@ -46,5 +46,5 @@ Data © [LTA](http://www.mytransport.sg/content/mytransport/home/dataMall/termOf
 <p>Bus Stop Realtime ETA</p>
 <br/><img src="https://github.com/incubated-geek-cc/sg-transportation/raw/main/public/img/updated_ui_bus_etas.jpg" width="800px" />
 
-## Special Mentions
+## Special Mention(s)
 - Inspired by [BusrouteSG by cheeaun](https://github.com/cheeaun/busrouter-sg).
