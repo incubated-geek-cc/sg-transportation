@@ -19,7 +19,9 @@
 ## ⚠️ Important Note: As of 12 Nov 2022, UI has been revamped with existing functionalities still in place. 
 
 ### Select Bus Route:
-<br/><img src="https://github.com/incubated-geek-cc/sg-transportation/raw/main/public/img/updated_mobile_ui.jpg" width="450px" />
+#### 📱 Mobile View:
+<br/><img src="https://github.com/incubated-geek-cc/sg-transportation/raw/main/public/img/updated_mobile_ui.jpg" width="250px" />
+#### 💻 🖥️ On Larger Screens:
 <br/><img src="https://github.com/incubated-geek-cc/sg-transportation/raw/main/public/img/updated_ui.jpg" width="800px" />
 ### Origin-Destination selection for data export
 <br/><img src="https://github.com/incubated-geek-cc/sg-transportation/raw/main/public/img/updated_ui_bus_route_od_selection.jpg" width="800px" />
