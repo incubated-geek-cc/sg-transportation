@@ -3,7 +3,10 @@
 
   # SG Bus Routes
 
-**Bus route visualisation site built to aid me in an analytical task. Related articles are:**
+**Bus route visualisation site built to aid me in an analytical task.**
+</div>
+<div align="left">
+**Related articles are:**
 	<ol>
 		<li>[Tackling Heroku H12 timeout errors of Node.js Web APIs — Handling Long Response Times](https://towardsdatascience.com/tackling-heroku-h12-timeout-errors-of-node-js-web-apis-handling-long-response-times-8fbafe46cd40)</li>
 		<li>[Building a real-time web app in NodeJS Express with Socket.io library](https://towardsdatascience.com/building-a-real-time-web-app-in-nodejs-express-with-socket-io-library-d9b50aded6e6)</li>
@@ -12,18 +15,18 @@
 
 Bus stops, bus services and bus routes are called via [LTA's Public API](https://datamall.lta.gov.sg/content/datamall/en.html). Faster retrieval via [Redis](https://redis.com/) caching for in-memory storage. Realtime bus ETAs in Singapore can be displayed based on bus stop selected.
 
-[**Web App**](https://sg-transportation.glitch.me/) &nbsp;&nbsp;&nbsp; [**Web App :: Backup Link**](https://sg-transportation.onrender.com) 
+[**Web App :: Link**](https://sg-transportation.glitch.me/) &nbsp;&nbsp;&nbsp; [**Web App :: Backup Link**](https://sg-transportation.onrender.com) 
 
 ## Features and Screenshots
 
 <p>Displays Realtime Bus ETAs: 📱 Mobile & 💻 🖥️  Larger Screens</p>
-<br/><img src="https://miro.medium.com/max/1400/1*QKFF2dM6D7apIZfRLn30Jg.png" width="250px" />
+<br/><img src="https://miro.medium.com/max/1400/1*QKFF2dM6D7apIZfRLn30Jg.png" width="800px" />
 
 <p>Enables Selection of Route Origin-Destination</p>
-<br/><img src="https://miro.medium.com/max/1050/1*dDjLS1LBpUOlTFh357ozLg.png" width="250px" />
+<br/><img src="https://miro.medium.com/max/1050/1*dDjLS1LBpUOlTFh357ozLg.png" width="800px" />
 
 <p>Exports Bus Route as JSON data (based on earlier selections)</p>
-<br/><img src="https://miro.medium.com/max/1050/1*MrnOOOJPG62tror-WAPseg.png" width="250px" />
+<br/><img src="https://miro.medium.com/max/1050/1*MrnOOOJPG62tror-WAPseg.png" width="800px" />
 
 ## 📜 License
 
