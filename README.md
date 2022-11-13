@@ -3,14 +3,13 @@
 
   # SG Bus Routes
 
-**Bus route visualisation site built to aid me in an analytical task.**
-</div>
+**Bus route visualisation site built to aid me in an analytical task. Related articles are:**
 <div align="left">
-**Related articles are:**
 	<ol>
 		<li>[Tackling Heroku H12 timeout errors of Node.js Web APIs — Handling Long Response Times](https://towardsdatascience.com/tackling-heroku-h12-timeout-errors-of-node-js-web-apis-handling-long-response-times-8fbafe46cd40)</li>
 		<li>[Building a real-time web app in NodeJS Express with Socket.io library](https://towardsdatascience.com/building-a-real-time-web-app-in-nodejs-express-with-socket-io-library-d9b50aded6e6)</li>
 	</ol>
+</div>
 </div>
 
 Bus stops, bus services and bus routes are called via [LTA's Public API](https://datamall.lta.gov.sg/content/datamall/en.html). Faster retrieval via [Redis](https://redis.com/) caching for in-memory storage. Realtime bus ETAs in Singapore can be displayed based on bus stop selected.
