@@ -528,7 +528,7 @@
         
             htmlContent+='<li><a id="bus_eta_details_pill" data-toggle="tab" class="pt-3 pb-2 pl-2 pr-2 ml-0 mr-1 mt-0 mb-1" href="#bus_eta_details_tab"><svg class="icon icon-bus-eta"><use xlink:href="symbol-defs.svg#icon-bus-eta"></use></svg> <span class="ascii-chars">ꭼꭲꭺ</span></a></li>';
 
-            htmlContent+='<button id="toggleInfoPanel" type="button" class="btn btn-sm btn-outline-primary rounded-sm pt-1 pb-1 pl-2 pr-2 m-2 float-right"><span class="emoji">🔼</span></button>';
+            htmlContent+='<button id="toggleInfoPanel" type="button" class="btn btn-lg m-1 p-0 float-right btn-outline-light border border-0"><span class="emoji">🔼</span></button>';
 
             htmlContent+='<button type=type="button" id="resetAll" class="btn btn-sm btn-outline-primary rounded-sm pt-1 pb-1 pl-2 pr-2 m-2 text-center float-right"><small class="emoji small">🔄</small><small class="ascii-chars ml-1">ᴿᵉˢᵉᵗ ᴬˡˡ</small></button>';
             
