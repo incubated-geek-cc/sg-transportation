@@ -787,7 +787,7 @@
         serviceRouteDetailsTabHtmlContent+='</table>';
 
         CumulatedDistance=(parseInt(CumulatedDistance)/1000.0).toFixed(1);
-        $('#selectedBusRouteBusStops').html('<span class="emoji pl-4">🚏</span> '+noOfBusStopsCopy+' Bus Stops <span class="emoji pl-3 pr-1">🚌</span> '+CumulatedDistance+' km');
+        $('#selectedBusRouteBusStops').html('<span class="emoji pl-4">🚍</span> '+noOfBusStopsCopy+' Bus Stops <span class="emoji pl-3 pr-1">📍</span> '+CumulatedDistance+' km');
         $('#service_route_details_tab div.busRouteDetailContentPanel').html(serviceRouteDetailsTabHtmlContent);
         // ============================
       }
