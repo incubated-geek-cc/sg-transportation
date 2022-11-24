@@ -524,15 +524,9 @@ tr.feature-row td.feature-name {
     bottom: calc(50vh - 50px);
 }
 
-/*#service_route_details_tab, 
-#bus_eta_details_tab {
-    padding: 5px 7.5px;
-    height: calc(100vh - 152px);
-}*/
-
 #service_route_details_tab, 
 #bus_eta_details_tab {
-    padding: calc(5px + 1.15rem) 7.5px;
+    padding: 5px 7.5px;
     height: calc(100vh - 152px);
 }
 
@@ -598,20 +592,11 @@ div.leaflet-marker-own span.small.busRouteStopNo {
 .radio-inline {
     position: relative;
     display: inline-block;
-    padding-left: 20px;
+    padding-left: 25px;
     margin-bottom: 0;
     font-weight: 400;
     vertical-align: middle;
     cursor: pointer;
-}
-
-.checkbox input[type=checkbox], 
-.checkbox-inline input[type=checkbox], 
-.radio input[type=radio], 
-.radio-inline input[type=radio] {
-    position: absolute;
-    margin-top: 4px\9;
-    margin-left: -15px;
 }
 
 table#feature-list.table>tbody>tr>td, 
@@ -643,14 +628,4 @@ table#feature-list.table>thead>tr>th {
 
 #selectedBusSvcCaption {
   white-space: pre-wrap
-}
-
-ul {
-  display: block;
-  list-style-type: disc;
-  margin-block-start: 0;
-  margin-block-end: 0;
-  margin-inline-start: 0px;
-  margin-inline-end: 0px;
-  padding-inline-start: 0;
 }
