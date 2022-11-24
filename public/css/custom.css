@@ -524,9 +524,16 @@ tr.feature-row td.feature-name {
     bottom: calc(50vh - 50px);
 }
 
-#service_route_details_tab, 
+/*#service_route_details_tab, 
 #bus_eta_details_tab {
     padding: 5px 7.5px;
+    height: calc(100vh - 152px);
+}
+*/
+
+#service_route_details_tab, 
+#bus_eta_details_tab {
+    padding: calc(5px + 0.75rem) 7.5px;
     height: calc(100vh - 152px);
 }
 

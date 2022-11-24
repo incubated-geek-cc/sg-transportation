@@ -527,18 +527,18 @@
            
 
             htmlContent+='<div class="mt-2 ml-4 mr-2 mb-0 text-center float-right">';
-            htmlContent+='<button id="toggleInfoPanel" type="button" class="btn btn-sm btn-outline-primary rounded-circle p-1 text-center float-right unicode">&nbsp;△&nbsp;</button>';
-            // htmlContent+='<p class="mb-0 p-0"><small class="ascii-chars text-primary">ᵀᵒᵍᵍˡᵉ</small></p>';
+            htmlContent+='<button id="toggleInfoPanel" type="button" class="btn btn-sm btn-primary rounded-circle pt-1 pb-1 pr-0 pl-0 text-center float-right unicode">&nbsp;&nbsp;🜂&nbsp;&nbsp;</button>';
+            htmlContent+='<p class="mb-0 p-0"><small class="ascii-chars text-primary">ᵀᵒᵍᵍˡᵉ</small></p>';
             htmlContent+='</div>';
 
              htmlContent+='<div class="mt-2 ml-4 mr-3 mb-0 text-center float-right">';
-            htmlContent+='<button id="resetAll" type="button" class="btn btn-sm btn-outline-danger rounded-circle p-1 float-right text-center unicode">&nbsp;⥀&nbsp;</button>';
-            // htmlContent+='<p class="mb-0 p-0"><small class="ascii-chars text-danger">ᴿᵉˢᵉᵗ</small></p>';
+            htmlContent+='<button id="resetAll" type="button" class="btn btn-sm btn-danger rounded-circle pt-1 pb-1 pr-0 pl-0 float-right text-center unicode">&nbsp;&nbsp;↺&nbsp;&nbsp;</button>';
+            htmlContent+='<p class="mb-0 p-0"><small class="ascii-chars text-danger">ᴿᵉˢᵉᵗ</small></p>';
             htmlContent+='</div>';
 
             htmlContent+='<div class="mt-2 ml-4 mr-3 mb-0 text-center float-right">';
-            htmlContent+='<button id="exportSelectedBusRoute" type="button" class="btn btn-sm btn-outline-dark rounded-circle p-1 float-right text-center unicode">&nbsp;💾&nbsp;</button>';
-            // htmlContent+='<p class="mb-0 p-0"><small class="ascii-chars text-dark">ᴱˣᵖᵒʳᵗ</small></p>';
+            htmlContent+='<button id="exportSelectedBusRoute" type="button" class="btn btn-sm btn-outline-dark rounded-circle pt-1 pb-1 pr-0 pl-0 float-right text-center unicode">&nbsp;_⤓_&nbsp;</button>';
+            htmlContent+='<p class="mb-0 p-0"><small class="ascii-chars text-dark">ᴱˣᵖᵒʳᵗ</small></p>';
             htmlContent+='</div>';
 
 
@@ -802,10 +802,10 @@
       $('#toggleInfoPanel').on("click", (evt)=> {
         if($('#customInfoPanel').hasClass('expand')) {
           $('#customInfoPanel').removeClass('expand');
-          $('#toggleInfoPanel').html('&nbsp;△&nbsp;');
+          $('#toggleInfoPanel').html('&nbsp;&nbsp;🜂&nbsp;&nbsp;');
         } else {
           $('#customInfoPanel').addClass('expand');
-          $('#toggleInfoPanel').html('&nbsp;▽&nbsp;');
+          $('#toggleInfoPanel').html('&nbsp;&nbsp;🜄&nbsp;&nbsp;');
         }
       });
       
