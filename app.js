@@ -78,7 +78,7 @@ var redisClient;
       method: "GET",
       json: true,
       headers: {
-        "AccountKey" : LTA_API_KEY,
+        "AccountKey" : LTA_API_KEY_BACKUP,
         "accept" : "application/json"
       }
     };
@@ -166,7 +166,7 @@ var redisClient;
           method: "GET",
           json: true,
           headers: {
-            "AccountKey" : LTA_API_KEY,
+            "AccountKey" : LTA_API_KEY_BACKUP,
             "accept" : "application/json"
           }
         };
@@ -310,7 +310,7 @@ var redisClient;
                 method: "GET",
                 json: true,
                 headers: {
-                  "AccountKey" : LTA_API_KEY,
+                  "AccountKey" : LTA_API_KEY_BACKUP,
                   "accept" : "application/json"
                 }
             }, (err, res, body) => {
