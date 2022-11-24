@@ -18,8 +18,6 @@
       };
       const toCamelCase = (str) => ( (str.toLowerCase()).replace(/\w+/g, ((str) => ( str.charAt(0).toUpperCase()+str.substr(1) ).replace(/\r/g, "")) ) );
       const removeArrNullVals = ((arr) => arr.filter(element => (element !== null) ? true : false));
-
-      
       
       function triggerEvent(ele, type) {
         // IE9+ and other modern browsers
@@ -33,7 +31,6 @@
         }
       }
 
-
       const geojsonBusStopMarkerOptions = {
           radius: 1.5,
           fillColor: "#53738C",
@@ -43,7 +40,7 @@
           fillOpacity: 1.0
       };
       const antpathSettings={
-        "delay": 400,
+        "delay": 700,
         "dashArray": [5, 20],
         "weight": 5,
         "color": " #123B5C",
@@ -365,9 +362,9 @@
       // =======================
 
       // Consolidate Bus Service No.
-      const loopSymbol=' ⥀ ';
-      const twowaySymbol=' ⇆ '; 
-      const onewaySymbol=' ➝ ';
+      const loopSymbol='⥀';
+      const twowaySymbol='⇆'; 
+      const onewaySymbol='➝';
 
       var busServiceRoutes={};
       for(let busSvcID in busRouteFeatures) {
@@ -524,14 +521,26 @@
             controlDiv.id='customInfoPanel';
             let htmlContent='';
             htmlContent+='<ul class="nav nav-tabs">';
-            htmlContent+='<li class="active"><a data-toggle="tab" class="pt-3 pb-2 pl-2 pr-2 ml-0 mr-1 mt-0 mb-1" href="#service_route_details_tab"><svg class="icon icon-route"><use xlink:href="symbol-defs.svg#icon-route"></use></svg> <span class="ascii-chars">ᴿᵒᵘᵗᵉ</span></a></li>';
+            htmlContent+='<li class="active"><a data-toggle="tab" class="pt-3 pb-2 pl-3 pr-3 ml-0 mr-0 mb-0" href="#service_route_details_tab"><svg class="icon icon-route"><use xlink:href="symbol-defs.svg#icon-route"></use></svg> <small>BusRoute</small></a></li>';
         
-            htmlContent+='<li><a id="bus_eta_details_pill" data-toggle="tab" class="pt-3 pb-2 pl-2 pr-2 ml-0 mr-1 mt-0 mb-1" href="#bus_eta_details_tab"><svg class="icon icon-bus-eta"><use xlink:href="symbol-defs.svg#icon-bus-eta"></use></svg> <span class="ascii-chars">ꭼꭲꭺ</span></a></li>';
+            htmlContent+='<li><a id="bus_eta_details_pill" data-toggle="tab" class="pt-3 pb-2 pl-3 pr-3 ml-0 mr-0 mb-0" href="#bus_eta_details_tab"><svg class="icon icon-bus-eta"><use xlink:href="symbol-defs.svg#icon-bus-eta"></use></svg> <small>Arrivals</small></a></li>';
+           
 
-            htmlContent+='<button id="toggleInfoPanel" type="button" class="btn btn-lg m-1 p-0 float-right btn-outline-light border border-0"><span class="emoji">🔼</span></button>';
+            htmlContent+='<div class="mt-2 ml-4 mr-2 mb-0 text-center float-right">';
+            htmlContent+='<button id="toggleInfoPanel" type="button" class="btn btn-sm btn-outline-primary rounded-circle p-1 text-center float-right unicode">&nbsp;△&nbsp;</button>';
+            // htmlContent+='<p class="mb-0 p-0"><small class="ascii-chars text-primary">ᵀᵒᵍᵍˡᵉ</small></p>';
+            htmlContent+='</div>';
 
-            htmlContent+='<button type=type="button" id="resetAll" class="btn btn-sm btn-outline-primary rounded-sm pt-1 pb-1 pl-2 pr-2 m-2 text-center float-right"><small class="emoji small">🔄</small><small class="ascii-chars ml-1">ᴿᵉˢᵉᵗ ᴬˡˡ</small></button>';
-            
+             htmlContent+='<div class="mt-2 ml-4 mr-3 mb-0 text-center float-right">';
+            htmlContent+='<button id="resetAll" type="button" class="btn btn-sm btn-outline-danger rounded-circle p-1 float-right text-center unicode">&nbsp;⥀&nbsp;</button>';
+            // htmlContent+='<p class="mb-0 p-0"><small class="ascii-chars text-danger">ᴿᵉˢᵉᵗ</small></p>';
+            htmlContent+='</div>';
+
+            htmlContent+='<div class="mt-2 ml-4 mr-3 mb-0 text-center float-right">';
+            htmlContent+='<button id="exportSelectedBusRoute" type="button" class="btn btn-sm btn-outline-dark rounded-circle p-1 float-right text-center unicode">&nbsp;💾&nbsp;</button>';
+            // htmlContent+='<p class="mb-0 p-0"><small class="ascii-chars text-dark">ᴱˣᵖᵒʳᵗ</small></p>';
+            htmlContent+='</div>';
+
 
             htmlContent+='</ul>';
 
@@ -542,8 +551,7 @@
             htmlContent+='<table class="mt-2 mb-2 w-100">';
             htmlContent+='<tr>';
             htmlContent+='<td class="text-left" id="selectedBusSvcNo"></td>';
-            htmlContent+='<th class="text-left h5"><strong id="selectedBusSvcCaption"></strong></th>';
-            htmlContent+='<td class="text-right w-20"><button id="exportSelectedBusRoute" type="button" class="btn btn-sm btn-primary pl-1 pr-1 pt-0 pb-0 m-1 emoji">📥<span class="ascii-chars">ᴱˣᵖᵒʳᵗ</span></button></td>';
+            htmlContent+='<th colspan="2" class="text-left h5"><strong id="selectedBusSvcCaption"></strong></th>';
             htmlContent+='</tr>';
 
             htmlContent+='<tr><th colspan="3" class="p-2"></th></tr>';
@@ -551,10 +559,10 @@
             htmlContent+='<tr class="busRouteDetailsSubtitle">';
             htmlContent+='<td colspan="3" class="text-left">';
             htmlContent+='<small class="text-dark">';
-            htmlContent+='<form id="optRouteForm">';
+            htmlContent+='<form id="optRouteForm" class="pl-2 pr-2 mt-2 mb-2 w-100">';
             htmlContent+='<label id="optRoute_0" class="radio-inline"><input type="radio" name="optRoute" class="optRoute" value="0" checked />Route 1</label>';
             htmlContent+='<label id="optRoute_1" class="radio-inline"><input type="radio" name="optRoute" class="optRoute" value="1" />2</label>';
-            htmlContent+='<span id="selectedBusRouteBusStops" class="ml-1"></span>';
+            htmlContent+='<span id="selectedBusRouteBusStops" class="w-100"></span>';
             htmlContent+='</form>';
             htmlContent+='</small>';
             htmlContent+='</td>';
@@ -591,6 +599,7 @@
 
       await new Promise((resolve, reject) => setTimeout(resolve, 150));
       $('#exportSelectedBusRoute').hide();
+      $('#exportSelectedBusRoute').next().hide();
       
       $("#loading").hide();
       sizeLayerControl();
@@ -658,6 +667,7 @@
       $('#optRoute_1').hide();
       function renderSelectedBusServiceRoute(selectedBusServiceRouteObj) {
         $('#exportSelectedBusRoute').show();
+        $('#exportSelectedBusRoute').next().show();
 
         toExportObj=[];
         selectedRouteLayers.clearLayers();
@@ -777,7 +787,7 @@
         serviceRouteDetailsTabHtmlContent+='</table>';
 
         CumulatedDistance=(parseInt(CumulatedDistance)/1000.0).toFixed(1);
-        $('#selectedBusRouteBusStops').html('<span class="emoji ml-2">🚍</span> '+noOfBusStopsCopy+' bus stops <svg class="icon icon-roads pl-1"><use xlink:href="symbol-defs.svg#icon-road"></use></svg> '+CumulatedDistance+' km');
+        $('#selectedBusRouteBusStops').html('<span class="emoji pl-4">🚏</span> '+noOfBusStopsCopy+' Bus Stops <span class="emoji pl-3 pr-1">🚌</span> '+CumulatedDistance+' km');
         $('#service_route_details_tab div.busRouteDetailContentPanel').html(serviceRouteDetailsTabHtmlContent);
         // ============================
       }
@@ -792,10 +802,10 @@
       $('#toggleInfoPanel').on("click", (evt)=> {
         if($('#customInfoPanel').hasClass('expand')) {
           $('#customInfoPanel').removeClass('expand');
-          $('#toggleInfoPanel').html('<span class="emoji">🔼</span>');
+          $('#toggleInfoPanel').html('&nbsp;△&nbsp;');
         } else {
           $('#customInfoPanel').addClass('expand');
-          $('#toggleInfoPanel').html('<span class="emoji">🔽</span>');
+          $('#toggleInfoPanel').html('&nbsp;▽&nbsp;');
         }
       });
       
@@ -1099,6 +1109,7 @@
    $("#resetAll").on("click", async() => {
       $("#loading").show();
       $('#exportSelectedBusRoute').hide();
+      $('#exportSelectedBusRoute').next().hide();
 
       $('#service_route_details_tab div.busRouteDetailContentPanel').html('');
       $('#selectedBusRouteBusStops').html('');
