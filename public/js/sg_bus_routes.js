@@ -42,7 +42,7 @@
       const antpathSettings={
         "delay": 700,
         "dashArray": [5, 20],
-        "weight": 5,
+        "weight": 4,
         "color": " #123B5C",
         "pulseColor": "#FFFFFF",
         "paused": false,
@@ -432,6 +432,7 @@
         let busServicesListItem=document.createElement('tr');
         busServicesListItem.className='feature-row';
         busServicesListItem.setAttribute('busSvcNo', busSvcNo);
+        busServicesListItem.id=`${busSvcNo}_anchor`;
 
         busServicesListItem.innerHTML='<td class="w-20"><span class="m-1 busSvcNoSelection">'+busSvcNo+'</span></td><td class="feature-name">' + BusServiceCaption + '</td><td class="w-15"><span class="pull-right">❯</span></td>';
         busServicesList.appendChild(busServicesListItem);
@@ -520,25 +521,22 @@
             let controlDiv = L.DomUtil.create('div', 'leaflet-right leaflet-control rounded-25 user-select-none');
             controlDiv.id='customInfoPanel';
             let htmlContent='';
-            htmlContent+='<ul class="nav nav-tabs">';
-            htmlContent+='<li class="active"><a data-toggle="tab" class="pt-3 pb-2 pl-3 pr-3 ml-0 mr-0 mb-0" href="#service_route_details_tab"><svg class="icon icon-route"><use xlink:href="symbol-defs.svg#icon-route"></use></svg> <small>BusRoute</small></a></li>';
+            htmlContent+='<ul class="nav nav-tabs" style="box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px, rgba(17, 17, 26, 0.05) 0px 8px 32px;">';
+            htmlContent+='<li class="active"><a data-toggle="tab" class="pt-3 pb-2 pl-3 pr-3 ml-0 mr-0 mb-0" href="#service_route_details_tab"><svg class="icon icon-route"><use xlink:href="symbol-defs.svg#icon-route"></use></svg> <small>Route</small></a></li>';
         
-            htmlContent+='<li><a id="bus_eta_details_pill" data-toggle="tab" class="pt-3 pb-2 pl-3 pr-3 ml-0 mr-0 mb-0" href="#bus_eta_details_tab"><svg class="icon icon-bus-eta"><use xlink:href="symbol-defs.svg#icon-bus-eta"></use></svg> <small>Arrivals</small></a></li>';
+            htmlContent+='<li><a id="bus_eta_details_pill" data-toggle="tab" class="pt-3 pb-2 pl-3 pr-3 ml-0 mr-0 mb-0" href="#bus_eta_details_tab"><svg class="icon icon-bus-eta"><use xlink:href="symbol-defs.svg#icon-bus-eta"></use></svg> <small>ETAs</small></a></li>';
            
 
-            htmlContent+='<div class="mt-2 ml-4 mr-2 mb-0 text-center float-right">';
-            htmlContent+='<button id="toggleInfoPanel" type="button" class="btn btn-sm btn-primary rounded-circle pt-1 pb-1 pr-0 pl-0 text-center float-right unicode">&nbsp;&nbsp;🜂&nbsp;&nbsp;</button>';
-            htmlContent+='<p class="mb-0 p-0"><small class="ascii-chars text-primary">ᵀᵒᵍᵍˡᵉ</small></p>';
+            htmlContent+='<div class="ml-1 mr-1 mt-1 mb-1 text-center float-right">';
+            htmlContent+='<button id="toggleInfoPanel" type="button" class="btn btn-sm btn-outline-primary rounded-circle m-1 p-0 navBtn text-center symbol">◭</button><small class="ascii-chars text-primary">ᵀᵒᵍᵍˡᵉ</small>';
             htmlContent+='</div>';
 
-             htmlContent+='<div class="mt-2 ml-4 mr-3 mb-0 text-center float-right">';
-            htmlContent+='<button id="resetAll" type="button" class="btn btn-sm btn-danger rounded-circle pt-1 pb-1 pr-0 pl-0 float-right text-center unicode">&nbsp;&nbsp;↺&nbsp;&nbsp;</button>';
-            htmlContent+='<p class="mb-0 p-0"><small class="ascii-chars text-danger">ᴿᵉˢᵉᵗ</small></p>';
+             htmlContent+='<div class="ml-1 mr-1 mt-1 mb-1 text-center float-right">';
+            htmlContent+='<button id="resetAll" type="button" class="btn btn-sm btn-outline-danger rounded-circle m-1 p-0 navBtn text-center unicode">↺</button><small class="ascii-chars text-danger">ᴿᵉˢᵉᵗ</small>';
             htmlContent+='</div>';
 
-            htmlContent+='<div class="mt-2 ml-4 mr-3 mb-0 text-center float-right">';
-            htmlContent+='<button id="exportSelectedBusRoute" type="button" class="btn btn-sm btn-outline-dark rounded-circle pt-1 pb-1 pr-0 pl-0 float-right text-center unicode">&nbsp;_⤓_&nbsp;</button>';
-            htmlContent+='<p class="mb-0 p-0"><small class="ascii-chars text-dark">ᴱˣᵖᵒʳᵗ</small></p>';
+            htmlContent+='<div class="ml-1 mr-1 mt-1 mb-1 text-center float-right">';
+            htmlContent+='<button id="exportSelectedBusRoute" type="button" class="btn btn-sm btn-outline-dark rounded-circle m-1 p-0 navBtn text-center unicode">💾</button><small class="ascii-chars text-dark">ᴱˣᵖᵒʳᵗ</small>';
             htmlContent+='</div>';
 
 
@@ -548,14 +546,13 @@
 
             htmlContent+='<div id="service_route_details_tab" class="tab-pane fade in active">';
 
-            htmlContent+='<table class="mt-2 mb-2 w-100">';
+            htmlContent+='<div class="m-0 p-2 w-100" style="box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px">';
+            htmlContent+='<table class="w-100">';
             htmlContent+='<tr>';
-            htmlContent+='<td class="text-left" id="selectedBusSvcNo"></td>';
+            htmlContent+='<td class="text-left pt-2 pb-2" id="selectedBusSvcNo"></td>';
             htmlContent+='<th colspan="2" class="text-left h5"><strong id="selectedBusSvcCaption"></strong></th>';
             htmlContent+='</tr>';
-
             htmlContent+='<tr><th colspan="3" class="p-2"></th></tr>';
-
             htmlContent+='<tr class="busRouteDetailsSubtitle">';
             htmlContent+='<td colspan="3" class="text-left">';
             htmlContent+='<small class="text-dark">';
@@ -568,17 +565,17 @@
             htmlContent+='</td>';
             htmlContent+='</tr>';
             htmlContent+='</table>';
+            htmlContent+='</div>';
+
             htmlContent+='<form id="start_end_bus_route_form">';
             htmlContent+='<div class="busRouteDetailContentPanel"></div>';
             htmlContent+='</form>';
-
+            
             htmlContent+='</div>';
 
             htmlContent+='<div id="bus_eta_details_tab" class="tab-pane fade">';
-            htmlContent+='<h6 class="pl-2 pr-2 pt-1 pb-1 mt-2 mb-2"><span id="bus_etas_title" class="w-100"></span></h6>';
-            htmlContent+='<div id="bus_etas">';
-            htmlContent+='<div class="busETAContentPanel pl-2 pr-2 pt-1 pb-1 mt-3 mb-3"></div>';
-            htmlContent+='</div>';
+            htmlContent+='<h6 class="pl-2 pr-2 pt-1 pb-1 mt-0 mb-0"><span id="bus_etas_title" class="w-100"></span></h6>';
+            htmlContent+='<div id="bus_etas" class="m-0 pt-2 pb-2 pl-3 pr-3 w-100"></div>';
 
             htmlContent+='</div>';
 
@@ -656,6 +653,13 @@
         });
         $(this).find('.busSvcNoSelection').addClass('active');
         sidebarClick($(this).attr("busSvcNo"));
+
+        $('#searchbar').val('');
+        triggerEvent(searchbar, 'keyup');
+
+        let aLink=document.createElement('a');
+        aLink.href='#'+$(this).attr("busSvcNo")+'_anchor';
+        aLink.click();
       });
       
       var toExportObj=[];
@@ -747,7 +751,7 @@
           serviceRouteDetailsTabHtmlContent+='<tr>';
 
           serviceRouteDetailsTabHtmlContent+='<td class="text-right pl-0 pr-0 border-0 w-40">';
-          serviceRouteDetailsTabHtmlContent+='<button type="button" class="text-right rounded-sm btn-busStopSelection view_bus_arrivals" value="'+BusStopCode+'">';
+          serviceRouteDetailsTabHtmlContent+='<button type="button" class="ml-3 text-right rounded-sm btn-busStopSelection view_bus_arrivals" value="'+BusStopCode+'">';
           serviceRouteDetailsTabHtmlContent+='<small class="busRouteStopNo" style="color:'+geojsonBusStopMarkerOptions["fillColor"]+'">'+BusStopCode+'</small>';
           serviceRouteDetailsTabHtmlContent+='<br><strong class="small">'+BusStopDescription+'</strong>';
           serviceRouteDetailsTabHtmlContent+='<br><span class="small text-muted">'+RoadName+'</span>';
@@ -758,7 +762,8 @@
           if(i==0) {
             serviceRouteDetailsTabHtmlContent+='<img src="img/origin.png" width="20px" height="20px" />';
           } else if(i==(noOfBusStops-1)) {
-            serviceRouteDetailsTabHtmlContent+='<img src="img/destination.png" width="20px" height="20px" />';
+            serviceRouteDetailsTabHtmlContent+='⇣';
+            serviceRouteDetailsTabHtmlContent+='<br><img src="img/destination.png" width="20px" height="20px" />';
           } else {
             serviceRouteDetailsTabHtmlContent+='<span class="bus-stop-marker rounded-circle" style="background-color:'+geojsonBusStopMarkerOptions["fillColor"] + '"><svg class="icon icon-bus"><use xlink:href="symbol-defs.svg#icon-bus"></use></svg></span>';
           }
@@ -774,21 +779,54 @@
           serviceRouteDetailsTabHtmlContent+='</td>';
 
           serviceRouteDetailsTabHtmlContent+='<td class="text-center pl-0 pr-0 border-0 w-20">';
-          serviceRouteDetailsTabHtmlContent+='<input type="radio" name="start_bus_stop" class="start_bus_stop" value="'+i+'" '+( (i==selected_start_sequence)?'checked':'' )+' /><span class="ascii-chars"> ˢᵗᵃʳᵗ</span>';
+          serviceRouteDetailsTabHtmlContent+='<p class="text-secondary mb-0 small"><small>Start</small></p>';
+          serviceRouteDetailsTabHtmlContent+='<input type="radio" name="start_bus_stop" class="start_bus_stop" value="'+i+'" '+( (i==selected_start_sequence)?'checked':'' )+' />';
           serviceRouteDetailsTabHtmlContent+='</td>';
 
 
           serviceRouteDetailsTabHtmlContent+='<td class="text-center pl-0 pr-0 border-0 w-20">';
-          serviceRouteDetailsTabHtmlContent+='<input type="radio" name="end_bus_stop" class="end_bus_stop" value="'+i+'" '+( (i==(selected_stop_sequence))?'checked':'' )+' /><span class="ascii-chars"> ᵉⁿᵈ</span>';
+          serviceRouteDetailsTabHtmlContent+='<p class="text-secondary mb-0 small"><small>End</small></p>';
+          serviceRouteDetailsTabHtmlContent+='<input type="radio" name="end_bus_stop" class="end_bus_stop" value="'+i+'" '+( (i==(selected_stop_sequence))?'checked':'' )+' />';
           serviceRouteDetailsTabHtmlContent+='</td>';
 
           serviceRouteDetailsTabHtmlContent+='</tr>';
         }
         serviceRouteDetailsTabHtmlContent+='</table>';
+        $('#service_route_details_tab div.busRouteDetailContentPanel').html(serviceRouteDetailsTabHtmlContent);
+
+        let maxRowHeight;
+        $('#service_route_details_tab div.busRouteDetailContentPanel tr').each(function(){
+          if(typeof maxRowHeight ==='undefined' || maxRowHeight<$(this).height()) {
+            maxRowHeight=$(this).height();
+          }
+        });
+
+        $('#service_route_details_tab div.busRouteDetailContentPanel tr td').css({
+          'height':`${maxRowHeight}px`,
+          'vertical-align':'middle'
+        });
+
+        $('#service_route_details_tab div.busRouteDetailContentPanel tr td:nth-child(3)').css({
+          'vertical-align':'top',
+          'text-align':'center',
+          'color': '#145b93'
+        });
+
+        $('#service_route_details_tab div.busRouteDetailContentPanel tr td:nth-child(4)').css({
+          'vertical-align':'top',
+          'text-align':'center',
+          'color': '#145b93'
+        });
+
+        $('#service_route_details_tab div.busRouteDetailContentPanel tr:last-child td:nth-child(2)').css({
+          'vertical-align':'top',
+          'text-align':'center',
+          'color': '#145b93'
+        });
+
 
         CumulatedDistance=(parseInt(CumulatedDistance)/1000.0).toFixed(1);
         $('#selectedBusRouteBusStops').html('<span class="emoji pl-4">🚍</span> '+noOfBusStopsCopy+' Bus Stops <span class="emoji pl-3 pr-1">📍</span> '+CumulatedDistance+' km');
-        $('#service_route_details_tab div.busRouteDetailContentPanel').html(serviceRouteDetailsTabHtmlContent);
         // ============================
       }
 
@@ -802,10 +840,10 @@
       $('#toggleInfoPanel').on("click", (evt)=> {
         if($('#customInfoPanel').hasClass('expand')) {
           $('#customInfoPanel').removeClass('expand');
-          $('#toggleInfoPanel').html('&nbsp;&nbsp;🜂&nbsp;&nbsp;');
+          $('#toggleInfoPanel').html('◭');
         } else {
           $('#customInfoPanel').addClass('expand');
-          $('#toggleInfoPanel').html('&nbsp;&nbsp;🜄&nbsp;&nbsp;');
+          $('#toggleInfoPanel').html('⧩');
         }
       });
       

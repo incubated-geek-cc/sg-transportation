@@ -21,10 +21,56 @@ input[type="checkbox"] {
     margin: 1px 0 0;
 }
 
-input[type="radio"].start_bus_stop,
-input[type="radio"].end_bus_stop {
-  width:16px;
-  height:16px;
+#start_end_bus_route_form input[type="radio"]:checked {
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAAXNSR0IArs4c6QAAA15JREFUaEPtmE1rE1EUhp9Mk+aDtqSgf8BFFyJu3LgQFFEQrFqroKB2KYi4EwUFXbhRaIsfpbhxo7UVbdW2iBVduHXjWoQu/AW1Tcxn08gZZ9o0zsfNZCYNZQayCHfu5Tznfc+5d26EbfJEtgkHIUi7KRkqEioSUAZCawWUWM/Lhop4Tp3axKPANeAsUFKZ0o6KCMQHIAYsACeAVTeYdgOphTBjnwPOuMG0E8hx4J0o0bm/g+RAjOXbBajoPAIziPnPQp52ARGI90A0tq+D9GiCSCxC4UuZlbtFqOqRTwPn7WDaAWQzxHCCSHwjrPxsmcyDoqmBwJwD1upF2WoQRwgz2Nx0iezoevN6CQzVw2wliBKEwOQmS2TH2hNkA2KvRvpRcpOdam2jAiHvb4Uip4HXemELxMMkkYR1GH+elZCf8VhayhxsBCRltMc7wDe3DcpmXCDeAB1uEJknRfJTZSWIRhQRiE/AASALHPEAExiEKkgC+GxAmBlqFGYdIrpbo3fM3k6NKqFqLYGQc89hmZAaipGfX6W6pO9QqjAbEHv+1YSWsnZ0drxIbkLdTrX2daqRTuCjCdF9M07yVIzVX2ssXclR/a0v4wazSYn0Y3sIr0q4KSIQs8AxedGEMCcpwshxYkIKO9qnkR4PDsKuRqLAvB2EA8xB4LsxLhCT0t51iLEkWpe1+JmRIvkZb3ZSsZaocVJe7LoeJzUonwb/P3XKLBs27Gs1hFvXkiP1QIMwGXGizGlQiRfG+cnj9uS8s4vFZpSVuZyjKhhSFLs0ep8GbycVa5nvqMMsVli6mkfbodErhd0TbE3US6dyRBGYKeMiwLlmFitoOzV7iOEi+bfNF7aV/1RAdLcAr0yY7ltxkv3WDcDO5Cv3CxTm1u8QHA+AXgpFFaQpmKAh3LqWXWKkw1zUN0oFZeogZIO85CXjbnMaUcRcSwOeAxfcYFqhhBmUFxCZ6whTrVb1C4Mga8JL17JT1RJGh7hXpLAQXGE307WcYOSzVW4C6b4Rp/yj0lIlmrVWLZjsM3Kc6a+j9b3FOhW81xqpX1OO/fIpfMgYaCmE1/Zrlxj5rv8K/LS6QHNrn82O+6WIGUcPsNJsUF7m+w3iJQZf5oQgvqTRx0VCRXxMpi9LhYr4kkYfF/kLLtRVQg9BVm8AAAAASUVORK5CYII=');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    border:2px solid #000000;
+    cursor:pointer;
+}
+
+#start_end_bus_route_form input[type="radio"]:disabled {
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    background-color: #cccccc;
+    border:2px solid #8d9298;
+    cursor:default;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+#start_end_bus_route_form input[type="radio"]:enabled {
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    background-color: #ffffff;
+    border:2px solid #000000;
+    cursor:pointer;
+}
+
+#start_end_bus_route_form input[type="radio"]:not(:disabled):is(:hover) {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  background-color: #f5f5f5;
+  border:2px solid #687179;
   cursor:pointer;
 }
 
@@ -533,7 +579,8 @@ tr.feature-row td.feature-name {
 
 #service_route_details_tab, 
 #bus_eta_details_tab {
-    padding: calc(5px + 0.75rem) 7.5px;
+    /*padding: calc(5px + 0.75rem) 7.5px;*/
+    padding: 0 0 calc(5px + 0.75rem);
     height: calc(100vh - 152px);
 }
 
@@ -542,7 +589,7 @@ tr.feature-row td.feature-name {
 }
 
 #service_route_details_tab div.busRouteDetailContentPanel,
-#bus_etas div.busETAContentPanel {
+#bus_etas {
   overflow-y: auto;
   height: calc(100vh - 232.2px - 1.5rem);
 }
@@ -578,11 +625,12 @@ div.leaflet-marker-own span.small.busRouteStopNo {
 }
 
 .btn-busStopSelection {
-    color: unset;
-    background-color: transparent;
-    border-color: transparent;
-    width: -webkit-fill-available;
-    height: -webkit-fill-available;
+  color: unset;
+  background-color: transparent;
+  border-color: transparent;
+  width: -webkit-fill-available;
+  height: -webkit-fill-available;
+  box-shadow: rgba(67, 71, 85, 0.27) 0px 0px 0.25em, rgba(90, 125, 188, 0.05) 0px 0.25em 1em;
 }
 
 .btn-busStopSelection.active,
@@ -635,4 +683,14 @@ table#feature-list.table>thead>tr>th {
 
 #selectedBusSvcCaption {
   white-space: pre-wrap
+}
+
+.navBtn {
+  width: 25.5px;
+  height: 25.5px;
+}
+
+#service_route_details_tab {
+  /*padding: 0 0 calc(5px + 0.75rem);*/
+  height: calc(100vh - 152px + 5px + 0.75rem);
 }

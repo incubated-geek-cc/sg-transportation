@@ -3,8 +3,8 @@ require("dotenv").config();
 // ================== Part #1. Most variables and constants are declared here
 const PORT = process.env.PORT || 3000;
 const ORIGIN=process.env.ORIGIN || `http://localhost:${PORT}`;
-const LTA_API_KEY=process.env.LTA_API_KEY;
 const LTA_API_KEY_BACKUP=process.env.LTA_API_KEY_BACKUP;
+const LTA_API_KEY=process.env.LTA_API_KEY;
 const API_ENDPOINT = "http://datamall2.mytransport.sg/ltaodataservice";
 const PAGE_SIZE = 500; // How many records the API returns in a page.
 const LIMIT_PER_CALL=4500;
@@ -78,7 +78,7 @@ var redisClient;
       method: "GET",
       json: true,
       headers: {
-        "AccountKey" : LTA_API_KEY_BACKUP,
+        "AccountKey" : LTA_API_KEY,
         "accept" : "application/json"
       }
     };
@@ -166,7 +166,7 @@ var redisClient;
           method: "GET",
           json: true,
           headers: {
-            "AccountKey" : LTA_API_KEY_BACKUP,
+            "AccountKey" : LTA_API_KEY,
             "accept" : "application/json"
           }
         };
@@ -310,7 +310,7 @@ var redisClient;
                 method: "GET",
                 json: true,
                 headers: {
-                  "AccountKey" : LTA_API_KEY_BACKUP,
+                  "AccountKey" : LTA_API_KEY,
                   "accept" : "application/json"
                 }
             }, (err, res, body) => {
