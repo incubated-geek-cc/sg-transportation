@@ -522,16 +522,16 @@
             controlDiv.id='customInfoPanel';
             let htmlContent='';
             htmlContent+='<ul class="nav nav-tabs" style="box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px, rgba(17, 17, 26, 0.05) 0px 8px 32px;">';
-            htmlContent+='<li class="active"><a data-toggle="tab" class="pt-3 pb-2 pl-3 pr-3 ml-0 mr-0 mb-0" href="#service_route_details_tab"><svg class="icon icon-route"><use xlink:href="symbol-defs.svg#icon-route"></use></svg> <small>Route</small></a></li>';
+            htmlContent+='<li class="active"><a data-toggle="tab" class="pt-3 pb-3 pl-2 pr-2 ml-0 mr-0 mb-0" href="#service_route_details_tab"><svg class="icon icon-route"><use xlink:href="symbol-defs.svg#icon-route"></use></svg> <small>Route</small></a></li>';
         
-            htmlContent+='<li><a id="bus_eta_details_pill" data-toggle="tab" class="pt-3 pb-2 pl-3 pr-3 ml-0 mr-0 mb-0" href="#bus_eta_details_tab"><svg class="icon icon-bus-eta"><use xlink:href="symbol-defs.svg#icon-bus-eta"></use></svg> <small>ETAs</small></a></li>';
+            htmlContent+='<li><a id="bus_eta_details_pill" data-toggle="tab" class="pt-3 pb-3 pl-2 pr-2 ml-0 mr-0 mb-0" href="#bus_eta_details_tab"><svg class="icon icon-bus-eta"><use xlink:href="symbol-defs.svg#icon-bus-eta"></use></svg> <small>ETAs</small></a></li>';
            
 
-            htmlContent+='<div class="ml-1 mr-1 mt-1 mb-1 text-center float-right">';
+            htmlContent+='<div class="ml-0 mr-1 mt-1 mb-1 text-center float-right">';
             htmlContent+='<button id="toggleInfoPanel" type="button" class="btn btn-sm btn-outline-primary rounded-circle m-1 p-0 navBtn text-center symbol">◭</button><small class="ascii-chars text-primary">ᵀᵒᵍᵍˡᵉ</small>';
             htmlContent+='</div>';
 
-             htmlContent+='<div class="ml-1 mr-1 mt-1 mb-1 text-center float-right">';
+             htmlContent+='<div class="ml-0 mr-1 mt-1 mb-1 text-center float-right">';
             htmlContent+='<button id="resetAll" type="button" class="btn btn-sm btn-outline-danger rounded-circle m-1 p-0 navBtn text-center unicode">↺</button><small class="ascii-chars text-danger">ᴿᵉˢᵉᵗ</small>';
             htmlContent+='</div>';
 

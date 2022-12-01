@@ -686,9 +686,15 @@ table#feature-list.table>thead>tr>th {
 }
 
 .navBtn {
-  width: 25.5px;
-  height: 25.5px;
+  width: 32px;
+  height: 32px;
 }
+
+#customInfoPanel.svg.icon {
+  width:1.35em;
+  height:1.35em;
+}
+
 
 #service_route_details_tab {
   /*padding: 0 0 calc(5px + 0.75rem);*/
