@@ -3,17 +3,20 @@
 
   # SG Bus Routes
 
-**Bus route visualisation site built to aid me in an analytical task. Related articles are:**
+**Bus route visualisation site built to aid me in an analytical task. 🚍 The feature to enable realtime bus ETAs was only added later on a whim~**
+
 <div align="left">
-	<ol>
-		<li><a href='https://towardsdatascience.com/tackling-heroku-h12-timeout-errors-of-node-js-web-apis-handling-long-response-times-8fbafe46cd40' target='_blank'>Tackling Heroku H12 timeout errors of Node.js Web APIs — Handling Long Response Times</a></li>
-		<li><a href='https://towardsdatascience.com/building-a-real-time-web-app-in-nodejs-express-with-socket-io-library-d9b50aded6e6' target='_blank'>Building a real-time web app in NodeJS Express with Socket.io library</a></li>
-	</ol>
+
+**Interactive map visualisation of bus routes. Selectable origin-destination of bus journey and enables JSON data export.**
+
 </div>
 </div>
 
 Bus stops, bus services and bus routes are called via [LTA's Public API](https://datamall.lta.gov.sg/content/datamall/en.html). Faster retrieval via [Redis](https://redis.com/) caching for in-memory storage. Realtime bus ETAs in Singapore can be displayed based on bus stop selected.
 
+
+[**Article One:: Link**](https://towardsdatascience.com/tackling-heroku-h12-timeout-errors-of-node-js-web-apis-handling-long-response-times-8fbafe46cd40) &nbsp;&nbsp;&nbsp; [**Article Two:: Link**](https://towardsdatascience.com/building-a-real-time-web-app-in-nodejs-express-with-socket-io-library-d9b50aded6e6)
+<br>
 [**Web App :: Link**](https://sg-transportation.glitch.me/) &nbsp;&nbsp;&nbsp; [**Web App :: Backup Link**](https://sg-transportation.onrender.com) 
 
 ## Features and Screenshots
@@ -26,6 +29,13 @@ Bus stops, bus services and bus routes are called via [LTA's Public API](https:/
 
 <p><strong>Exports Bus Route as JSON data (based on earlier selections)</strong></p>
 <br/><img src="https://miro.medium.com/max/1050/1*MrnOOOJPG62tror-WAPseg.png" width="800px" />
+
+<p>— <b>Join me on 📝 <b>Medium</b> at <a href='https://medium.com/@geek-cc' target='_blank'>~ ξ(🎀˶❛◡❛) @geek-cc</a></b></p>
+
+---
+
+#### 🌮 Please buy me a <a href='https://www.buymeacoffee.com/geekcc' target='_blank'>Taco</a>! 😋
+
 
 ## 📜 License
 
