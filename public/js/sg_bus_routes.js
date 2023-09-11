@@ -143,6 +143,9 @@
           let Latitude=busStopObj["Latitude"];
           let Longitude=busStopObj["Longitude"];
 
+          Latitude=parseFloat(Latitude);
+          Longitude=parseFloat(Longitude);
+
           busStops[BusStopCode]={
             "RoadName": RoadName,
             "Description": Description,
@@ -350,12 +353,16 @@
               "BusStopRoadNames": []
             };
           }
-          busRouteFeatures[BusServiceID]["Coordinates"][StopSequence]=JSON.parse(JSON.stringify(busStops[BusStopCode]["Coordinates"]));
-          busRouteFeatures[BusServiceID]["Distance"][StopSequence]=parseFloat(Distance)*1000;
+          
+          if(typeof busStops[BusStopCode] !== 'undefined') {
+            busRouteFeatures[BusServiceID]["Coordinates"][StopSequence]=JSON.parse(JSON.stringify(busStops[BusStopCode]["Coordinates"]));
+            busRouteFeatures[BusServiceID]["Distance"][StopSequence]=parseFloat(Distance)*1000;
 
-          busRouteFeatures[BusServiceID]["BusStopCodes"][StopSequence]=BusStopCode;
-          busRouteFeatures[BusServiceID]["BusStopDescriptions"][StopSequence]=busStops[BusStopCode]["Description"];
-          busRouteFeatures[BusServiceID]["BusStopRoadNames"][StopSequence]=busStops[BusStopCode]["RoadName"];
+            busRouteFeatures[BusServiceID]["BusStopCodes"][StopSequence]=BusStopCode;
+            busRouteFeatures[BusServiceID]["BusStopDescriptions"][StopSequence]=busStops[BusStopCode]["Description"];
+            busRouteFeatures[BusServiceID]["BusStopRoadNames"][StopSequence]=busStops[BusStopCode]["RoadName"];
+          }
+
         }
       }
       await new Promise((resolve, reject) => setTimeout(resolve, 150));

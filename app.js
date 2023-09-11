@@ -6,6 +6,10 @@ const ORIGIN=process.env.ORIGIN || `http://localhost:${PORT}`;
 const LTA_API_KEY_BACKUP=process.env.LTA_API_KEY_BACKUP;
 const LTA_API_KEY=process.env.LTA_API_KEY;
 const API_ENDPOINT = "http://datamall2.mytransport.sg/ltaodataservice";
+// http://datamall2.mytransport.sg/ltaodataservice/BusArrivalv2?BusStopCode=83139
+// http://datamall2.mytransport.sg/ltaodataservice/BusServices
+// http://datamall2.mytransport.sg/ltaodataservice/BusStops
+
 const PAGE_SIZE = 500; // How many records the API returns in a page.
 const LIMIT_PER_CALL=4500;
 
@@ -229,10 +233,6 @@ var redisClient;
         message: (err2 !== null && typeof err2.message !== "undefined") ? err2.message : `Error. Unable to retrieve data from datamall.lta.gov.sg ${transportation} API.`
       });
     }
-  });
-
-  router.get("/wake_up", (req, res) => {
-    res.json({"status":"app_is_awake"});
   });
 
   const app = express();
