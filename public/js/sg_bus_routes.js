@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', async() => {
       $(".leaflet-control-layers").css("max-height", `${h}px`);
     }
 
-    const mode="dev"; // prod | dev
+    const mode="prod"; // prod | dev
     const apiHeaders={
         headers: {
           "Accept": "application/json",
