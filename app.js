@@ -3,7 +3,7 @@ require("dotenv").config();
 // ================== Part #1. Most variables and constants are declared here
 const PORT = process.env.PORT || 3000;
 const ORIGIN=process.env.ORIGIN || `http://localhost:${PORT}`;
-const LTA_API_KEY_BACKUP=process.env.LTA_API_KEY_BACKUP;
+// const LTA_API_KEY_BACKUP=process.env.LTA_API_KEY_BACKUP;
 const LTA_API_KEY=process.env.LTA_API_KEY;
 const API_ENDPOINT = "http://datamall2.mytransport.sg/ltaodataservice";
 // http://datamall2.mytransport.sg/ltaodataservice/BusArrivalv2?BusStopCode=83139
