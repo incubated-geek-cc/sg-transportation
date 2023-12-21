@@ -59,18 +59,26 @@ document.addEventListener('DOMContentLoaded', async() => {
     const lng = ( northEast[1]+southWest[1] )/2; // 103.80834999999999
 
     var map = L.map("map", {
-        zoomControl: false
+        zoomControl: false,
+        attribution: false
     });
     // jOzR6tdpUGnAtK2TkJCx
     const basemapUrl="https://api.maptiler.com/maps/bright-v2/{z}/{x}/{y}.png?key=fzwCe1gVmN1XHr6rvFPG"; 
     // basemapUrl="https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png";
-    const attributionStr= "<span class='pl-1 pr-1 user-select-none'><a href='https://www.maptiler.com/copyright/' target='_blank'>© MapTiler</a> <a href='https://www.openstreetmap.org/copyright' target='_blank'>© OpenStreetMap contributors</a></span>";
 
     let basemapLayer = L.tileLayer(basemapUrl, {
-      attribution: attributionStr,
+      attribution: false,
       minZoom: minZoomVal,
       maxZoom: maxZoomVal,
       errorTileUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIAAQMAAADOtka5AAAAA1BMVEX28eS888QlAAAANklEQVR4nO3BAQEAAACCIP+vbkhAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB8G4IAAAHSeInwAAAAAElFTkSuQmCC"
+    }).addTo(map);
+
+
+
+    const attributionStr= "<span class='pl-1 pr-1 user-select-none'><a href='https://leafletjs.com' title='A JavaScript library for interactive maps' target='_blank'>Leaflet</a> <span aria-hidden='true'>|</span><span class='pl-1 pr-1 user-select-none'><a href='https://www.maptiler.com/copyright/' target='_blank'>© MapTiler</a> <a href='https://www.openstreetmap.org/copyright' target='_blank'>© OSM</a>, © <a href='https://datamall.lta.gov.sg/content/datamall/en/api-terms-of-service.html' target='_blank'>LTA Bus API</a> | <a href='https://medium.com/@geek-cc' target='_blank' class='small'><span class='symbol'>By ξ(</span><span class='emoji'>🎀</span><span class='symbol'>˶❛◡❛) ᵀᴴᴱ ᴿᴵᴮᴮᴼᴺ ᴳᴵᴿᴸ</span></a></span>";
+    const attributionControl=L.control.attribution({
+          prefix: attributionStr,
+          position: 'topright'
     }).addTo(map);
 
     var selectedRouteLayers = L.layerGroup();
