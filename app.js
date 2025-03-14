@@ -5,10 +5,13 @@ const PORT = process.env.PORT || 3000;
 const ORIGIN=process.env.ORIGIN || `http://localhost:${PORT}`;
 const LTA_API_KEY_BACKUP=process.env.LTA_API_KEY_BACKUP;
 // const LTA_API_KEY=process.env.LTA_API_KEY;
-const API_ENDPOINT = "http://datamall2.mytransport.sg/ltaodataservice";
-// http://datamall2.mytransport.sg/ltaodataservice/BusArrivalv2?BusStopCode=83139
-// http://datamall2.mytransport.sg/ltaodataservice/BusServices
-// http://datamall2.mytransport.sg/ltaodataservice/BusStops
+const API_ENDPOINT = "https://datamall2.mytransport.sg/ltaodataservice";
+// https://datamall2.mytransport.sg/ltaodataservice/BusStops
+// https://datamall2.mytransport.sg/ltaodataservice/v3/BusArrival
+// https://datamall2.mytransport.sg/ltaodataservice
+// https://datamall2.mytransport.sg/ltaodataservice/v3/BusArrival?BusStopCode=83139
+// https://datamall2.mytransport.sg/ltaodataservice/BusServices
+// https://datamall2.mytransport.sg/ltaodataservice/BusStops
 
 const PAGE_SIZE = 500; // How many records the API returns in a page.
 const LIMIT_PER_CALL=4500;
@@ -30,38 +33,126 @@ router.use((req, res, next) => { // router middleware
   next();
 });
 
-
 // ========== Part #2. A redis client is instantiated here to fetch all of its non-expired cached information 
 // ========== This includes Bus services, Bus Routes, Bus Stops & Bus ETAs for pre-load rendering 
 // ========== and mitigate excessive load time for the web app on start
 const redis = require("redis");
-const url = require("url");
-const redis_username=process.env.REDIS_USERNAME;
-const redis_password=process.env.REDIS_PASSWORD;
-const redis_endpoint_uri=process.env.REDIS_ENDPOINT_URI;
-const redis_db=process.env.REDIS_DB;
-const redisStr=`redis://${redis_username}:${redis_password}@${redis_endpoint_uri}/${redis_db}`;
-const redisURL = url.parse(redisStr);
+var redis_api_host=process.env.REDIS_API_HOST;
 
-const connectedRedisClient = (redisClient) => new Promise((resolve, reject) => {
-    redisClient.on("connect", () => resolve(redisClient));
-    redisClient.on("error", (err) => reject(err));
+var redis_user_name=process.env.REDIS_USER_NAME;
+var redis_account_key=process.env.REDIS_ACCOUNT_KEY;
+var redis_secret_key=process.env.REDIS_SECRET_KEY;
+
+const redis_username=process.env.REDIS_DEFAULT_USERNAME;
+const redis_password=process.env.REDIS_DEFAULT_PASSWORD;
+
+const redis_host=process.env.REDIS_HOST;
+const redis_port=process.env.REDIS_PORT;
+const redis_endpoint_url=process.env.REDIS_ENDPOINT_URL;
+const redis_db=process.env.REDIS_DB;
+
+const authHeaders={ 
+  url: `https://${redis_api_host}/logs`,
+  method: 'GET',
+  headers: {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+    "x-api-key": redis_account_key,
+    "x-api-secret-key": redis_secret_key
+  }
+};
+
+// function getAsyncRequest() {
+//   return new Promise(resolve => {
+//     request(authHeaders, (_err, _res, _body) => {
+//       // console.log('_err',_err);
+//       // console.log('_res',_res);
+//       let result=_body;
+//       resolve(result);
+//     });
+//   });
+// }
+// async function getReditAPIData() {
+//   let results=await getAsyncRequest();
+//   return results;
+// }
+// url: 'redis://alice:foobared@awesome.redis.server:6380'
+// [
+//   'redisURL',
+//   Url {
+//     protocol: 'redis:',
+//     slashes: true,
+//     auth: 'incubated.geek.woman@gmail.com:S3z7inpt9ouxcfn1q4i5wuh3ycwtpqavkanc3uua0y93dgz7ql3',
+//     host: 'redis-13866.c334.asia-southeast2-1.gce.redns.redis-cloud.com:13866',
+//     port: '13866',
+//     hostname: 'redis-13866.c334.asia-southeast2-1.gce.redns.redis-cloud.com',
+//     hash: null,
+//     search: null,
+//     query: null,
+//     pathname: '/sg-transportation',
+//     path: '/sg-transportation',
+//     href: 'redis://incubated.geek.woman%40gmail.com:S3z7inpt9ouxcfn1q4i5wuh3ycwtpqavkanc3uua0y93dgz7ql3@redis-13866.c334.asia-southeast2-1.gce.redns.redis-cloud.com:13866/sg-transportation'
+//   }
+// ]
+
+// var redisClient;
+
+var connectedClient;
+const connectedRedisClient = (connectedClient) => new Promise((resolve, reject) => {
+    connectedClient.on("connect", () => resolve(connectedClient));
+    connectedClient.on("error", (err) => reject(err));
 });
 
-var redisClient;
-
 (async()=> {
-  const redisClientInstance = redis.createClient(redisURL.port, redisURL.hostname, {no_ready_check: true});
-  redisClientInstance.auth(redisURL.auth.split(":")[1]);
+  // var reditAPIResultset=await getReditAPIData();
+  // console.log(['reditAPIResultset',reditAPIResultset]);
 
-  try {
-    redisClient = await connectedRedisClient(redisClientInstance);
-    console.log("Successfully connected to Redis instance.");
-  } catch(err) {
-    console.log(err);
-    console.log("Failed to connect to Redis instance.");
-  }
- 
+  console.log(["---result---"]);
+  const client = redis.createClient({
+    url: `redis://${redis_username}:${redis_password}@${redis_endpoint_url}/${redis_db}`,
+    username: redis_username, // use your Redis user. More info https://redis.io/docs/latest/operate/oss_and_stack/management/security/acl/
+    password: redis_secret_key, // use your password here
+    socket: {
+        host: `redis://${redis_username}:${redis_password}@${redis_endpoint_url}`,
+        port: redis_port
+        // tls: true,
+        // key: readFileSync('./redis_user_private.key'),
+        // cert: readFileSync('./redis_user.crt'),
+        // ca: [readFileSync('./redis_ca.pem')]
+    }
+  });
+  connectedClient = await connectedRedisClient(client);
+  console.log("Redis client connected.");
+  console.log(["---result---"]);
+  // Url {
+  //   protocol: 'redis:',
+  //   slashes: true,
+  //   auth: 'incubated.geek.woman@gmail.com:CE3BvBPJKaUMttEHZWrb9UGTSxpEw6Zr',
+  //   host: 'redis-13866.c334.asia-southeast2-1.gce.redns.redis-cloud.com:13866',
+  //   port: '13866',
+  //   hostname: 'redis-13866.c334.asia-southeast2-1.gce.redns.redis-cloud.com',
+  //   hash: null,
+  //   search: null,
+  //   query: null,
+  //   pathname: '/sg-transportation',
+  //   path: '/sg-transportation',
+  //   href: 'redis://incubated.geek.woman%40gmail.com:CE3BvBPJKaUMttEHZWrb9UGTSxpEw6Zr@redis-13866.c334.asia-southeast2-1.gce.redns.redis-cloud.com:13866/sg-transportation'
+  // }
+  
+
+
+  // console.log(["==="]);
+  // const connectedClientInstance = redis.createClient(redisURL.port, redisURL.hostname, {no_ready_check: true});
+  // connectedClientInstance.auth(redisURL.auth.split(":")[1]);
+  // try {
+  //   connectedClient = await connectedRedisClient(connectedClientInstance);
+  //   console.log("Successfully connected to Redis instance.");
+  // } catch(err) {  
+  //   console.log(err);
+  //   console.log("Failed to connect to Redis instance.");
+  // }
+  // console.log(["==="]);
+
   // ====================================================================
   // ================== Part #3. All server side API calls are called via the below functions and the redis Client updatse its data
   // ================== storage with the API outputs in event the cache of its storage has expired (to fetch only up-to-date data)
@@ -108,9 +199,9 @@ var redisClient;
       let params=req.params;
       let transportation=params["transportation"];
 
-      if(typeof redisClient !== "undefined") {
+      if(typeof connectedClient !== "undefined") {
         let cacheKey=`${transportation}_hash`;
-        redisClient.get(cacheKey, (err, data) => {
+        connectedClient.get(cacheKey, (err, data) => {
           if (err) {
             console.error(err);
             throw err;
@@ -127,7 +218,7 @@ var redisClient;
                 console.log(e);
               }
               let cacheExpirySeconds=60*60*24*60;
-              redisClient.setex(cacheKey, cacheExpirySeconds, JSON.stringify(entireListing));
+              connectedClient.setex(cacheKey, cacheExpirySeconds, JSON.stringify(entireListing));
               console.log(`${cacheKey} retrieved from the API`);
 
               return res.status(200).json(entireListing);
@@ -197,9 +288,9 @@ var redisClient;
         });
       };
 
-      if(typeof redisClient !== "undefined") {
+      if(typeof connectedClient !== "undefined") {
         let cacheKey=`${transportation}_hash_${client_offset}`;
-        redisClient.get(cacheKey, (err, data) => {
+        connectedClient.get(cacheKey, (err, data) => {
           if (err) {
             console.error(err);
             throw err;
@@ -216,7 +307,7 @@ var redisClient;
                 console.log(e);
               }
               let cacheExpirySeconds=60*60*24*60;
-              redisClient.setex(cacheKey, cacheExpirySeconds, JSON.stringify(entireSubListing));
+              connectedClient.setex(cacheKey, cacheExpirySeconds, JSON.stringify(entireSubListing));
               console.log(`${cacheKey} retrieved from the API`);
 
               return res.status(200).json(entireSubListing);
@@ -304,9 +395,10 @@ var redisClient;
             clearInterval(intervalID);
             updateInterval.set(socket.id, undefined);
           }
+
           intervalID = setInterval(() => {
             request({
-                url: `${API_ENDPOINT}/BusArrivalv2?BusStopCode=${bus_stop_code}`,
+                url: `${API_ENDPOINT}/v3/BusArrival?BusStopCode=${bus_stop_code}`,
                 method: "GET",
                 json: true,
                 headers: {
