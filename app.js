@@ -3,8 +3,8 @@ require("dotenv").config();
 // ================== Part #1. Most variables and constants are declared here
 const PORT = process.env.PORT || 3000;
 const ORIGIN=process.env.ORIGIN || `http://localhost:${PORT}`;
-const LTA_API_KEY_BACKUP=process.env.LTA_API_KEY_BACKUP;
-// const LTA_API_KEY=process.env.LTA_API_KEY;
+// const LTA_API_KEY_BACKUP=process.env.LTA_API_KEY_BACKUP;
+const LTA_API_KEY=process.env.LTA_API_KEY;
 const API_ENDPOINT = "https://datamall2.mytransport.sg/ltaodataservice";
 // https://datamall2.mytransport.sg/ltaodataservice/BusStops
 // https://datamall2.mytransport.sg/ltaodataservice/v3/BusArrival
@@ -173,7 +173,7 @@ const connectedRedisClient = (connectedClient) => new Promise((resolve, reject) 
       method: "GET",
       json: true,
       headers: {
-        "AccountKey" : LTA_API_KEY_BACKUP,
+        "AccountKey" : LTA_API_KEY,
         "accept" : "application/json"
       }
     };
@@ -261,7 +261,7 @@ const connectedRedisClient = (connectedClient) => new Promise((resolve, reject) 
           method: "GET",
           json: true,
           headers: {
-            "AccountKey" : LTA_API_KEY_BACKUP,
+            "AccountKey" : LTA_API_KEY,
             "accept" : "application/json"
           }
         };
@@ -402,7 +402,7 @@ const connectedRedisClient = (connectedClient) => new Promise((resolve, reject) 
                 method: "GET",
                 json: true,
                 headers: {
-                  "AccountKey" : LTA_API_KEY_BACKUP,
+                  "AccountKey" : LTA_API_KEY,
                   "accept" : "application/json"
                 }
             }, (err, res, body) => {
