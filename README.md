@@ -19,7 +19,7 @@ Bus stops, bus services and bus routes are called via [LTA's Public API](https:/
 <br>
 ✍️ [**Article Two:: Link :: Building a real-time web app in NodeJS Express with Socket.io library**](https://towardsdatascience.com/building-a-real-time-web-app-in-nodejs-express-with-socket-io-library-d9b50aded6e6)
 <br><br>
-[**Web App :: Link**](https://sg-transportation.glitch.me/) &nbsp;&nbsp;&nbsp; [**Web App :: Backup Link**](https://sg-transportation.onrender.com) 
+<s>[**Web App :: Link**](https://sg-transportation.glitch.me/)</s> <mark>(Note: As of 2025, all Glith sites have been sunset)</mark> &nbsp;&nbsp;&nbsp; [**Web App :: Backup Link**](https://sg-transportation.onrender.com) 
 
 ## Features and Screenshots
 
